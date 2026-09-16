@@ -1,5 +1,5 @@
 /* =========================================================
-   AARHUS SURVIVORS — birthday roguelike pub crawl
+   AARHUS SURVIVORS — roguelike pub crawl
    Single-file, no backend. Each phone runs its own private run —
    there is no sharing or comparing between phones, by design.
    ========================================================= */
@@ -31,7 +31,7 @@ const T = {
 };
 const TILES = [
   { n:'SKOLEGADE GATE', t:T.START, icon:'⭐', venue:'Skolegade — the dive-bar spine of Aarhus.',
-    body:'The prophecy begins. Everyone raises a glass to the birthday boy, patron saint of tonight. Pass here again and the whole squad toasts like it\'s a coronation.', xp:5 },
+    body:'The prophecy begins. Everyone raises a glass. The night begins. Pass here again and the whole squad toasts like it\'s a coronation.', xp:5 },
 
   { n:'FIRST BEER', t:T.BEER, icon:'🍺', venue:'Væskebalancen, Jægergårdsgade — proper neighbourhood bar.',
     body:'Order a beer you have never had before. This is officially "research." No repeats all night — you\'re building a legacy, not a rut.', xp:15, drink:1 },
@@ -43,7 +43,7 @@ const TILES = [
     body:'One pint of Guinness. One gulp. Land the foam line exactly on the G in GUINNESS, as the ancient Irish gods intended.\n\nPERFECT SPLIT = legend status, statue optional.\nCLOSE = respect, no statue.\nMISS = forfeit, and the Guinness gods remember your name.', xp:60, drink:1, gamble:true },
 
   { n:'SHOT ROULETTE', t:T.SHOT, icon:'🥃', venue:'Bartender picks. You do not.',
-    body:'Everyone points at someone, democracy at its finest. Most-pointed picks the shot for the whole table, sight unseen. Birthday boy is immune once, because it\'s literally his day.', xp:20, drink:1 },
+    body:'Everyone points at someone, democracy at its finest. Most-pointed picks the shot for the whole table, sight unseen.', xp:20, drink:1 },
 
   { n:'FOOSBALL DUEL', t:T.BOSS, icon:'⚽', venue:'Kælderbar — pool & darts in the middle of town.',
     body:'BOSS FIGHT. 1v1 to 5 goals. Spinning the rods is allowed, morally correct, and quietly the whole point.\n\nWIN: big XP and a career highlight reel.\nLOSE: forfeit and a strategic, dignified retreat to Skolegade.', xp:55, gamble:true },
@@ -112,13 +112,13 @@ const TILES = [
     body:'Walk the canal like conquering heroes surveying newly won territory. Everyone must compliment one stranger, genuinely — spread the chaos of kindness, no weirdness.', xp:25 },
 
   { n:'DANCE FLOOR', t:T.PHYS, icon:'🕺', venue:'Wherever the music is loudest at this hour.',
-    body:'One full song, all four of you, no phones, no irony, full commitment to whatever this dance is supposed to be. Birthday boy picks the song, obviously.', xp:35 },
+    body:'One full song, all four of you, no phones, no irony, full commitment to whatever this dance is supposed to be. Squad votes on the song.', xp:35 },
 
   { n:'PHOTO MISSION', t:T.SOCIAL, icon:'📸', venue:'',
     body:'Recreate a photo from a night out years ago. Same poses, same energy, twice the regret. Post it in the group chat as historical documentation.', xp:30 },
 
   { n:'LAST ORDERS', t:T.SOCIAL, icon:'🔔', venue:'',
-    body:'Everyone says one honest nice thing about the birthday boy, like a very small, very drunk eulogy for a man who is still alive. Then a final round.\n\nThen: kebab, taxi, bed. In that sacred order.', xp:40, drink:1 },
+    body:'Everyone says one honest nice thing about the person to their left. Then a final round.\n\nThen: kebab, taxi, bed. In that sacred order.', xp:40, drink:1 },
 
   { n:'ORDER WATER', t:T.BADLUCK, icon:'💧', venue:'',
     body:'BAD LUCK... but make it hydration. The reels have decided you deserve a glass of water, and honestly, fair. Drink the whole thing before your next real drink.', xp:10, heal:20 },
@@ -159,7 +159,7 @@ const WHEEL = [
   { n:'EVERYONE DRINKS',   c:'#ff3ea5', d:'All four of you. Right now. No negotiation.', xp:15, drink:1 },
   { n:'SPLIT THE G',       c:'#6ee36e', d:'Nearest Guinness. Whoever splits it closest is immune to the next forfeit.', xp:25, drink:1 },
   { n:'SWAP JACKETS',      c:'#38f2e0', d:'Swap outer layers with the person to your left. Keep them until the next Wheel.', xp:15 },
-  { n:'NEW NICKNAME',      c:'#ffd24a', d:'The birthday boy gives you a nickname. It is legally binding for the rest of the night.', xp:15 },
+  { n:'NEW NICKNAME',      c:'#ffd24a', d:'The squad votes you a nickname. It is legally binding for the rest of the night.', xp:15 },
   { n:'DANSK KUN',         c:'#a45cff', d:'Danish only for 10 minutes. English costs you a street beer.', xp:20 },
   { n:'STREET BEER',       c:'#ff9d3d', d:'Beer to go. Walk somewhere new. Bin it properly.', xp:15, drink:1 },
   { n:'BABY GUINNESS',     c:'#e8e4ff', d:'A round of Baby Guinness. Small. Perfect. Devastating.', xp:20, drink:1 },
@@ -219,10 +219,10 @@ const MISSIONS = [
   { n:'THE COUNTERFEIT WORD', d:'Pick a totally made-up word right now (something dumb, like "grimbleton"). Slip it into conversation once yourself, then get 2 others to say it back later — unprompted, as if it\'s a real word.', xp:90 },
   { n:'THE NAVIGATOR', d:'Silently pick a specific venue in your head right now. Get the squad to end up there next WITHOUT you naming it out loud first — someone else has to suggest it.', xp:95 },
   { n:'SKÅL SIMON SAYS', d:'Secretly start a 10-minute timer. Get all 3 others to individually say "skål" before it runs out — without ever calling a group toast yourself.', xp:100 },
-  { n:'THE FALSE COMPLIMENT', d:'Pick one specific, slightly absurd compliment right now (e.g. "incredible taste in shoes"). Get 2 different people to say that exact compliment to the birthday boy tonight.', xp:85 },
+  { n:'THE FALSE COMPLIMENT', d:'Pick one specific, slightly absurd compliment right now (e.g. "incredible taste in shoes"). Get 2 different people to say that exact compliment to one specific squad member tonight.', xp:85 },
   { n:'MATCHING ORDERS', d:'Order a specific drink. Without telling anyone what it is, get all 3 others to independently order that exact same drink at some point tonight.', xp:95 },
   { n:'THE FAKE EXCUSE', d:'Invent one specific fake reason right now (e.g. "that place looked closed") to skip a venue that was actually on the plan — and get the squad to actually skip it because of your excuse.', xp:85 },
-  { n:'THE PLANTED LIE', d:'Tell the squad one small, harmless, made-up "fact" about Aarhus or the birthday boy right now. Catch at least one of them repeating it to someone else later as if it\'s true.', xp:95 },
+  { n:'THE PLANTED LIE', d:'Tell the squad one small, harmless, made-up "fact" about the city or one of them right now. Catch at least one of them repeating it to someone else later as if it\'s true.', xp:95 },
   { n:'THE RELUCTANT ROUND', d:'Without asking directly or offering to pay yourself, get one specific person you pick right now to be the one who buys the next full round.', xp:80 },
   { n:'ONE MORE FOR THE ROAD', d:'At the exact moment someone says "I think I\'m done," get the squad to do one more challenge or drink anyway — reverse the room without arguing about it.', xp:85 }
 ];
@@ -909,11 +909,6 @@ function drawArena(){
   }
   ctx.restore();
 
-  const el = document.getElementById('timeLabel');
-  if(el){
-    const secs = Math.floor((Date.now()-S.startTime)/1000);
-    el.textContent = String(Math.floor(secs/60)).padStart(2,'0')+':'+String(secs%60).padStart(2,'0');
-  }
 }
 function floatText(txt, color){
   floaters.push({ x:180 + (Math.random()*60-30), y:60, txt, color, life:60 });
@@ -942,6 +937,10 @@ function go(screen){
   if(screen==='char') buildCharGrid();
   if(screen==='squad'){ renderBackup(); }
   if(screen==='log') renderLog();
+  if(screen==='game'){
+    if(S.currentTile && !S.resolved) showChallengeInline();
+    else hideChallengeInline();
+  }
   if(screen==='bag') renderBag();
   window.scrollTo(0,0);
 }
@@ -1275,11 +1274,11 @@ function acceptSlotResult(){
     toast('ANOTHER LAP OF AARHUS — SQUAD TOAST!'); addLog('Another lap of Aarhus — squad toast');
   }
   save();
-  openChallengeCard();
+  showChallengeInline();
 }
 
 /* ---------- tile cards ---------- */
-function reopenTile(){ if(S.currentTile) openChallengeCard(true); else toast('PULL THE LEVER FIRST'); }
+function reopenTile(){ toggleChallengeExpand(); }
 
 function openChallengeCard(reopen){
   const t = S.currentTile; if(!t) return;
@@ -1341,7 +1340,7 @@ function resolveTile(won){
   if(S.resolved) return;
   S.resolved = true;
   const t = S.currentTile;
-  closeCard();
+  hideChallengeInline(); closeCard();
   if(won){
     applyWin(t);
   } else {
@@ -1504,6 +1503,66 @@ function showWheelResult(w){
 function jesterRespin(){ S.respin--; save(); openWheel(); }
 
 /* ---------- generic card renderer ---------- */
+/* ---------- inline challenge card ---------- */
+function showChallengeInline(){
+  const t = S.currentTile; if(!t) return;
+  const slotWrap = document.getElementById('slotWrap');
+  const btnSpin  = document.getElementById('btnSpin');
+  const card     = document.getElementById('challengeInline');
+  if(slotWrap) slotWrap.classList.add('hide');
+  if(btnSpin)  btnSpin.classList.add('hide');
+
+  document.getElementById('ciIcon').textContent = t.icon + ' ';
+  document.getElementById('ciName').textContent = t.n;
+  document.getElementById('ciBody').innerHTML   = escapeHtml(t.body).replace(/\n/g,'<br>');
+
+  const canAutoWin = !S.resolved && S.autoWinNext && t.t!==T.MERCY && t.t!==T.MOVE && t.t!==T.BADLUCK;
+  let btns = '';
+  if(S.resolved){
+    btns = `<button class="btn ghost" onclick="hideChallengeInline()">◀ ALREADY RESOLVED</button>`;
+  } else if(canAutoWin){
+    btns = `<button class="btn purple" onclick="useAutoWin()">🪪 AUTO-WIN WITH FAKE ID</button>`;
+  } else if(t.t===T.MERCY || t.t===T.MOVE || t.t===T.BADLUCK){
+    btns = `<button class="btn green" onclick="resolveTile(true)">✓ DONE</button>`;
+  } else if(t.gamble){
+    btns = `<button class="btn green" onclick="resolveTile(true)">🏆 WON IT</button>
+            <button class="btn red" onclick="resolveTile(false)">💀 LOST — FORFEIT</button>`;
+  } else {
+    btns = `<button class="btn green" onclick="resolveTile(true)">✓ DONE</button>
+            <button class="btn red" onclick="resolveTile(false)">✗ FAILED</button>
+            <button class="btn ghost sm" onclick="resolveTile(false)">🐔 CHICKENED OUT</button>`;
+  }
+  document.getElementById('ciButtons').innerHTML = btns;
+
+  // auto-expand if already resolved (read-only reopen)
+  const exp = document.getElementById('ciExpanded');
+  if(S.resolved) exp.classList.remove('hide');
+  else           exp.classList.add('hide');
+
+  const hint = document.getElementById('ciTapHint');
+  if(hint) hint.textContent = S.resolved ? '(RESOLVED)' : 'TAP TO RESOLVE ▼';
+
+  if(card) card.classList.remove('hide');
+}
+function hideChallengeInline(){
+  const slotWrap = document.getElementById('slotWrap');
+  const btnSpin  = document.getElementById('btnSpin');
+  const card     = document.getElementById('challengeInline');
+  if(slotWrap) slotWrap.classList.remove('hide');
+  if(btnSpin)  btnSpin.classList.remove('hide');
+  if(card)     card.classList.add('hide');
+  const exp = document.getElementById('ciExpanded');
+  if(exp) exp.classList.add('hide');
+}
+function toggleChallengeExpand(){
+  if(S.resolved) return; // already-resolved card auto-expands, no toggle
+  const exp = document.getElementById('ciExpanded');
+  if(!exp) return;
+  exp.classList.toggle('hide');
+  const hint = document.getElementById('ciTapHint');
+  if(hint) hint.textContent = exp.classList.contains('hide') ? 'TAP TO RESOLVE ▼' : 'TAP TO COLLAPSE ▲';
+}
+
 function showCard(o){
   closeCard();
   const ov = document.createElement('div');
@@ -1818,7 +1877,7 @@ function openRules(){
       · <b>2 rerolls</b> each — spend one on a spin you don't like, no penalty.<br>
       · Mercy tiles (💧 water, 🥙 kebab) are worth big XP on purpose.<br>
       · Got a beer that isn't part of any outcome? Hit <b>LOG A BEER</b> on the Game tab — still counts, still gives XP.<br><br>
-      <b class="gold">★ It's his birthday. Make it a good one. ★</b>
+
     </div>`,
     buttons:`<button class="btn primary" onclick="closeCard()">✓ GOT IT</button>`
   });

@@ -244,6 +244,54 @@ textarea{
   font-family:inherit;font-size:8px;padding:8px;outline:none;resize:none;line-height:1.7;
 }
 .divider{height:3px;background:repeating-linear-gradient(90deg,#6b4a26 0 6px,transparent 6px 12px);margin:12px 0;}
+
+/* ── Inline challenge card ────────────────────────────────── */
+#challengeInline {
+  background: var(--panel);
+  border: 2px solid var(--gold);
+  border-radius: 8px;
+  margin: 10px 0 4px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+#challengeInline:active { opacity: 0.85; }
+.ci-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 14px 11px;
+}
+.ci-icon-name {
+  flex: 1;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  font-size: 15px;
+  color: var(--gold);
+  letter-spacing: 0.4px;
+}
+.ci-tap-hint {
+  font-size: 10px;
+  color: var(--dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+.ci-expanded {
+  border-top: 1px solid var(--panel2);
+  padding: 12px 14px 14px;
+}
+.ci-body {
+  font-size: 13px;
+  color: var(--ink);
+  line-height: 1.55;
+  margin-bottom: 12px;
+}
+.ci-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
 </style>
 </head>
 <body>
@@ -322,10 +370,19 @@ textarea{
     </div>
 
     <button class="btn primary" id="btnSpin" onclick="spinSlot()">🎰 PULL THE LEVER</button>
-    <div class="grid2">
-      <button class="btn gold sm" onclick="reopenTile()">🎯 MY CHALLENGE</button>
-      <button class="btn green sm" onclick="logBeer()">🍺 LOG A BEER</button>
+
+    <div id="challengeInline" class="hide" onclick="toggleChallengeExpand()">
+      <div class="ci-header">
+        <div class="ci-icon-name"><span id="ciIcon"></span><span id="ciName"></span></div>
+        <span class="ci-tap-hint" id="ciTapHint">TAP TO RESOLVE ▼</span>
+      </div>
+      <div id="ciExpanded" class="ci-expanded hide">
+        <div id="ciBody" class="ci-body"></div>
+        <div id="ciButtons" class="ci-buttons" onclick="event.stopPropagation()"></div>
+      </div>
     </div>
+
+    <button class="btn green sm" style="margin-top:8px" onclick="logBeer()">🍺 LOG A BEER</button>
   </section>
 
   <!-- ============ SAVE / BACKUP ============ -->
@@ -1348,6 +1405,10 @@ function go(screen){
   if(screen==='char') buildCharGrid();
   if(screen==='squad'){ renderBackup(); }
   if(screen==='log') renderLog();
+  if(screen==='game'){
+    if(S.currentTile && !S.resolved) showChallengeInline();
+    else hideChallengeInline();
+  }
   if(screen==='bag') renderBag();
   window.scrollTo(0,0);
 }
@@ -1681,11 +1742,11 @@ function acceptSlotResult(){
     toast('ANOTHER LAP OF AARHUS — SQUAD TOAST!'); addLog('Another lap of Aarhus — squad toast');
   }
   save();
-  openChallengeCard();
+  showChallengeInline();
 }
 
 /* ---------- tile cards ---------- */
-function reopenTile(){ if(S.currentTile) openChallengeCard(true); else toast('PULL THE LEVER FIRST'); }
+function reopenTile(){ toggleChallengeExpand(); }
 
 function openChallengeCard(reopen){
   const t = S.currentTile; if(!t) return;
@@ -1747,7 +1808,7 @@ function resolveTile(won){
   if(S.resolved) return;
   S.resolved = true;
   const t = S.currentTile;
-  closeCard();
+  hideChallengeInline(); closeCard();
   if(won){
     applyWin(t);
   } else {
@@ -1910,6 +1971,66 @@ function showWheelResult(w){
 function jesterRespin(){ S.respin--; save(); openWheel(); }
 
 /* ---------- generic card renderer ---------- */
+/* ---------- inline challenge card ---------- */
+function showChallengeInline(){
+  const t = S.currentTile; if(!t) return;
+  const slotWrap = document.getElementById('slotWrap');
+  const btnSpin  = document.getElementById('btnSpin');
+  const card     = document.getElementById('challengeInline');
+  if(slotWrap) slotWrap.classList.add('hide');
+  if(btnSpin)  btnSpin.classList.add('hide');
+
+  document.getElementById('ciIcon').textContent = t.icon + ' ';
+  document.getElementById('ciName').textContent = t.n;
+  document.getElementById('ciBody').innerHTML   = escapeHtml(t.body).replace(/\n/g,'<br>');
+
+  const canAutoWin = !S.resolved && S.autoWinNext && t.t!==T.MERCY && t.t!==T.MOVE && t.t!==T.BADLUCK;
+  let btns = '';
+  if(S.resolved){
+    btns = `<button class="btn ghost" onclick="hideChallengeInline()">◀ ALREADY RESOLVED</button>`;
+  } else if(canAutoWin){
+    btns = `<button class="btn purple" onclick="useAutoWin()">🪪 AUTO-WIN WITH FAKE ID</button>`;
+  } else if(t.t===T.MERCY || t.t===T.MOVE || t.t===T.BADLUCK){
+    btns = `<button class="btn green" onclick="resolveTile(true)">✓ DONE</button>`;
+  } else if(t.gamble){
+    btns = `<button class="btn green" onclick="resolveTile(true)">🏆 WON IT</button>
+            <button class="btn red" onclick="resolveTile(false)">💀 LOST — FORFEIT</button>`;
+  } else {
+    btns = `<button class="btn green" onclick="resolveTile(true)">✓ DONE</button>
+            <button class="btn red" onclick="resolveTile(false)">✗ FAILED</button>
+            <button class="btn ghost sm" onclick="resolveTile(false)">🐔 CHICKENED OUT</button>`;
+  }
+  document.getElementById('ciButtons').innerHTML = btns;
+
+  // auto-expand if already resolved (read-only reopen)
+  const exp = document.getElementById('ciExpanded');
+  if(S.resolved) exp.classList.remove('hide');
+  else           exp.classList.add('hide');
+
+  const hint = document.getElementById('ciTapHint');
+  if(hint) hint.textContent = S.resolved ? '(RESOLVED)' : 'TAP TO RESOLVE ▼';
+
+  if(card) card.classList.remove('hide');
+}
+function hideChallengeInline(){
+  const slotWrap = document.getElementById('slotWrap');
+  const btnSpin  = document.getElementById('btnSpin');
+  const card     = document.getElementById('challengeInline');
+  if(slotWrap) slotWrap.classList.remove('hide');
+  if(btnSpin)  btnSpin.classList.remove('hide');
+  if(card)     card.classList.add('hide');
+  const exp = document.getElementById('ciExpanded');
+  if(exp) exp.classList.add('hide');
+}
+function toggleChallengeExpand(){
+  if(S.resolved) return; // already-resolved card auto-expands, no toggle
+  const exp = document.getElementById('ciExpanded');
+  if(!exp) return;
+  exp.classList.toggle('hide');
+  const hint = document.getElementById('ciTapHint');
+  if(hint) hint.textContent = exp.classList.contains('hide') ? 'TAP TO RESOLVE ▼' : 'TAP TO COLLAPSE ▲';
+}
+
 function showCard(o){
   closeCard();
   const ov = document.createElement('div');
@@ -2224,6 +2345,7 @@ function openRules(){
       · <b>2 rerolls</b> each — spend one on a spin you don't like, no penalty.<br>
       · Mercy tiles (💧 water, 🥙 kebab) are worth big XP on purpose.<br>
       · Got a beer that isn't part of any outcome? Hit <b>LOG A BEER</b> on the Game tab — still counts, still gives XP.<br><br>
+
     </div>`,
     buttons:`<button class="btn primary" onclick="closeCard()">✓ GOT IT</button>`
   });

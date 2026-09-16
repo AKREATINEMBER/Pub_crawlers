@@ -120,7 +120,7 @@ input[type=text]::placeholder{color:#4a4080;}
 #arenaWrap{position:relative;border:3px solid #6b4a26;box-shadow:0 0 0 3px #170f08, inset 0 0 30px rgba(217,126,43,.18);background:#0f0904;overflow:hidden;}
 #arena{width:100%;height:auto;}
 #arenaLabel{position:absolute;top:4px;left:6px;font-size:7px;color:var(--dim);}
-#timeLabel{position:absolute;top:4px;right:6px;font-size:9px;color:var(--gold);}
+
 #brewRateLabel{position:absolute;bottom:4px;right:6px;font-size:8px;color:#e8b23a;}
 .brewDash{margin-top:6px;border-color:#5a4a1e;}
 .crawlHeader{margin-top:14px;border-color:#3d2f6e;}
@@ -232,3 +232,51 @@ textarea{
   font-family:inherit;font-size:8px;padding:8px;outline:none;resize:none;line-height:1.7;
 }
 .divider{height:3px;background:repeating-linear-gradient(90deg,#6b4a26 0 6px,transparent 6px 12px);margin:12px 0;}
+
+/* ── Inline challenge card ────────────────────────────────── */
+#challengeInline {
+  background: var(--panel);
+  border: 2px solid var(--gold);
+  border-radius: 8px;
+  margin: 10px 0 4px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+#challengeInline:active { opacity: 0.85; }
+.ci-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 14px 11px;
+}
+.ci-icon-name {
+  flex: 1;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  font-size: 15px;
+  color: var(--gold);
+  letter-spacing: 0.4px;
+}
+.ci-tap-hint {
+  font-size: 10px;
+  color: var(--dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+.ci-expanded {
+  border-top: 1px solid var(--panel2);
+  padding: 12px 14px 14px;
+}
+.ci-body {
+  font-size: 13px;
+  color: var(--ink);
+  line-height: 1.55;
+  margin-bottom: 12px;
+}
+.ci-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}

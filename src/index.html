@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>AARHUS SURVIVORS</title>
-<meta name="description" content="A birthday roguelike pub crawl through Aarhus. One file. No internet needed.">
+<meta name="description" content="A roguelike pub crawl. One file. No internet needed.">
 <meta name="theme-color" content="#170f08">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -18,11 +18,10 @@
   <!-- ============ BOOT ============ -->
   <section id="screen-boot">
     <div class="logo">AARHUS<br>SURVIVORS</div>
-    <div class="sub">A BIRTHDAY ROGUELIKE PUB CRAWL</div>
+    <div class="sub">A ROGUELIKE PUB CRAWL</div>
     <div style="margin:18px auto;width:78px;"><canvas id="bootSprite" width="78" height="78"></canvas></div>
     <div class="panel tight">
-      <p class="small center" style="color:var(--gold)">★ FOR THE BIRTHDAY BOY ★</p>
-      <p class="small center">BORN AUG 17 &nbsp;·&nbsp; CELEBRATED TONIGHT<br>AARHUS, DENMARK &nbsp;·&nbsp; 4 SURVIVORS</p>
+
     </div>
     <button class="btn primary blink" onclick="go('char')">▶ PRESS START</button>
     <button class="btn ghost sm" onclick="openRules()">HOW TO PLAY</button>
@@ -47,7 +46,7 @@
       <canvas id="arena" width="360" height="150"></canvas>
       <div id="arenaLabel">AARHUS · NIGHT 1</div>
       <div id="brewRateLabel">🍺 0.0/min</div>
-      <div id="timeLabel">00:00</div>
+
     </div>
     <div class="panel tight brewDash">
       <div class="hudRow">
@@ -88,10 +87,19 @@
     </div>
 
     <button class="btn primary" id="btnSpin" onclick="spinSlot()">🎰 PULL THE LEVER</button>
-    <div class="grid2">
-      <button class="btn gold sm" onclick="reopenTile()">🎯 MY CHALLENGE</button>
-      <button class="btn green sm" onclick="logBeer()">🍺 LOG A BEER</button>
+
+    <div id="challengeInline" class="hide" onclick="toggleChallengeExpand()">
+      <div class="ci-header">
+        <div class="ci-icon-name"><span id="ciIcon"></span><span id="ciName"></span></div>
+        <span class="ci-tap-hint" id="ciTapHint">TAP TO RESOLVE ▼</span>
+      </div>
+      <div id="ciExpanded" class="ci-expanded hide">
+        <div id="ciBody" class="ci-body"></div>
+        <div id="ciButtons" class="ci-buttons" onclick="event.stopPropagation()"></div>
+      </div>
     </div>
+
+    <button class="btn green sm" style="margin-top:8px" onclick="logBeer()">🍺 LOG A BEER</button>
   </section>
 
   <!-- ============ SAVE / BACKUP ============ -->
