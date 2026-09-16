@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>AARHUS SURVIVORS</title>
+<meta name="description" content="A birthday roguelike pub crawl through Aarhus. One file. No internet needed.">
+<meta name="theme-color" content="#170f08">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<!-- Zero external dependencies. No fonts, no scripts, no network. Works on airplane mode. -->
+<link rel="stylesheet" href="aarhus-survivors.css">
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ============ BOOT ============ -->
+  <section id="screen-boot">
+    <div class="logo">AARHUS<br>SURVIVORS</div>
+    <div class="sub">A BIRTHDAY ROGUELIKE PUB CRAWL</div>
+    <div style="margin:18px auto;width:78px;"><canvas id="bootSprite" width="78" height="78"></canvas></div>
+    <div class="panel tight">
+      <p class="small center" style="color:var(--gold)">★ FOR THE BIRTHDAY BOY ★</p>
+      <p class="small center">BORN AUG 17 &nbsp;·&nbsp; CELEBRATED TONIGHT<br>AARHUS, DENMARK &nbsp;·&nbsp; 4 SURVIVORS</p>
+    </div>
+    <button class="btn primary blink" onclick="go('char')">▶ PRESS START</button>
+    <button class="btn ghost sm" onclick="openRules()">HOW TO PLAY</button>
+    <p class="small center" style="margin-top:14px">v1.2 · one file · no wifi needed<br>everyone plays their own run on their own phone</p>
+  </section>
+
+  <!-- ============ CHARACTER SELECT ============ -->
+  <section id="screen-char" class="hide">
+    <h1>CHOOSE YOUR<br>SURVIVOR</h1>
+    <div class="charGrid" id="charGrid"></div>
+    <div class="panel tight" style="margin-top:10px">
+      <p class="small">ENTER YOUR NAME</p>
+      <input type="text" id="playerName" maxlength="10" placeholder="TYPE HERE" autocomplete="off">
+    </div>
+    <button class="btn gold" onclick="startRun()">▶ ENTER AARHUS</button>
+    <button class="btn ghost sm" onclick="go('boot')">◀ BACK</button>
+  </section>
+
+  <!-- ============ GAME ============ -->
+  <section id="screen-game" class="hide">
+    <div id="arenaWrap">
+      <canvas id="arena" width="360" height="150"></canvas>
+      <div id="arenaLabel">AARHUS · NIGHT 1</div>
+      <div id="brewRateLabel">🍺 0.0/min</div>
+      <div id="timeLabel">00:00</div>
+    </div>
+    <div class="panel tight brewDash">
+      <div class="hudRow">
+        <span class="gold" id="brewTierName">THE SHACK</span>
+        <span class="cyan" id="brewLifetime">🍺 0 BREWED</span>
+      </div>
+      <p class="small dim" style="margin:4px 0 0">This is your brewery. Everything below just feeds it.</p>
+    </div>
+
+    <div class="panel tight" style="margin-top:10px">
+      <div class="hudRow">
+        <span id="hudName" class="gold">—</span>
+        <span id="hudLevel" class="cyan">LV 1</span>
+      </div>
+      <p id="hudTitle" class="small dim" style="margin:0 0 6px;line-height:1.7"></p>
+      <div class="bar xp"><i id="xpFill"></i><span id="xpTxt">0 / 30 XP</span></div>
+      <div class="statPills">
+        <div class="pill">🍺 <span id="stDrinks" class="gold">0</span></div>
+        <div class="pill">💀 <span id="stFails" class="red">0</span></div>
+        <div class="pill">🏆 <span id="stWins" class="green">0</span></div>
+        <div class="pill">🔁 <span id="stSkips" class="cyan">2</span></div>
+        <div class="pill">🪙 <span id="stCoins" class="gold">0</span></div>
+      </div>
+    </div>
+
+    <div class="panel tight crawlHeader">
+      <h2 style="margin:0">🍻 HIT THE TOWN</h2>
+      <p class="small dim" style="margin:4px 0 0">Pull the lever — every outcome is more coin and XP for the brewery above. No dice, no board, just the reels.</p>
+    </div>
+
+    <div id="slotWrap">
+      <div id="slotReels">
+        <div class="reel" id="reel0"><span class="reelIcon">🍺</span></div>
+        <div class="reel" id="reel1"><span class="reelIcon">🍺</span></div>
+        <div class="reel" id="reel2"><span class="reelIcon">🍺</span></div>
+      </div>
+      <div id="slotResultLabel">PULL THE LEVER</div>
+    </div>
+
+    <button class="btn primary" id="btnSpin" onclick="spinSlot()">🎰 PULL THE LEVER</button>
+    <div class="grid2">
+      <button class="btn gold sm" onclick="reopenTile()">🎯 MY CHALLENGE</button>
+      <button class="btn green sm" onclick="logBeer()">🍺 LOG A BEER</button>
+    </div>
+  </section>
+
+  <!-- ============ SAVE / BACKUP ============ -->
+  <section id="screen-squad" class="hide">
+    <h1>MY SAVE</h1>
+    <div class="panel">
+      <h2>💾 BACKUP MY RUN</h2>
+      <p class="small">This saves automatically on this phone, but browsers (especially iPhone) can wipe that if the file gets re-saved or re-opened. Copy this backup code somewhere safe — Notes, a message to yourself — so you can restore your <b class="gold">exact</b> run (level, XP, log, achievements, everything) if that happens.</p>
+      <textarea id="myBackup" readonly></textarea>
+      <button class="btn green sm" onclick="copyBackup()">📋 COPY BACKUP CODE</button>
+    </div>
+    <div class="panel">
+      <h2>♻ RESTORE FROM BACKUP</h2>
+      <p class="small">Paste a backup code you saved earlier to restore that exact run on this phone. <b class="red">This overwrites your current run.</b></p>
+      <textarea id="restoreCode" placeholder="PASTE YOUR BACKUP CODE"></textarea>
+      <button class="btn red sm" onclick="restoreBackup()">⬆ RESTORE</button>
+    </div>
+  </section>
+
+  <!-- ============ LOG ============ -->
+  <section id="screen-log" class="hide">
+    <h1>NIGHT LOG</h1>
+    <div class="panel">
+      <h2>RUN HISTORY</h2>
+      <div class="logList" id="logList"><p class="small dim">Nothing yet. Go roll.</p></div>
+    </div>
+    <div class="panel">
+      <h2>🍺 BREWERY UPGRADES</h2>
+      <div id="weaponList" class="small dim">Level up to choose your first one.</div>
+    </div>
+    <div class="panel">
+      <h2>ACHIEVEMENTS</h2>
+      <div id="achList" class="small dim">None yet.</div>
+    </div>
+    <button class="btn ghost sm" onclick="openRules()">HOUSE RULES</button>
+    <button class="btn red sm" onclick="hardReset()">⟲ RESET MY RUN</button>
+  </section>
+
+  <!-- ============ BAG / INVENTORY ============ -->
+  <section id="screen-bag" class="hide">
+    <h1>MY BAG</h1>
+    <div class="panel tight center">
+      <p class="small" style="font-size:14px;margin:0">🪙 <span id="bagCoins" class="gold">0</span> SKÅL COINS</p>
+    </div>
+    <button class="btn purple sm" onclick="openShop()">🛒 OPEN SHOP</button>
+    <div class="panel">
+      <h2>🍺 BREWERY UPGRADES</h2>
+      <p class="small dim">Chosen at every level-up — each one permanently boosts production and changes how your brewery looks.</p>
+      <div id="bagUpgradeList" class="small dim">None yet. Level up to pick your first one.</div>
+    </div>
+    <div class="panel">
+      <h2>💎 RELICS</h2>
+      <p class="small dim">Personal buffs for the crawl that also permanently boost your brewery's beer output.</p>
+      <div id="relicList" class="small dim">None yet. Visit the shop.</div>
+    </div>
+    <div class="panel">
+      <h2>🎒 ITEMS</h2>
+      <div id="itemList" class="small dim">Empty.</div>
+    </div>
+    <div class="panel">
+      <h2>🎁 SOUVENIRS</h2>
+      <div id="souvenirGrid" class="grid3"></div>
+      <p class="small dim" id="souvenirProgress" style="margin-top:8px"></p>
+    </div>
+    <div class="panel">
+      <h2>🤫 SECRET MISSION</h2>
+      <p class="small dim">For your eyes only — nobody else on the squad can see this from their phone.</p>
+      <button class="btn purple sm" onclick="openSecret()">🤫 <span id="secretBtnLabel">VIEW MY MISSION</span></button>
+      <button class="btn red sm hide" id="secret2Btn" onclick="openSecret2()" style="margin-top:6px">🔥 <span id="secret2BtnLabel">HIGH RISK MISSION</span></button>
+    </div>
+  </section>
+
+</div>
+
+<!-- bottom nav -->
+<div id="nav" class="hide">
+  <button id="navGame" class="on" onclick="go('game')">GAME</button>
+  <button id="navBag" onclick="go('bag')">BAG</button>
+  <button id="navSquad" onclick="go('squad')">SAVE</button>
+  <button id="navLog" onclick="go('log')">LOG</button>
+</div>
+
+<script src="aarhus-survivors.js"></script>
+</body>
+</html>
