@@ -564,3 +564,231 @@ body[data-char="gambler"] .charCard.sel {
 body[data-char="gambler"] .card.curse {
   animation: curseFlicker-gambler 1.8s ease-in-out infinite;
 }
+
+/* ============================================================
+   TANK THEME — BERSERKER MEDIEVAL
+   Palette: deep burgundy/blood-wine bg, ember amber accents,
+            iron-rust panels, parchment text. War-hall energy.
+   ============================================================ */
+
+/* CSS custom property overrides for Tank */
+body[data-char="tank"] {
+  --gold: #d4841a;   /* forge amber — not yellow, more iron-hot */
+  --cyan: #e8804a;   /* ember orange instead of blue */
+  --bg:   #120408;
+}
+
+/* Page background — dried-blood dark, low torchlight */
+body[data-char="tank"] {
+  background: radial-gradient(ellipse at 50% 20%, #2a080e 0%, #120408 65%, #0a0204 100%);
+}
+
+/* Atmospheric overlay — ember glow from bottom, blood mist at top */
+body[data-char="tank"]::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 50% 110%, rgba(180,40,15,.18) 0%, transparent 60%),
+    radial-gradient(ellipse at 20% 0%,   rgba(100,10,20,.12) 0%, transparent 45%),
+    radial-gradient(ellipse at 80% 0%,   rgba(100,10,20,.10) 0%, transparent 45%);
+  z-index: 0;
+}
+
+/* Panels — war-hall stone: dark burgundy with rust border */
+body[data-char="tank"] .panel,
+body[data-char="tank"] .panel.tight {
+  background: linear-gradient(180deg, #200810 0%, #150407 100%);
+  border-color: rgba(180,60,30,.3);
+  box-shadow: 0 2px 0 #080102, 0 0 14px rgba(160,30,10,.1);
+}
+
+/* Challenge inline / expanded */
+body[data-char="tank"] #challengeInline {
+  background: linear-gradient(180deg, #1e0810, #12040a);
+  border-color: rgba(180,60,30,.28);
+}
+body[data-char="tank"] .ci-expanded {
+  border-color: rgba(160,40,20,.2);
+  background: #100306;
+}
+
+/* Slot / arena wrap */
+body[data-char="tank"] #slotWrap {
+  background: #0c0205;
+  border-color: rgba(212,132,26,.2);
+  box-shadow: 0 0 20px rgba(180,50,10,.1);
+}
+
+/* Reel drums — blackened iron, ember-lit rim */
+body[data-char="tank"] .reel {
+  background: linear-gradient(180deg, #1e0a0e, #110306);
+  border-color: rgba(212,132,26,.25);
+  box-shadow: inset 0 2px 8px rgba(0,0,0,.8), 0 0 6px rgba(180,60,10,.12);
+}
+
+/* Arena / challenge board */
+body[data-char="tank"] #arenaWrap {
+  background: #080104;
+  border-color: rgba(180,60,30,.15);
+}
+
+/* Slot result text */
+body[data-char="tank"] #slotResultLabel {
+  color: #d4841a;
+  text-shadow: 0 0 16px rgba(212,132,26,.7);
+}
+
+/* Reel pointer */
+body[data-char="tank"] .reelPointer {
+  color: #d4841a;
+  filter: drop-shadow(0 0 6px rgba(212,132,26,.8));
+}
+
+/* Subtitle — ember orange */
+body[data-char="tank"] #hudTitle {
+  color: #e8804a;
+  text-shadow: 0 0 10px rgba(232,128,74,.4);
+}
+
+/* "Gold" text → forge amber */
+body[data-char="tank"] .gold {
+  color: #d4841a;
+  text-shadow: 0 0 10px rgba(212,132,26,.5);
+}
+
+/* Game screen background */
+body[data-char="tank"] #screen-game::before {
+  background: none;
+}
+
+/* XP bar — blood-drain red fill */
+body[data-char="tank"] .bar {
+  background: #080102;
+  border-color: rgba(180,40,20,.3);
+}
+body[data-char="tank"] .bar.xp i {
+  background: linear-gradient(90deg, #6a0a14, #c0201e, #e03828);
+  box-shadow: 0 0 10px rgba(200,30,20,.55);
+}
+
+/* Stat pills */
+body[data-char="tank"] .pill {
+  background: #1a0608;
+  border-color: rgba(180,60,30,.28);
+  color: #c8a090;
+}
+
+/* Chip badges */
+body[data-char="tank"] .chip {
+  background: #1e080c;
+  border-color: rgba(180,60,30,.3);
+  color: #d4b0a0;
+}
+
+/* Primary button — blood-iron red, heavy shadow */
+body[data-char="tank"] .btn {
+  background: linear-gradient(180deg, #5a1018, #380810);
+  border-color: #7a1820;
+  color: #e8c4b8;
+  box-shadow: 0 3px 0 #080102, 0 0 8px rgba(120,20,20,.2);
+}
+body[data-char="tank"] .btn:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #080102;
+}
+body[data-char="tank"] .btn:disabled {
+  opacity: 0.35;
+}
+
+/* Chug button — forge amber, feels heavy and weighty */
+body[data-char="tank"] #chugBtn {
+  background: linear-gradient(180deg, #7a2808, #4a1404);
+  border-color: #d4841a;
+  color: #ffd8a0;
+  box-shadow: 0 3px 0 #080102, 0 0 16px rgba(212,132,26,.25);
+  font-size: 13px;
+  letter-spacing: 2px;
+}
+
+/* Ghost / secondary buttons */
+body[data-char="tank"] .btn.ghost {
+  background: transparent;
+  border-color: rgba(180,60,30,.3);
+  color: #7a4040;
+  box-shadow: none;
+}
+
+/* LOG A BEER — keep green (neutral) */
+body[data-char="tank"] .btn.green {
+  background: linear-gradient(180deg, #2a5a10, #1a3a08);
+  color: #a0e060;
+  border-color: #5a9a20;
+  box-shadow: 0 3px 0 #080102, 0 0 8px rgba(80,160,30,.18);
+}
+
+/* Input fields */
+body[data-char="tank"] input[type=text] {
+  background: #0c0205;
+  border: 3px solid #4a1010;
+  color: #e8c8b8;
+}
+
+/* Cards — bloodstone dark, amber frame */
+body[data-char="tank"] .card {
+  background: linear-gradient(180deg, #200a10, #12040a);
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px #080102, 0 0 40px rgba(180,40,10,.22), 0 8px 32px rgba(0,0,0,.8);
+}
+body[data-char="tank"] .cardTag {
+  color: #d4841a;
+  text-shadow: 0 0 8px rgba(212,132,26,.55);
+}
+body[data-char="tank"] .card.chaos   { box-shadow: 0 0 0 3px #080102, 0 0 40px rgba(180,40,160,.38); }
+body[data-char="tank"] .card.forfeit { box-shadow: 0 0 0 3px #080102, 0 0 45px rgba(200,20,20,.5); }
+body[data-char="tank"] .card.boss    { box-shadow: 0 0 0 3px #080102, 0 0 55px rgba(160,10,30,.6); }
+body[data-char="tank"] .card.good    { box-shadow: 0 0 0 3px #080102, 0 0 40px rgba(80,160,30,.3); }
+body[data-char="tank"] .card.rarity-common    { box-shadow: 0 0 0 3px #080102, 0 0 30px rgba(185,185,185,.22); }
+body[data-char="tank"] .card.rarity-rare      { box-shadow: 0 0 0 3px #080102, 0 0 40px rgba(200,80,40,.4); }
+body[data-char="tank"] .card.rarity-epic      { box-shadow: 0 0 0 3px #080102, 0 0 45px rgba(160,20,60,.55); }
+body[data-char="tank"] .card.rarity-legendary { box-shadow: 0 0 0 3px #080102, 0 0 55px rgba(212,132,26,.7); }
+body[data-char="tank"] .card.rarity-unique    { box-shadow: 0 0 0 3px #080102, 0 0 65px rgba(220,60,20,.8); }
+
+/* Character selection cards */
+body[data-char="tank"] .charCard {
+  border-color: #3a0a10;
+  box-shadow: 0 4px 0 #080102;
+}
+body[data-char="tank"] .charCard.sel {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px var(--gold), 0 4px 0 #080102, inset 0 0 20px rgba(180,40,10,.18);
+}
+
+/* Chug target number — ember pulse */
+@keyframes chugPulse {
+  0%,100% { opacity:1; transform:scale(1); }
+  50%      { opacity:0.65; transform:scale(1.06); }
+}
+
+@keyframes rageFlare {
+  0%,100% { opacity:1; filter:brightness(1); }
+  50%      { opacity:0.8; filter:brightness(1.4) saturate(1.5); }
+}
+
+/* Longhouse panel highlight */
+body[data-char="tank"] #tankChug .panel {
+  border-color: rgba(212,132,26,.32);
+  box-shadow: 0 0 0 1px rgba(180,40,10,.1), 0 0 20px rgba(180,30,10,.12);
+}
+
+/* Curse animation — blood-fire flicker */
+@keyframes curseFlicker-tank {
+  0%,100% { box-shadow: 0 0 0 3px #080102, 0 0 45px rgba(180,20,10,.6); }
+  45%     { box-shadow: 0 0 0 3px #080102, 0 0 20px rgba(180,20,10,.2); }
+  50%     { box-shadow: 0 0 0 3px #080102, 0 0 70px rgba(230,30,10,.9); }
+  55%     { box-shadow: 0 0 0 3px #080102, 0 0 20px rgba(180,20,10,.2); }
+}
+body[data-char="tank"] .card.curse {
+  animation: curseFlicker-tank 1.8s ease-in-out infinite;
+}

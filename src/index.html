@@ -48,19 +48,22 @@
 
     </div>
     <div class="panel tight brewDash">
-      <div class="hudRow">
+      <div class="hudRow" style="margin-bottom:4px">
         <span class="gold" id="brewTierName">THE SHACK</span>
-        <span class="dim" id="brewStats"><span id="brewLifetime">0</span> brewed &nbsp;·&nbsp; <span id="brewRateLabel">0.0</span>/min</span>
+        <span class="dim" style="font-size:9px"><span id="brewLifetime">0</span> 🍺 brewed</span>
       </div>
+      <div class="hudRow" style="margin-bottom:3px">
+        <span id="hudLevel" class="cyan" style="font-size:9px;letter-spacing:1px">LV 1</span>
+        <span id="xpTxt" class="dim" style="font-size:8px">0 / 17 XP</span>
+      </div>
+      <div class="bar xp" style="margin:0"><i id="xpFill"></i></div>
     </div>
 
     <div class="panel tight" style="margin-top:10px">
       <div class="hudRow">
         <span id="hudName" class="gold">—</span>
-        <span id="hudLevel" class="cyan">LV 1</span>
       </div>
       <p id="hudTitle" class="small dim" style="margin:0 0 6px;line-height:1.7"></p>
-      <div class="bar xp"><i id="xpFill"></i><span id="xpTxt">0 / 30 XP</span></div>
       <div class="statPills">
         <div class="pill">🍺 <span id="stDrinks" class="gold">0</span></div>
         <div class="pill">💀 <span id="stFails" class="red">0</span></div>
@@ -95,6 +98,72 @@
 
     <button class="btn green sm" style="margin-top:8px" onclick="logBeer()">🍺 LOG A BEER</button>
 
+    <!-- ── TANK CHUG TIMER — phone-to-friend mechanic ── -->
+    <div id="tankChug" class="hide">
+      <div class="panel tight" style="margin-top:6px">
+        <div class="hudRow" style="margin-bottom:6px">
+          <span class="gold" style="font-size:9px;letter-spacing:2px">🛡 THE LONGHOUSE</span>
+          <span id="chugModeLbl" class="dim" style="font-size:8px">CHUG READY</span>
+        </div>
+
+        <!-- XP at stake row (pending challenge only) -->
+        <div id="chugXPRow" class="hide hudRow" style="margin-bottom:6px;justify-content:center;gap:8px">
+          <span class="dim" style="font-size:9px">XP AT STAKE:</span>
+          <span id="chugXPAmt" style="font-size:16px;color:#ffd24a;font-weight:bold">0</span>
+        </div>
+
+        <!-- Target time — big and prominent -->
+        <div style="text-align:center;margin:8px 0 2px">
+          <div class="dim" style="font-size:8px;letter-spacing:2px;margin-bottom:4px">CHUG YOUR BEER FOR</div>
+          <div id="chugTarget" style="font-size:52px;font-weight:900;letter-spacing:-2px;color:#ffd24a;line-height:1;text-shadow:0 0 24px rgba(255,210,74,.5)">5s</div>
+          <div id="chugToler" class="dim" style="font-size:7px;letter-spacing:1px;margin-top:6px">±0.5s PERFECT · ±1.2s CLEAN · ±2.2s OK</div>
+        </div>
+
+        <!-- Instruction -->
+        <div style="text-align:center;color:#4a6a8a;font-size:8px;letter-spacing:1px;margin:10px 0 8px">
+          SHOW TO A FRIEND · THEN CHUG BLIND
+        </div>
+
+        <!-- Result -->
+        <div id="chugResult" style="min-height:44px;text-align:center;margin:4px 0 8px"></div>
+
+        <!-- Actions -->
+        <div id="chugActions" style="display:flex;flex-direction:column;gap:6px">
+          <button id="chugBtn" class="btn primary" onclick="chugGo()">🍺 START CHUGGING</button>
+          <div id="chugSafeRow" class="hide" style="display:flex;align-items:center;gap:6px;margin-top:2px">
+            <div style="flex:1;height:1px;background:rgba(46,107,214,.2)"></div>
+            <span class="dim" style="font-size:8px;letter-spacing:1px">OR</span>
+            <div style="flex:1;height:1px;background:rgba(46,107,214,.2)"></div>
+          </div>
+          <button id="chugSafeBtn" class="btn ghost hide" onclick="chugTakeSafe()" style="border:1px solid rgba(46,107,214,.4);color:#5a9aff;font-size:10px;letter-spacing:1px;padding:8px">🛡 TAKE SAFE XP</button>
+        </div>
+
+        <!-- Attempts row -->
+        <div id="chugAttemptsRow" class="hudRow" style="justify-content:center;margin-top:8px">
+          <span class="dim" style="font-size:9px;letter-spacing:1px">CHUGS LEFT: </span>
+          <span id="chugLeft" style="font-size:11px;color:#ffd24a;font-weight:bold;margin-left:4px">2</span>
+        </div>
+
+        <!-- Rage meter -->
+        <div style="margin-top:10px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
+            <span style="font-size:7px;letter-spacing:2px;color:#8a4a30">🔥 BERSERKER RAGE</span>
+            <span id="chugRagePct" style="font-size:8px;color:#d4841a;font-weight:bold">0%</span>
+          </div>
+          <div style="background:rgba(80,20,10,.4);border-radius:3px;height:6px;overflow:hidden;border:1px solid rgba(180,60,30,.25)">
+            <div id="chugRageFill" style="height:100%;width:0%;background:linear-gradient(90deg,#6a1008,#c03018,#e84a20);border-radius:3px;transition:width 0.4s ease"></div>
+          </div>
+          <div style="font-size:7px;color:#5a3028;letter-spacing:1px;margin-top:2px;text-align:right">FULL = 3× XP BONUS ON NEXT CHALLENGE</div>
+        </div>
+        <!-- War wounds badge -->
+        <div id="chugBloodied" style="display:none;margin-top:6px;padding:5px 8px;background:rgba(120,10,10,.35);border:1px solid rgba(180,20,20,.4);border-radius:4px;text-align:center">
+          <span style="font-size:9px;color:#e04040;letter-spacing:1px">🧸 BLOODIED — -30% XP</span>
+          <div style="font-size:7px;color:#7a3030;margin-top:1px">Land a perfect chug to recover</div>
+        </div>
+        <div id="chugUpgrades" style="display:flex;gap:4px;margin-top:8px;justify-content:center;flex-wrap:wrap"></div>
+      </div>
+    </div>
+
     <!-- ── GAMBLER DEN — permanent gambling widget, gambler only ── -->
     <div id="gamblerDen" class="hide">
       <div class="panel tight" style="margin-top:6px">
@@ -122,7 +191,12 @@
         </div>
         <div id="denActions" style="display:flex;flex-direction:column;gap:6px">
           <button id="denSpinBtn" class="btn primary" onclick="denSpin()">🎲 SPIN THE WHEEL</button>
-          <button id="denSafeBtn" class="btn ghost sm hide" onclick="denTakeSafe()" style="font-size:9px;opacity:.7">take safe XP instead</button>
+          <div id="denSafeRow" class="hide" style="display:flex;align-items:center;gap:6px;margin-top:2px">
+            <div style="flex:1;height:1px;background:rgba(200,152,10,.2)"></div>
+            <span class="dim" style="font-size:8px;letter-spacing:1px">OR</span>
+            <div style="flex:1;height:1px;background:rgba(200,152,10,.2)"></div>
+          </div>
+          <button id="denSafeBtn" class="btn ghost hide" onclick="denTakeSafe()" style="border:1px solid rgba(200,152,10,.4);color:#c8980a;font-size:10px;letter-spacing:1px;padding:8px">🛡 TAKE SAFE XP</button>
         </div>
         <div id="denGames" style="display:flex;gap:4px;margin-top:8px;justify-content:center;flex-wrap:wrap"></div>
       </div>

@@ -206,13 +206,17 @@ const RELICS = [
   { id:'loadeddice', n:"LOADED DICE (DON'T ASK)", icon:'🎲', char:'gambler', d:"Definitely not legal at the actual casino. An extra +25% XP on gambling tiles AND unlocks Dice game in The Den — rigged in your favour, allegedly. Also +0.3 beer/min.", price:60, brewBonus:0.3 },
   { id:'tarotdeck',  n:"THE TAROT DECK",            icon:'🃏', char:'gambler', d:"Ancient cards, dubious provenance. Unlocks Cards in The Den — pure 50/50, 2 spins per challenge. Also +0.4 beer/min.", price:75, brewBonus:0.4 },
   { id:'horseshoe',  n:"THE LUCKY HORSESHOE",        icon:'🧲', char:'gambler', d:"Nailed above every great gambler's door. Unlocks the Horseshoe game in The Den — 60/40 odds in your favour, 1 golden spin per challenge. Also +0.5 beer/min.", price:100, brewBonus:0.5 },
+  { id:'ironthroat',  n:"IRON THROAT",           icon:'🫗', char:'tank', d:"Forged in the fires of a hundred ill-advised challenges. Unlocks the Iron Chug — longer sweet spot, 3 attempts per challenge. Also +0.3 beer/min.", price:55, brewBonus:0.3 },
+  { id:'vikinghorn',  n:"THE VIKING DRINKING HORN", icon:'📯', char:'tank', d:"Passed down through generations of people who definitely didn't need it. Unlocks the Horn Chug — massive sweet spot, bonus coins on a perfect. Also +0.4 beer/min.", price:75, brewBonus:0.4 },
+  { id:'meadaltar',   n:"THE MEAD ALTAR",           icon:'⚗️', char:'tank', d:"Built from reclaimed pub stools and sheer disregard for consequences. Unlocks Legend Mode — nail the perfect zone for 3× XP and a glory toast. Also +0.5 beer/min.", price:100, brewBonus:0.5 },
   { id:'jokerscap', n:"THE JOKER'S CAP", icon:'🃏', char:'jester', d:'Bells that only you can hear, apparently. An extra +25% XP on party games and the Wheel. Also +0.3 beer/min — permanently.', price:60, brewBonus:0.3 },
   { id:'ironknuckles', n:'IRON KNUCKLES', icon:'👊', char:'machine', d:'Not technically legal in darts. An extra +25% XP on physical challenges, stacking on Raw Power. Also +0.3 beer/min — permanently.', price:60, brewBonus:0.3 }
 ];
 
 const CONSUMABLES = [
   { id:'fakeid',    n:"THE WORLD'S MOST CONVINCING FAKE ID", icon:'🪪', char:'tank', d:'The Tank\'s go-to for doors, dealers, and one very specific ex. Auto-wins your next challenge tile, no questions asked.', price:25 },
-  { id:'icebucket', n:"ONE MORE SPIN, I SWEAR", icon:'🔁', d:'Instantly refills a reroll — spin the lever again for free. Famous last words.', price:15 }
+  { id:'icebucket',   n:"ONE MORE SPIN, I SWEAR",   icon:'🔁', d:'Instantly refills a reroll — spin the lever again for free. Famous last words.', price:15 },
+  { id:'debtpardon',  n:"THE DEBT COLLECTOR'S NIGHTMARE", icon:'📜', d:"A sealed letter from someone high up. All outstanding debts: forgiven. Balances restored to zero. Nobody asks questions.", price:80 }
 ];
 
 /* ---------- secret missions (one assigned privately per run) ---------- */
@@ -263,7 +267,8 @@ function freshState(){
     doubleNext:false, startTime:Date.now(), log:[], ach:[],
     flags:{}, resolved:false, secret:null, secretDone:false, secretBlown:false,
     secret2:null, secret2Available:false, secret2Declined:false, secret2Done:false, secret2Blown:false, karaokeDone:false, beerLogCount:0, bossMarks:{}, bossesAvenged:0,
-    coins:0, souvenirs:{}, relics:[], items:{}, hatUsedThisLap:false, denSpinsLeft:3,
+    coins:0, souvenirs:{}, relics:[], items:{}, hatUsedThisLap:false, denSpinsLeft:3, chugAttemptsLeft:2,
+    rage:0, bloodied:false, chugMisses:0, perfectChugs:0, rageActivations:0,
     autoWinNext:false, shopPending:false,
     breweryUpgrades:[], coinAccum:0, lastProdTs:null, beerCoinsTotal:0, pendingLevelUps:0
   };
@@ -522,13 +527,11 @@ function tickBreweryProduction(){
   const whole = Math.floor(S.coinAccum);
   if(whole>0){
     S.coinAccum -= whole;
-    S.coins += whole;
+    // brewery no longer funds S.coins — it's a pure score/prestige tracker
     S.beerCoinsTotal = (S.beerCoinsTotal||0) + whole;
     if(!document.getElementById('screen-game').classList.contains('hide')) floatText('+'+whole+'🍺', '#e8b23a');
     save();
   }
-  const rateEl = document.getElementById('brewRateLabel');
-  if(rateEl) rateEl.textContent = rate.toFixed(1);
   const liveTotal = (S.beerCoinsTotal||0) + (S.coinAccum||0);
   const lifeEl = document.getElementById('brewLifetime');
   if(lifeEl) lifeEl.textContent = liveTotal.toFixed(1);
@@ -968,7 +971,19 @@ function computeEpicTitle(){
   if(!S || !S.charId) return '';
   const ch = CHARS.find(c=>c.id===S.charId);
   const parts = [];
-  parts.push(`${ch ? ch.name : ''} ${CHAR_TITLE_BASE[S.charId]||''}`.trim());
+  if(S.charId === 'tank'){
+    const pc = S.perfectChugs || 0;
+    const ra = S.rageActivations || 0;
+    let rank;
+    if(pc >= 50 || ra >= 25)      rank = 'THE LEGEND';
+    else if(pc >= 30 || ra >= 10) rank = 'THE WARLORD';
+    else if(pc >= 15 || ra >= 3)  rank = 'THE BERSERKER';
+    else if(pc >= 5)              rank = 'THE FOOTSOLDIER';
+    else                          rank = 'THE DRUNKARD';
+    parts.push((ch ? ch.name : '') + ' — ' + rank);
+  } else {
+    parts.push((ch ? ch.name : '') + ' ' + (CHAR_TITLE_BASE[S.charId]||''));
+  }
   const avenged = S.bossesAvenged||0;
   if(avenged>=2) parts.push(`SLAYER OF ${avenged} BOSSES`);
   else if(avenged===1) parts.push('AVENGER OF ONE BOSS');
@@ -1002,8 +1017,32 @@ function syncHUD(){
   tickBreweryProduction();
   const tierNameEl = document.getElementById('brewTierName');
   if(tierNameEl) tierNameEl.textContent = breweryTierFor(S.level).name;
-  // keep den in sync
-  if(S.charId==='gambler') refreshDen();
+  // show only the right character special panel, hide the other
+  const _tankChugEl   = document.getElementById('tankChug');
+  const _gamblerDenEl = document.getElementById('gamblerDen');
+  if(S.charId==='gambler'){
+    if(_tankChugEl)   _tankChugEl.classList.add('hide');
+    refreshDen();
+  } else if(S.charId==='tank'){
+    if(_gamblerDenEl) _gamblerDenEl.classList.add('hide');
+    refreshChug();
+  } else {
+    if(_tankChugEl)   _tankChugEl.classList.add('hide');
+    if(_gamblerDenEl) _gamblerDenEl.classList.add('hide');
+  }
+  const leverBtn = document.getElementById('btnSpin');
+  if(leverBtn && S.charId==='gambler'){
+    const locked = !!S._pendingWin;
+    leverBtn.disabled = locked;
+    leverBtn.style.opacity = locked ? '0.35' : '';
+    leverBtn.title = locked ? 'Resolve your Den bet first' : '';
+  }
+  if(leverBtn && S.charId==='tank'){
+    const locked = !!S._tankPendingWin;
+    leverBtn.disabled = locked;
+    leverBtn.style.opacity = locked ? '0.35' : '';
+    leverBtn.title = locked ? 'Finish your chug first' : '';
+  }
   // debt indicator — red when negative
   const coinsEl = document.getElementById('stCoins');
   if(coinsEl){
@@ -1164,7 +1203,13 @@ function applyWin(t){
     refreshDen(); // load XP stake into the den
     return;
   }
-  // Non-gambler: award immediately
+  // Tank: offer XP wager via chug meter
+  if(S.charId === 'tank'){
+    S._tankPendingWin = { t, xpAmount, isRevenge };
+    refreshChug();
+    return;
+  }
+  // Others: award immediately
   const g = grantXP(xpAmount, t.n);
   if(isRevenge){
     addLog(`⚔ REVENGE — you beat ${t.n} after it beat you. +50% XP.`);
@@ -1179,7 +1224,7 @@ function applyWin(t){
   if(t.heal){ S.waters++; addPace(-t.heal); }
   S.badLuckHeat = Math.max(0, (S.badLuckHeat||0)-1);
   grantSouvenir(t.t);
-  const coinsGained = Math.max(3, Math.round(t.xp/3));
+  const coinsGained = Math.max(5, Math.round(t.xp/2));
   grantCoins(coinsGained);
   addLog(`✓ ${t.n} — +${g} XP, +${coinsGained}🪙`);
   toast('+'+g+' XP · +'+coinsGained+'🪙');
@@ -1231,6 +1276,292 @@ const DEN_GAMES = {
   }
 };
 
+/* ══════════════════════════════════════════════════════
+   TANK — CHUG TIMER  (phone-to-friend mechanic)
+   Show target seconds → hand phone to friend → START
+   → chug blind → STOP → score by how close you were
+   ══════════════════════════════════════════════════════ */
+
+// Tolerance windows per mode (seconds off target for each tier)
+// Tolerances: perfect = tight window for bonus XP, ok = 1.8s window for base XP
+// No middle "clean" tier — just nail it or settle for ok.
+const CHUG_MODES = {
+  basic:  { id:'basic',  name:'BASIC CHUG',  attempts:2, perfect:0.3,  ok:1.8, perfectBonus:false },
+  iron:   { id:'iron',   name:'IRON CHUG',   attempts:3, perfect:0.5,  ok:1.8, perfectBonus:false, relic:'ironthroat' },
+  horn:   { id:'horn',   name:'HORN CHUG',   attempts:3, perfect:0.65, ok:1.8, perfectBonus:true,  relic:'vikinghorn' },
+  legend: { id:'legend', name:'LEGEND MODE', attempts:3, perfect:0.25, ok:1.8, perfectBonus:true,  relic:'meadaltar', tripleXP:true },
+};
+
+// Pick a target — 5 to 25 seconds, weighted toward the middle
+function chugPickTarget(){
+  const base = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+  return base[Math.floor(Math.random()*base.length)];
+}
+
+function chugGetMode(){
+  if(S.relics && S.relics.includes('meadaltar'))  return CHUG_MODES.legend;
+  if(S.relics && S.relics.includes('vikinghorn')) return CHUG_MODES.horn;
+  if(S.relics && S.relics.includes('ironthroat')) return CHUG_MODES.iron;
+  return CHUG_MODES.basic;
+}
+function chugGetMaxAttempts(){ return chugGetMode().attempts; }
+function chugResetAttempts(){
+  S.chugAttemptsLeft = chugGetMaxAttempts();
+  S._chugTarget = null; // fresh target each challenge
+  save();
+}
+
+let _chugActive = false, _chugStartMs = 0, _chugPhase = 'ready'; // 'ready'|'going'|'result'
+
+function refreshChug(){
+  if(S.charId !== 'tank') return;
+  const el = document.getElementById('tankChug');
+  if(el) el.classList.remove('hide');
+  const mode = chugGetMode();
+  const hasPending = !!S._tankPendingWin;
+
+  // Ensure a target is set
+  if(!S._chugTarget) S._chugTarget = chugPickTarget();
+  const target = S._chugTarget;
+
+  // Mode label
+  const modeLbl = document.getElementById('chugModeLbl');
+  if(modeLbl) modeLbl.textContent = hasPending ? 'XP WAGER · '+mode.name : mode.name;
+
+  // XP at stake row
+  const xpRow = document.getElementById('chugXPRow');
+  const xpAmt = document.getElementById('chugXPAmt');
+  if(xpRow) xpRow.classList.toggle('hide', !hasPending);
+  if(xpAmt && hasPending) xpAmt.textContent = S._tankPendingWin.xpAmount;
+
+  // Target display
+  const targetEl = document.getElementById('chugTarget');
+  if(targetEl) targetEl.textContent = target + 's';
+
+  // Tolerance hint
+  const tolerEl = document.getElementById('chugToler');
+  if(tolerEl) tolerEl.textContent = '±'+mode.perfect+'s PERFECT · ±'+mode.ok+'s OK · MISS = 0 XP';
+
+  // Safe button
+  const safeBtn = document.getElementById('chugSafeBtn');
+  const safeRow = document.getElementById('chugSafeRow');
+  if(safeBtn){ hasPending ? safeBtn.classList.remove('hide') : safeBtn.classList.add('hide'); }
+  if(safeRow){ safeRow.style.display = hasPending ? 'flex' : 'none'; }
+
+  // Attempts counter — only relevant during a pending XP wager
+  const left = S.chugAttemptsLeft ?? chugGetMaxAttempts();
+  const leftEl = document.getElementById('chugLeft');
+  if(leftEl) leftEl.textContent = left;
+  const attRow = document.getElementById('chugAttemptsRow');
+  // Show attempts row only when there's a pending wager (limited shots at XP)
+  if(attRow) attRow.style.display = hasPending ? 'flex' : 'none';
+
+  // Main button — idle chugs are always available (unlimited, just for coins)
+  const btn = document.getElementById('chugBtn');
+  const noAttempts = hasPending && left <= 0; // only block if WAGER attempts exhausted
+  if(btn){
+    if(noAttempts){
+      btn.textContent = '💤 NO ATTEMPTS LEFT';
+      btn.disabled = true;
+      btn.style.opacity = '0.4';
+      btn.onclick = null;
+    } else if(_chugPhase === 'going'){
+      btn.textContent = '🛑 STOP';
+      btn.disabled = false;
+      btn.style.opacity = '';
+      btn.onclick = chugStop;
+    } else {
+      btn.textContent = '🍺 START CHUGGING';
+      btn.disabled = false;
+      btn.style.opacity = '';
+      btn.onclick = chugGo;
+    }
+  }
+
+  // Rage meter + bloodied
+  const rageBar = document.getElementById('chugRageFill');
+  const ragePct = document.getElementById('chugRagePct');
+  const bloodiedBadge = document.getElementById('chugBloodied');
+  const rage = S.rage || 0;
+  if(rageBar){
+    rageBar.style.width = rage + '%';
+    const full = rage >= 100;
+    rageBar.style.boxShadow = full ? '0 0 12px #d4841a, 0 0 4px #ff9a30' : '';
+    rageBar.style.animation  = full ? 'rageFlare 0.6s ease-in-out infinite' : '';
+  }
+  if(ragePct) ragePct.textContent = rage >= 100 ? '🔥 FULL' : rage + '%';
+  if(bloodiedBadge) bloodiedBadge.style.display = S.bloodied ? 'block' : 'none';
+
+  // Upgrade buttons
+  const upEl = document.getElementById('chugUpgrades');
+  if(upEl){
+    upEl.innerHTML = Object.values(CHUG_MODES).filter(m=>m.relic).map(m=>{
+      const locked = !(S.relics && S.relics.includes(m.relic));
+      const active = m.id === mode.id;
+      return `<button class="btn ${active?'gold':'ghost'} sm" style="font-size:8px;${locked?'opacity:.45':''}">
+        ${active?'⚡':''} ${m.name}${locked?' 🔒':''}
+      </button>`;
+    }).join('');
+  }
+}
+
+function chugGo(){
+  if(_chugPhase === 'going') return;
+  const hasPending = !!S._tankPendingWin;
+  if(hasPending){
+    const left = S.chugAttemptsLeft ?? chugGetMaxAttempts();
+    if(left <= 0){ toast('NO WAGER ATTEMPTS LEFT — TAKE SAFE XP'); return; }
+  }
+  if(!S._chugTarget) S._chugTarget = chugPickTarget();
+  _chugPhase = 'going';
+  _chugActive = true;
+  _chugStartMs = Date.now();
+
+  // Blank out target during chug — player must rely on memory
+  const targetEl = document.getElementById('chugTarget');
+  if(targetEl) targetEl.textContent = '??';
+  const res = document.getElementById('chugResult');
+  if(res) res.innerHTML = '<span style="color:#8ad4ff;font-size:18px;letter-spacing:2px;animation:chugPulse 0.7s ease-in-out infinite">🍺 CHUGGING…</span>';
+
+  // Update button to STOP
+  const btn = document.getElementById('chugBtn');
+  if(btn){ btn.textContent = '🛑 STOP'; btn.onclick = chugStop; }
+}
+
+// Alias for HTML ontouchstart/onmousedown (old API kept for safety)
+function chugStart(e){ if(e && e.cancelable) e.preventDefault(); }
+function chugRelease(e){ if(e && e.cancelable) e.preventDefault(); }
+
+function chugStop(){
+  if(_chugPhase !== 'going') return;
+  _chugPhase = 'result';
+  _chugActive = false;
+  const elapsed = (Date.now() - _chugStartMs) / 1000;
+  chugResolve(elapsed);
+}
+
+function chugResolve(elapsed){
+  const mode = chugGetMode();
+  const target = S._chugTarget || 5;
+  const diff = Math.abs(elapsed - target);
+  const hasPending = !!S._tankPendingWin;
+
+  let mult, label, color;
+  if(diff <= mode.perfect){
+    mult = mode.tripleXP ? 3 : 2.5;
+    label = mode.tripleXP ? '🏆 LEGENDARY CHUG!' : '⚡ PERFECT!';
+    color = '#d4841a';
+    S.rage = Math.min(100, (S.rage||0) + 30);
+    S.chugMisses = 0;
+    S.bloodied = false;
+    S.perfectChugs = (S.perfectChugs||0) + 1;
+    if(S.rage >= 100) floatText('🔥 RAGE FULL!', '#d4841a');
+  } else if(diff <= mode.ok){
+    mult = 1;
+    label = '— COUNTS. BARELY.';
+    color = '#8a7060';
+    S.rage = Math.max(0, (S.rage||0) - 5);
+  } else {
+    mult = 0;
+    label = elapsed < target ? '💧 TOO FAST — KEEP DRINKING' : '💧 SPILLED — TOO LONG';
+    color = '#c03028';
+    S.chugMisses = (S.chugMisses||0) + 1;
+    S.rage = Math.max(0, (S.rage||0) - 20);
+    if(S.chugMisses >= 3 && !S.bloodied){
+      S.bloodied = true;
+      floatText('🧸 BLOODIED!', '#c03028');
+      toast('🧸 3 MISSES — BLOODIED! -30% XP until a perfect chug');
+    }
+  }
+
+  const res = document.getElementById('chugResult');
+  const sign = elapsed >= target ? '+' : '-';
+  const offStr = sign + diff.toFixed(1) + 's off target';
+  if(res) res.innerHTML =
+    `<div style="color:${color};font-size:13px;font-weight:bold;letter-spacing:1px">${label}</div>` +
+    `<div style="color:#6a8aaa;font-size:9px;margin-top:3px">${elapsed.toFixed(1)}s · target ${target}s · ${offStr}</div>`;
+
+  // Restore target display
+  const targetEl = document.getElementById('chugTarget');
+  if(targetEl) targetEl.textContent = target + 's';
+
+  // Reset button for next chug / show result
+  const btn = document.getElementById('chugBtn');
+  if(btn){ btn.textContent = '🍺 START CHUGGING'; btn.onclick = chugGo; }
+
+  setTimeout(()=>{
+    _chugPhase = 'ready';
+    if(hasPending){
+      _chugFinishApplyWin(mult);
+    } else {
+      S._chugTarget = chugPickTarget(); // fresh target for next idle chug
+      if(mult >= 2){
+        const bonus = mult >= 2.5 ? 15 : 10;
+        grantCoins(bonus);
+        addLog('🍺 CHUG: '+label+' +'+bonus+'🪙');
+        toast(label+' +'+bonus+'🪙');
+        floatText('+'+bonus+'🪙', '#ffd24a');
+      } else if(mult === 1){
+        grantCoins(3);
+        addLog('🍺 CHUG: '+label+' +3🪙');
+        toast(label);
+      } else {
+        addLog('💧 CHUG: '+label);
+        toast(label);
+      }
+      save(); syncHUD();
+      setTimeout(()=>{ if(!S._tankPendingWin){ const r=document.getElementById('chugResult'); if(r) r.textContent=''; refreshChug(); } }, 2500);
+    }
+  }, 800);
+}
+
+function chugTakeSafe(){
+  if(!S._tankPendingWin) return;
+  _chugFinishApplyWin(1);
+}
+
+function _chugFinishApplyWin(xpMult){
+  const pw = S._tankPendingWin;
+  if(!pw){ save(); syncHUD(); return; }
+  S._tankPendingWin = null;
+  const { t, xpAmount, isRevenge } = pw;
+  let g = 0;
+  if(xpMult > 0){
+    if((S.rage||0) >= 100){
+      xpMult *= 3;
+      S.rage = 0;
+      S.rageActivations = (S.rageActivations||0) + 1;
+      floatText('🔥 BERSERKER RAGE!', '#d4841a');
+      toast('🔥 BERSERKER RAGE — 3× XP BONUS!');
+    }
+    if(S.bloodied){
+      xpMult *= 0.7;
+      floatText('🧸 WOUNDED', '#c03028');
+    }
+    g = grantXP(Math.round(xpAmount * xpMult), t.n);
+    if(xpMult >= 3)      { addLog('🏆 LEGENDARY — '+t.n+' ×'+xpMult+' = +'+g+' XP'); toast('🏆 LEGENDARY! +'+g+' XP'); floatText('LEGENDARY', '#ffd24a'); }
+    else if(xpMult >= 2) { addLog('⚡ PERFECT CHUG — '+t.n+' ×'+xpMult+' = +'+g+' XP'); toast('⚡ ×'+xpMult+'! +'+g+' XP'); }
+    else if(xpMult > 1)  { addLog('✅ CHUG — '+t.n+' ×'+xpMult+' = +'+g+' XP'); toast('✅ +'+g+' XP'); }
+    else                 { addLog('✓ '+t.n+' — +'+g+' XP (safe)'); toast('+'+g+' XP'); }
+    if(isRevenge){ addLog('⚔ REVENGE served via chug.'); toast('⚔ REVENGE SERVED!'); }
+  } else {
+    floatText('SPILLED', '#5a9aff');
+    addLog('💧 '+t.n+' — spilled the chug. No XP lost.');
+    toast('💧 SPILLED — but forfeit is skipped. Drink your beer.');
+  }
+  if(t.drink){ S.drinks++; addPace(t.t===T.SHOT?16:12); }
+  if(t.heal) { S.waters++; addPace(-t.heal); }
+  S.badLuckHeat = Math.max(0, (S.badLuckHeat||0)-1);
+  grantSouvenir(t.t);
+  const coinsGained = Math.max(5, Math.round(t.xp/2));
+  grantCoins(coinsGained);
+  chugResetAttempts();
+  save(); syncHUD(); checkAchievements();
+  refreshChug();
+  if(t.t===T.BOSS) S.shopPending = true;
+  maybeOpenShop();
+}
+
 function denGetMaxSpins(){
   // return spin allowance for best unlocked game
   if(S.relics && S.relics.includes('horseshoe')) return DEN_GAMES.horseshoe.maxSpins;
@@ -1259,8 +1590,9 @@ function denSetGame(id){
 }
 
 function denAdjustBet(delta){
-  const maxBet = (S.coins||0) > 0 ? (S.coins||0) : 200;
-  _denBet = Math.max(5, Math.min(maxBet, _denBet + delta));
+  const coins = S.coins||0;
+  const maxBet = coins > 0 ? coins : 0;
+  _denBet = Math.max(1, Math.min(maxBet, _denBet + delta));
   const el = document.getElementById('denBetAmt');
   if(el) el.textContent = _denBet;
 }
@@ -1292,6 +1624,8 @@ function refreshDen(){
       const xpAmt = document.getElementById('denXPAmt');
       if(xpAmt) xpAmt.textContent = S._pendingWin.xpAmount;
       if(safeBtn) safeBtn.classList.remove('hide');
+      const safeRow = document.getElementById('denSafeRow');
+      if(safeRow) safeRow.style.display = 'flex';
       const inDebt = (S.coins||0) < 0;
       if(spinBtn){
         spinBtn.textContent = inDebt ? '🚫 IN DEBT — NO GAMBLING' : game.icon+' SPIN FOR XP';
@@ -1301,15 +1635,20 @@ function refreshDen(){
     } else {
       xpRow.classList.add('hide'); coinRow.classList.remove('hide');
       if(safeBtn) safeBtn.classList.add('hide');
-      if((S.coins||0) > 0) _denBet = Math.max(5, Math.min(_denBet, S.coins||0));
+      const safeRow2 = document.getElementById('denSafeRow');
+      if(safeRow2) safeRow2.style.display = 'none';
+      const coins = S.coins||0;
+      // always clamp bet to what the player actually has
+      _denBet = Math.max(1, Math.min(_denBet, Math.max(1, coins)));
       const noSpins = (S.denSpinsLeft ?? denGetMaxSpins()) <= 0;
-      const noFunds = (S.coins||0) < 0;
+      const inDebt  = coins < 0;
+      const broke   = coins === 0;
       if(spinBtn){
-        spinBtn.textContent = noFunds
-          ? '🚫 IN DEBT — NO GAMBLING'
-          : game.icon+' SPIN ('+_denBet+'🪙)';
-        spinBtn.disabled = noSpins || noFunds;
-        spinBtn.style.opacity = (noSpins || noFunds) ? '0.4' : '';
+        if(inDebt)  spinBtn.textContent = '🚫 IN DEBT — NO GAMBLING';
+        else if(broke) spinBtn.textContent = '🪙 NO COINS TO BET';
+        else        spinBtn.textContent = game.icon+' SPIN ('+_denBet+'🪙)';
+        spinBtn.disabled = noSpins || inDebt || broke;
+        spinBtn.style.opacity = (noSpins || inDebt || broke) ? '0.4' : '';
       }
       // clamp bet to current coins
       const betEl = document.getElementById('denBetAmt');
@@ -1376,10 +1715,22 @@ function denSpin(){
   if(_denSpinning) return;
   const game = DEN_GAMES[_denGame];
   const hasPending = !!S._pendingWin;
-  // block if in debt (coin gamble OR xp wager)
-  if((S.coins||0) < 0){
-    toast('YOU\'RE IN DEBT — EARN COINS BEFORE GAMBLING');
-    return;
+  // block if broke or in debt (coin gambling only — XP wager is separate)
+  if(!hasPending){
+    if((S.coins||0) < 0){
+      toast('YOU\'RE IN DEBT — EARN COINS BEFORE GAMBLING');
+      return;
+    }
+    if((S.coins||0) === 0){
+      toast('NO COINS — WIN A CHALLENGE TO EARN SOME');
+      return;
+    }
+  } else {
+    // XP wager: block only if in debt
+    if((S.coins||0) < 0){
+      toast('YOU\'RE IN DEBT — EARN COINS BEFORE GAMBLING');
+      return;
+    }
   }
   if(!hasPending){
     // enforce spin cap for coin gambling
@@ -1507,7 +1858,7 @@ function _finishApplyWin(xpMult){
   if(t.heal){ S.waters++; addPace(-t.heal); }
   S.badLuckHeat = Math.max(0, (S.badLuckHeat||0)-1);
   grantSouvenir(t.t);
-  const coinsGained = Math.max(3, Math.round(t.xp/3));
+  const coinsGained = Math.max(5, Math.round(t.xp/2));
   grantCoins(coinsGained);
   denResetSpins();
   save(); syncHUD(); checkAchievements();
@@ -1559,6 +1910,20 @@ function toast(msg){
 let slotSpinning = false;
 function spinSlot(){
   if(slotSpinning) return;
+  if(S._pendingWin){
+    toast('⚔ SETTLE YOUR BET FIRST — SPIN THE DEN OR TAKE SAFE XP');
+    const den = document.getElementById('gamblerDen');
+    if(den) den.scrollIntoView({ behavior:'smooth', block:'center' });
+    return;
+  }
+  if(S._tankPendingWin){
+    toast('🍺 FINISH YOUR CHUG FIRST');
+    const tc = document.getElementById('tankChug');
+    if(tc) tc.scrollIntoView({ behavior:'smooth', block:'center' });
+    const den = document.getElementById('gamblerDen');
+    if(den) den.scrollIntoView({ behavior:'smooth', block:'center' });
+    return;
+  }
   slotSpinning = true;
   const btn = document.getElementById('btnSpin'); if(btn) btn.disabled = true;
   const outcome = spinOutcome();
@@ -1618,7 +1983,8 @@ function acceptSlotResult(){
   if(tile.t===T.KARAOKE) S.karaokeDone = true; // one-time only — never rollable again once it's happened
   if(S.pulls % 3 === 0){
     S.laps++; S.hatUsedThisLap = false; S.shopPending = true;
-    grantXP(25,'lap'); grantCoins(10);
+    grantXP(25,'lap'); grantCoins(30);
+    toast('🏁 LAP BONUS — +30🪙');
     toast('ANOTHER LAP OF AARHUS — SQUAD TOAST!'); addLog('Another lap of Aarhus — squad toast');
   }
   save();
@@ -1667,7 +2033,7 @@ function openChallengeCard(reopen){
     body: t.body,
     chips: S.resolved ? ['✓ ALREADY CLAIMED'] : [
       `+${t.xp} XP`,
-      `+${Math.max(3, Math.round(t.xp/3))}🪙`,
+      `+${Math.max(5, Math.round(t.xp/2))}🪙`,
       SOUVENIRS[t.t] ? `${SOUVENIRS[t.t].icon} ${SOUVENIRS[t.t].n}` : '',
       t.drink ? '🍺 DRINK TILE' : '',
       t.gamble ? '🎲 FORFEIT IF LOST' : '',
@@ -2137,6 +2503,15 @@ function useItem(id){
   if(!S.items[id] || S.items[id]<=0){ toast('NONE LEFT'); return; }
   const c = CONSUMABLES.find(x=>x.id===id);
   S.items[id]--;
+  if(id==='debtpardon'){
+    if((S.coins||0) >= 0){ toast('YOU\'RE NOT IN DEBT — SAVE IT FOR LATER'); S.items[id]++; return; }
+    const wiped = Math.abs(S.coins);
+    S.coins = 0;
+    addLog(`📜 Debt pardoned — ${wiped}🪙 debt wiped clean.`);
+    toast('📜 DEBT FORGIVEN — BACK TO ZERO');
+    floatText('PARDONED', '#c8980a');
+    save(); syncHUD(); return;
+  }
   if(id==='icebucket'){
     S.skips = (S.skips||0)+1;
     addLog('Used RELOAD — +1 reroll');
