@@ -604,6 +604,234 @@ body[data-char="gambler"] .charCard.sel {
 body[data-char="gambler"] .card.curse {
   animation: curseFlicker-gambler 1.8s ease-in-out infinite;
 }
+
+/* ============================================================
+   TANK THEME — BERSERKER MEDIEVAL
+   Palette: deep burgundy/blood-wine bg, ember amber accents,
+            iron-rust panels, parchment text. War-hall energy.
+   ============================================================ */
+
+/* CSS custom property overrides for Tank */
+body[data-char="tank"] {
+  --gold: #d4841a;   /* forge amber — not yellow, more iron-hot */
+  --cyan: #e8804a;   /* ember orange instead of blue */
+  --bg:   #120408;
+}
+
+/* Page background — dried-blood dark, low torchlight */
+body[data-char="tank"] {
+  background: radial-gradient(ellipse at 50% 20%, #2a080e 0%, #120408 65%, #0a0204 100%);
+}
+
+/* Atmospheric overlay — ember glow from bottom, blood mist at top */
+body[data-char="tank"]::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 50% 110%, rgba(180,40,15,.18) 0%, transparent 60%),
+    radial-gradient(ellipse at 20% 0%,   rgba(100,10,20,.12) 0%, transparent 45%),
+    radial-gradient(ellipse at 80% 0%,   rgba(100,10,20,.10) 0%, transparent 45%);
+  z-index: 0;
+}
+
+/* Panels — war-hall stone: dark burgundy with rust border */
+body[data-char="tank"] .panel,
+body[data-char="tank"] .panel.tight {
+  background: linear-gradient(180deg, #200810 0%, #150407 100%);
+  border-color: rgba(180,60,30,.3);
+  box-shadow: 0 2px 0 #080102, 0 0 14px rgba(160,30,10,.1);
+}
+
+/* Challenge inline / expanded */
+body[data-char="tank"] #challengeInline {
+  background: linear-gradient(180deg, #1e0810, #12040a);
+  border-color: rgba(180,60,30,.28);
+}
+body[data-char="tank"] .ci-expanded {
+  border-color: rgba(160,40,20,.2);
+  background: #100306;
+}
+
+/* Slot / arena wrap */
+body[data-char="tank"] #slotWrap {
+  background: #0c0205;
+  border-color: rgba(212,132,26,.2);
+  box-shadow: 0 0 20px rgba(180,50,10,.1);
+}
+
+/* Reel drums — blackened iron, ember-lit rim */
+body[data-char="tank"] .reel {
+  background: linear-gradient(180deg, #1e0a0e, #110306);
+  border-color: rgba(212,132,26,.25);
+  box-shadow: inset 0 2px 8px rgba(0,0,0,.8), 0 0 6px rgba(180,60,10,.12);
+}
+
+/* Arena / challenge board */
+body[data-char="tank"] #arenaWrap {
+  background: #080104;
+  border-color: rgba(180,60,30,.15);
+}
+
+/* Slot result text */
+body[data-char="tank"] #slotResultLabel {
+  color: #d4841a;
+  text-shadow: 0 0 16px rgba(212,132,26,.7);
+}
+
+/* Reel pointer */
+body[data-char="tank"] .reelPointer {
+  color: #d4841a;
+  filter: drop-shadow(0 0 6px rgba(212,132,26,.8));
+}
+
+/* Subtitle — ember orange */
+body[data-char="tank"] #hudTitle {
+  color: #e8804a;
+  text-shadow: 0 0 10px rgba(232,128,74,.4);
+}
+
+/* "Gold" text → forge amber */
+body[data-char="tank"] .gold {
+  color: #d4841a;
+  text-shadow: 0 0 10px rgba(212,132,26,.5);
+}
+
+/* Game screen background */
+body[data-char="tank"] #screen-game::before {
+  background: none;
+}
+
+/* XP bar — blood-drain red fill */
+body[data-char="tank"] .bar {
+  background: #080102;
+  border-color: rgba(180,40,20,.3);
+}
+body[data-char="tank"] .bar.xp i {
+  background: linear-gradient(90deg, #6a0a14, #c0201e, #e03828);
+  box-shadow: 0 0 10px rgba(200,30,20,.55);
+}
+
+/* Stat pills */
+body[data-char="tank"] .pill {
+  background: #1a0608;
+  border-color: rgba(180,60,30,.28);
+  color: #c8a090;
+}
+
+/* Chip badges */
+body[data-char="tank"] .chip {
+  background: #1e080c;
+  border-color: rgba(180,60,30,.3);
+  color: #d4b0a0;
+}
+
+/* Primary button — blood-iron red, heavy shadow */
+body[data-char="tank"] .btn {
+  background: linear-gradient(180deg, #5a1018, #380810);
+  border-color: #7a1820;
+  color: #e8c4b8;
+  box-shadow: 0 3px 0 #080102, 0 0 8px rgba(120,20,20,.2);
+}
+body[data-char="tank"] .btn:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #080102;
+}
+body[data-char="tank"] .btn:disabled {
+  opacity: 0.35;
+}
+
+/* Chug button — forge amber, feels heavy and weighty */
+body[data-char="tank"] #chugBtn {
+  background: linear-gradient(180deg, #7a2808, #4a1404);
+  border-color: #d4841a;
+  color: #ffd8a0;
+  box-shadow: 0 3px 0 #080102, 0 0 16px rgba(212,132,26,.25);
+  font-size: 13px;
+  letter-spacing: 2px;
+}
+
+/* Ghost / secondary buttons */
+body[data-char="tank"] .btn.ghost {
+  background: transparent;
+  border-color: rgba(180,60,30,.3);
+  color: #7a4040;
+  box-shadow: none;
+}
+
+/* LOG A BEER — keep green (neutral) */
+body[data-char="tank"] .btn.green {
+  background: linear-gradient(180deg, #2a5a10, #1a3a08);
+  color: #a0e060;
+  border-color: #5a9a20;
+  box-shadow: 0 3px 0 #080102, 0 0 8px rgba(80,160,30,.18);
+}
+
+/* Input fields */
+body[data-char="tank"] input[type=text] {
+  background: #0c0205;
+  border: 3px solid #4a1010;
+  color: #e8c8b8;
+}
+
+/* Cards — bloodstone dark, amber frame */
+body[data-char="tank"] .card {
+  background: linear-gradient(180deg, #200a10, #12040a);
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px #080102, 0 0 40px rgba(180,40,10,.22), 0 8px 32px rgba(0,0,0,.8);
+}
+body[data-char="tank"] .cardTag {
+  color: #d4841a;
+  text-shadow: 0 0 8px rgba(212,132,26,.55);
+}
+body[data-char="tank"] .card.chaos   { box-shadow: 0 0 0 3px #080102, 0 0 40px rgba(180,40,160,.38); }
+body[data-char="tank"] .card.forfeit { box-shadow: 0 0 0 3px #080102, 0 0 45px rgba(200,20,20,.5); }
+body[data-char="tank"] .card.boss    { box-shadow: 0 0 0 3px #080102, 0 0 55px rgba(160,10,30,.6); }
+body[data-char="tank"] .card.good    { box-shadow: 0 0 0 3px #080102, 0 0 40px rgba(80,160,30,.3); }
+body[data-char="tank"] .card.rarity-common    { box-shadow: 0 0 0 3px #080102, 0 0 30px rgba(185,185,185,.22); }
+body[data-char="tank"] .card.rarity-rare      { box-shadow: 0 0 0 3px #080102, 0 0 40px rgba(200,80,40,.4); }
+body[data-char="tank"] .card.rarity-epic      { box-shadow: 0 0 0 3px #080102, 0 0 45px rgba(160,20,60,.55); }
+body[data-char="tank"] .card.rarity-legendary { box-shadow: 0 0 0 3px #080102, 0 0 55px rgba(212,132,26,.7); }
+body[data-char="tank"] .card.rarity-unique    { box-shadow: 0 0 0 3px #080102, 0 0 65px rgba(220,60,20,.8); }
+
+/* Character selection cards */
+body[data-char="tank"] .charCard {
+  border-color: #3a0a10;
+  box-shadow: 0 4px 0 #080102;
+}
+body[data-char="tank"] .charCard.sel {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px var(--gold), 0 4px 0 #080102, inset 0 0 20px rgba(180,40,10,.18);
+}
+
+/* Chug target number — ember pulse */
+@keyframes chugPulse {
+  0%,100% { opacity:1; transform:scale(1); }
+  50%      { opacity:0.65; transform:scale(1.06); }
+}
+
+@keyframes rageFlare {
+  0%,100% { opacity:1; filter:brightness(1); }
+  50%      { opacity:0.8; filter:brightness(1.4) saturate(1.5); }
+}
+
+/* Longhouse panel highlight */
+body[data-char="tank"] #tankChug .panel {
+  border-color: rgba(212,132,26,.32);
+  box-shadow: 0 0 0 1px rgba(180,40,10,.1), 0 0 20px rgba(180,30,10,.12);
+}
+
+/* Curse animation — blood-fire flicker */
+@keyframes curseFlicker-tank {
+  0%,100% { box-shadow: 0 0 0 3px #080102, 0 0 45px rgba(180,20,10,.6); }
+  45%     { box-shadow: 0 0 0 3px #080102, 0 0 20px rgba(180,20,10,.2); }
+  50%     { box-shadow: 0 0 0 3px #080102, 0 0 70px rgba(230,30,10,.9); }
+  55%     { box-shadow: 0 0 0 3px #080102, 0 0 20px rgba(180,20,10,.2); }
+}
+body[data-char="tank"] .card.curse {
+  animation: curseFlicker-tank 1.8s ease-in-out infinite;
+}
 </style>
 </head>
 <body>
@@ -641,19 +869,22 @@ body[data-char="gambler"] .card.curse {
 
     </div>
     <div class="panel tight brewDash">
-      <div class="hudRow">
+      <div class="hudRow" style="margin-bottom:4px">
         <span class="gold" id="brewTierName">THE SHACK</span>
-        <span class="dim" id="brewStats"><span id="brewLifetime">0</span> brewed &nbsp;·&nbsp; <span id="brewRateLabel">0.0</span>/min</span>
+        <span class="dim" style="font-size:9px"><span id="brewLifetime">0</span> 🍺 brewed</span>
       </div>
+      <div class="hudRow" style="margin-bottom:3px">
+        <span id="hudLevel" class="cyan" style="font-size:9px;letter-spacing:1px">LV 1</span>
+        <span id="xpTxt" class="dim" style="font-size:8px">0 / 17 XP</span>
+      </div>
+      <div class="bar xp" style="margin:0"><i id="xpFill"></i></div>
     </div>
 
     <div class="panel tight" style="margin-top:10px">
       <div class="hudRow">
         <span id="hudName" class="gold">—</span>
-        <span id="hudLevel" class="cyan">LV 1</span>
       </div>
       <p id="hudTitle" class="small dim" style="margin:0 0 6px;line-height:1.7"></p>
-      <div class="bar xp"><i id="xpFill"></i><span id="xpTxt">0 / 30 XP</span></div>
       <div class="statPills">
         <div class="pill">🍺 <span id="stDrinks" class="gold">0</span></div>
         <div class="pill">💀 <span id="stFails" class="red">0</span></div>
@@ -688,6 +919,72 @@ body[data-char="gambler"] .card.curse {
 
     <button class="btn green sm" style="margin-top:8px" onclick="logBeer()">🍺 LOG A BEER</button>
 
+    <!-- ── TANK CHUG TIMER — phone-to-friend mechanic ── -->
+    <div id="tankChug" class="hide">
+      <div class="panel tight" style="margin-top:6px">
+        <div class="hudRow" style="margin-bottom:6px">
+          <span class="gold" style="font-size:9px;letter-spacing:2px">🛡 THE LONGHOUSE</span>
+          <span id="chugModeLbl" class="dim" style="font-size:8px">CHUG READY</span>
+        </div>
+
+        <!-- XP at stake row (pending challenge only) -->
+        <div id="chugXPRow" class="hide hudRow" style="margin-bottom:6px;justify-content:center;gap:8px">
+          <span class="dim" style="font-size:9px">XP AT STAKE:</span>
+          <span id="chugXPAmt" style="font-size:16px;color:#ffd24a;font-weight:bold">0</span>
+        </div>
+
+        <!-- Target time — big and prominent -->
+        <div style="text-align:center;margin:8px 0 2px">
+          <div class="dim" style="font-size:8px;letter-spacing:2px;margin-bottom:4px">CHUG YOUR BEER FOR</div>
+          <div id="chugTarget" style="font-size:52px;font-weight:900;letter-spacing:-2px;color:#ffd24a;line-height:1;text-shadow:0 0 24px rgba(255,210,74,.5)">5s</div>
+          <div id="chugToler" class="dim" style="font-size:7px;letter-spacing:1px;margin-top:6px">±0.5s PERFECT · ±1.2s CLEAN · ±2.2s OK</div>
+        </div>
+
+        <!-- Instruction -->
+        <div style="text-align:center;color:#4a6a8a;font-size:8px;letter-spacing:1px;margin:10px 0 8px">
+          SHOW TO A FRIEND · THEN CHUG BLIND
+        </div>
+
+        <!-- Result -->
+        <div id="chugResult" style="min-height:44px;text-align:center;margin:4px 0 8px"></div>
+
+        <!-- Actions -->
+        <div id="chugActions" style="display:flex;flex-direction:column;gap:6px">
+          <button id="chugBtn" class="btn primary" onclick="chugGo()">🍺 START CHUGGING</button>
+          <div id="chugSafeRow" class="hide" style="display:flex;align-items:center;gap:6px;margin-top:2px">
+            <div style="flex:1;height:1px;background:rgba(46,107,214,.2)"></div>
+            <span class="dim" style="font-size:8px;letter-spacing:1px">OR</span>
+            <div style="flex:1;height:1px;background:rgba(46,107,214,.2)"></div>
+          </div>
+          <button id="chugSafeBtn" class="btn ghost hide" onclick="chugTakeSafe()" style="border:1px solid rgba(46,107,214,.4);color:#5a9aff;font-size:10px;letter-spacing:1px;padding:8px">🛡 TAKE SAFE XP</button>
+        </div>
+
+        <!-- Attempts row -->
+        <div id="chugAttemptsRow" class="hudRow" style="justify-content:center;margin-top:8px">
+          <span class="dim" style="font-size:9px;letter-spacing:1px">CHUGS LEFT: </span>
+          <span id="chugLeft" style="font-size:11px;color:#ffd24a;font-weight:bold;margin-left:4px">2</span>
+        </div>
+
+        <!-- Rage meter -->
+        <div style="margin-top:10px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
+            <span style="font-size:7px;letter-spacing:2px;color:#8a4a30">🔥 BERSERKER RAGE</span>
+            <span id="chugRagePct" style="font-size:8px;color:#d4841a;font-weight:bold">0%</span>
+          </div>
+          <div style="background:rgba(80,20,10,.4);border-radius:3px;height:6px;overflow:hidden;border:1px solid rgba(180,60,30,.25)">
+            <div id="chugRageFill" style="height:100%;width:0%;background:linear-gradient(90deg,#6a1008,#c03018,#e84a20);border-radius:3px;transition:width 0.4s ease"></div>
+          </div>
+          <div style="font-size:7px;color:#5a3028;letter-spacing:1px;margin-top:2px;text-align:right">FULL = 3× XP BONUS ON NEXT CHALLENGE</div>
+        </div>
+        <!-- War wounds badge -->
+        <div id="chugBloodied" style="display:none;margin-top:6px;padding:5px 8px;background:rgba(120,10,10,.35);border:1px solid rgba(180,20,20,.4);border-radius:4px;text-align:center">
+          <span style="font-size:9px;color:#e04040;letter-spacing:1px">🧸 BLOODIED — -30% XP</span>
+          <div style="font-size:7px;color:#7a3030;margin-top:1px">Land a perfect chug to recover</div>
+        </div>
+        <div id="chugUpgrades" style="display:flex;gap:4px;margin-top:8px;justify-content:center;flex-wrap:wrap"></div>
+      </div>
+    </div>
+
     <!-- ── GAMBLER DEN — permanent gambling widget, gambler only ── -->
     <div id="gamblerDen" class="hide">
       <div class="panel tight" style="margin-top:6px">
@@ -715,7 +1012,12 @@ body[data-char="gambler"] .card.curse {
         </div>
         <div id="denActions" style="display:flex;flex-direction:column;gap:6px">
           <button id="denSpinBtn" class="btn primary" onclick="denSpin()">🎲 SPIN THE WHEEL</button>
-          <button id="denSafeBtn" class="btn ghost sm hide" onclick="denTakeSafe()" style="font-size:9px;opacity:.7">take safe XP instead</button>
+          <div id="denSafeRow" class="hide" style="display:flex;align-items:center;gap:6px;margin-top:2px">
+            <div style="flex:1;height:1px;background:rgba(200,152,10,.2)"></div>
+            <span class="dim" style="font-size:8px;letter-spacing:1px">OR</span>
+            <div style="flex:1;height:1px;background:rgba(200,152,10,.2)"></div>
+          </div>
+          <button id="denSafeBtn" class="btn ghost hide" onclick="denTakeSafe()" style="border:1px solid rgba(200,152,10,.4);color:#c8980a;font-size:10px;letter-spacing:1px;padding:8px">🛡 TAKE SAFE XP</button>
         </div>
         <div id="denGames" style="display:flex;gap:4px;margin-top:8px;justify-content:center;flex-wrap:wrap"></div>
       </div>
@@ -1011,13 +1313,17 @@ const RELICS = [
   { id:'loadeddice', n:"LOADED DICE (DON'T ASK)", icon:'🎲', char:'gambler', d:"Definitely not legal at the actual casino. An extra +25% XP on gambling tiles AND unlocks Dice game in The Den — rigged in your favour, allegedly. Also +0.3 beer/min.", price:60, brewBonus:0.3 },
   { id:'tarotdeck',  n:"THE TAROT DECK",            icon:'🃏', char:'gambler', d:"Ancient cards, dubious provenance. Unlocks Cards in The Den — pure 50/50, 2 spins per challenge. Also +0.4 beer/min.", price:75, brewBonus:0.4 },
   { id:'horseshoe',  n:"THE LUCKY HORSESHOE",        icon:'🧲', char:'gambler', d:"Nailed above every great gambler's door. Unlocks the Horseshoe game in The Den — 60/40 odds in your favour, 1 golden spin per challenge. Also +0.5 beer/min.", price:100, brewBonus:0.5 },
+  { id:'ironthroat',  n:"IRON THROAT",           icon:'🫗', char:'tank', d:"Forged in the fires of a hundred ill-advised challenges. Unlocks the Iron Chug — longer sweet spot, 3 attempts per challenge. Also +0.3 beer/min.", price:55, brewBonus:0.3 },
+  { id:'vikinghorn',  n:"THE VIKING DRINKING HORN", icon:'📯', char:'tank', d:"Passed down through generations of people who definitely didn't need it. Unlocks the Horn Chug — massive sweet spot, bonus coins on a perfect. Also +0.4 beer/min.", price:75, brewBonus:0.4 },
+  { id:'meadaltar',   n:"THE MEAD ALTAR",           icon:'⚗️', char:'tank', d:"Built from reclaimed pub stools and sheer disregard for consequences. Unlocks Legend Mode — nail the perfect zone for 3× XP and a glory toast. Also +0.5 beer/min.", price:100, brewBonus:0.5 },
   { id:'jokerscap', n:"THE JOKER'S CAP", icon:'🃏', char:'jester', d:'Bells that only you can hear, apparently. An extra +25% XP on party games and the Wheel. Also +0.3 beer/min — permanently.', price:60, brewBonus:0.3 },
   { id:'ironknuckles', n:'IRON KNUCKLES', icon:'👊', char:'machine', d:'Not technically legal in darts. An extra +25% XP on physical challenges, stacking on Raw Power. Also +0.3 beer/min — permanently.', price:60, brewBonus:0.3 }
 ];
 
 const CONSUMABLES = [
   { id:'fakeid',    n:"THE WORLD'S MOST CONVINCING FAKE ID", icon:'🪪', char:'tank', d:'The Tank\'s go-to for doors, dealers, and one very specific ex. Auto-wins your next challenge tile, no questions asked.', price:25 },
-  { id:'icebucket', n:"ONE MORE SPIN, I SWEAR", icon:'🔁', d:'Instantly refills a reroll — spin the lever again for free. Famous last words.', price:15 }
+  { id:'icebucket',   n:"ONE MORE SPIN, I SWEAR",   icon:'🔁', d:'Instantly refills a reroll — spin the lever again for free. Famous last words.', price:15 },
+  { id:'debtpardon',  n:"THE DEBT COLLECTOR'S NIGHTMARE", icon:'📜', d:"A sealed letter from someone high up. All outstanding debts: forgiven. Balances restored to zero. Nobody asks questions.", price:80 }
 ];
 
 /* ---------- secret missions (one assigned privately per run) ---------- */
@@ -1068,7 +1374,8 @@ function freshState(){
     doubleNext:false, startTime:Date.now(), log:[], ach:[],
     flags:{}, resolved:false, secret:null, secretDone:false, secretBlown:false,
     secret2:null, secret2Available:false, secret2Declined:false, secret2Done:false, secret2Blown:false, karaokeDone:false, beerLogCount:0, bossMarks:{}, bossesAvenged:0,
-    coins:0, souvenirs:{}, relics:[], items:{}, hatUsedThisLap:false, denSpinsLeft:3,
+    coins:0, souvenirs:{}, relics:[], items:{}, hatUsedThisLap:false, denSpinsLeft:3, chugAttemptsLeft:2,
+    rage:0, bloodied:false, chugMisses:0, perfectChugs:0, rageActivations:0,
     autoWinNext:false, shopPending:false,
     breweryUpgrades:[], coinAccum:0, lastProdTs:null, beerCoinsTotal:0, pendingLevelUps:0
   };
@@ -1513,13 +1820,11 @@ function tickBreweryProduction(){
   const whole = Math.floor(S.coinAccum);
   if(whole>0){
     S.coinAccum -= whole;
-    S.coins += whole;
+    // brewery no longer funds S.coins — it's a pure score/prestige tracker
     S.beerCoinsTotal = (S.beerCoinsTotal||0) + whole;
     if(!document.getElementById('screen-game').classList.contains('hide')) floatText('+'+whole+'🍺', '#e8b23a');
     save();
   }
-  const rateEl = document.getElementById('brewRateLabel');
-  if(rateEl) rateEl.textContent = rate.toFixed(1);
   const liveTotal = (S.beerCoinsTotal||0) + (S.coinAccum||0);
   const lifeEl = document.getElementById('brewLifetime');
   if(lifeEl) lifeEl.textContent = liveTotal.toFixed(1);
@@ -1971,7 +2276,19 @@ function computeEpicTitle(){
   if(!S || !S.charId) return '';
   const ch = CHARS.find(c=>c.id===S.charId);
   const parts = [];
-  parts.push(`${ch ? ch.name : ''} ${CHAR_TITLE_BASE[S.charId]||''}`.trim());
+  if(S.charId === 'tank'){
+    const pc = S.perfectChugs || 0;
+    const ra = S.rageActivations || 0;
+    let rank;
+    if(pc >= 50 || ra >= 25)      rank = 'THE LEGEND';
+    else if(pc >= 30 || ra >= 10) rank = 'THE WARLORD';
+    else if(pc >= 15 || ra >= 3)  rank = 'THE BERSERKER';
+    else if(pc >= 5)              rank = 'THE FOOTSOLDIER';
+    else                          rank = 'THE DRUNKARD';
+    parts.push((ch ? ch.name : '') + ' — ' + rank);
+  } else {
+    parts.push((ch ? ch.name : '') + ' ' + (CHAR_TITLE_BASE[S.charId]||''));
+  }
   const avenged = S.bossesAvenged||0;
   if(avenged>=2) parts.push(`SLAYER OF ${avenged} BOSSES`);
   else if(avenged===1) parts.push('AVENGER OF ONE BOSS');
@@ -2005,8 +2322,32 @@ function syncHUD(){
   tickBreweryProduction();
   const tierNameEl = document.getElementById('brewTierName');
   if(tierNameEl) tierNameEl.textContent = breweryTierFor(S.level).name;
-  // keep den in sync
-  if(S.charId==='gambler') refreshDen();
+  // show only the right character special panel, hide the other
+  const _tankChugEl   = document.getElementById('tankChug');
+  const _gamblerDenEl = document.getElementById('gamblerDen');
+  if(S.charId==='gambler'){
+    if(_tankChugEl)   _tankChugEl.classList.add('hide');
+    refreshDen();
+  } else if(S.charId==='tank'){
+    if(_gamblerDenEl) _gamblerDenEl.classList.add('hide');
+    refreshChug();
+  } else {
+    if(_tankChugEl)   _tankChugEl.classList.add('hide');
+    if(_gamblerDenEl) _gamblerDenEl.classList.add('hide');
+  }
+  const leverBtn = document.getElementById('btnSpin');
+  if(leverBtn && S.charId==='gambler'){
+    const locked = !!S._pendingWin;
+    leverBtn.disabled = locked;
+    leverBtn.style.opacity = locked ? '0.35' : '';
+    leverBtn.title = locked ? 'Resolve your Den bet first' : '';
+  }
+  if(leverBtn && S.charId==='tank'){
+    const locked = !!S._tankPendingWin;
+    leverBtn.disabled = locked;
+    leverBtn.style.opacity = locked ? '0.35' : '';
+    leverBtn.title = locked ? 'Finish your chug first' : '';
+  }
   // debt indicator — red when negative
   const coinsEl = document.getElementById('stCoins');
   if(coinsEl){
@@ -2167,7 +2508,13 @@ function applyWin(t){
     refreshDen(); // load XP stake into the den
     return;
   }
-  // Non-gambler: award immediately
+  // Tank: offer XP wager via chug meter
+  if(S.charId === 'tank'){
+    S._tankPendingWin = { t, xpAmount, isRevenge };
+    refreshChug();
+    return;
+  }
+  // Others: award immediately
   const g = grantXP(xpAmount, t.n);
   if(isRevenge){
     addLog(`⚔ REVENGE — you beat ${t.n} after it beat you. +50% XP.`);
@@ -2182,7 +2529,7 @@ function applyWin(t){
   if(t.heal){ S.waters++; addPace(-t.heal); }
   S.badLuckHeat = Math.max(0, (S.badLuckHeat||0)-1);
   grantSouvenir(t.t);
-  const coinsGained = Math.max(3, Math.round(t.xp/3));
+  const coinsGained = Math.max(5, Math.round(t.xp/2));
   grantCoins(coinsGained);
   addLog(`✓ ${t.n} — +${g} XP, +${coinsGained}🪙`);
   toast('+'+g+' XP · +'+coinsGained+'🪙');
@@ -2234,6 +2581,292 @@ const DEN_GAMES = {
   }
 };
 
+/* ══════════════════════════════════════════════════════
+   TANK — CHUG TIMER  (phone-to-friend mechanic)
+   Show target seconds → hand phone to friend → START
+   → chug blind → STOP → score by how close you were
+   ══════════════════════════════════════════════════════ */
+
+// Tolerance windows per mode (seconds off target for each tier)
+// Tolerances: perfect = tight window for bonus XP, ok = 1.8s window for base XP
+// No middle "clean" tier — just nail it or settle for ok.
+const CHUG_MODES = {
+  basic:  { id:'basic',  name:'BASIC CHUG',  attempts:2, perfect:0.3,  ok:1.8, perfectBonus:false },
+  iron:   { id:'iron',   name:'IRON CHUG',   attempts:3, perfect:0.5,  ok:1.8, perfectBonus:false, relic:'ironthroat' },
+  horn:   { id:'horn',   name:'HORN CHUG',   attempts:3, perfect:0.65, ok:1.8, perfectBonus:true,  relic:'vikinghorn' },
+  legend: { id:'legend', name:'LEGEND MODE', attempts:3, perfect:0.25, ok:1.8, perfectBonus:true,  relic:'meadaltar', tripleXP:true },
+};
+
+// Pick a target — 5 to 25 seconds, weighted toward the middle
+function chugPickTarget(){
+  const base = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+  return base[Math.floor(Math.random()*base.length)];
+}
+
+function chugGetMode(){
+  if(S.relics && S.relics.includes('meadaltar'))  return CHUG_MODES.legend;
+  if(S.relics && S.relics.includes('vikinghorn')) return CHUG_MODES.horn;
+  if(S.relics && S.relics.includes('ironthroat')) return CHUG_MODES.iron;
+  return CHUG_MODES.basic;
+}
+function chugGetMaxAttempts(){ return chugGetMode().attempts; }
+function chugResetAttempts(){
+  S.chugAttemptsLeft = chugGetMaxAttempts();
+  S._chugTarget = null; // fresh target each challenge
+  save();
+}
+
+let _chugActive = false, _chugStartMs = 0, _chugPhase = 'ready'; // 'ready'|'going'|'result'
+
+function refreshChug(){
+  if(S.charId !== 'tank') return;
+  const el = document.getElementById('tankChug');
+  if(el) el.classList.remove('hide');
+  const mode = chugGetMode();
+  const hasPending = !!S._tankPendingWin;
+
+  // Ensure a target is set
+  if(!S._chugTarget) S._chugTarget = chugPickTarget();
+  const target = S._chugTarget;
+
+  // Mode label
+  const modeLbl = document.getElementById('chugModeLbl');
+  if(modeLbl) modeLbl.textContent = hasPending ? 'XP WAGER · '+mode.name : mode.name;
+
+  // XP at stake row
+  const xpRow = document.getElementById('chugXPRow');
+  const xpAmt = document.getElementById('chugXPAmt');
+  if(xpRow) xpRow.classList.toggle('hide', !hasPending);
+  if(xpAmt && hasPending) xpAmt.textContent = S._tankPendingWin.xpAmount;
+
+  // Target display
+  const targetEl = document.getElementById('chugTarget');
+  if(targetEl) targetEl.textContent = target + 's';
+
+  // Tolerance hint
+  const tolerEl = document.getElementById('chugToler');
+  if(tolerEl) tolerEl.textContent = '±'+mode.perfect+'s PERFECT · ±'+mode.ok+'s OK · MISS = 0 XP';
+
+  // Safe button
+  const safeBtn = document.getElementById('chugSafeBtn');
+  const safeRow = document.getElementById('chugSafeRow');
+  if(safeBtn){ hasPending ? safeBtn.classList.remove('hide') : safeBtn.classList.add('hide'); }
+  if(safeRow){ safeRow.style.display = hasPending ? 'flex' : 'none'; }
+
+  // Attempts counter — only relevant during a pending XP wager
+  const left = S.chugAttemptsLeft ?? chugGetMaxAttempts();
+  const leftEl = document.getElementById('chugLeft');
+  if(leftEl) leftEl.textContent = left;
+  const attRow = document.getElementById('chugAttemptsRow');
+  // Show attempts row only when there's a pending wager (limited shots at XP)
+  if(attRow) attRow.style.display = hasPending ? 'flex' : 'none';
+
+  // Main button — idle chugs are always available (unlimited, just for coins)
+  const btn = document.getElementById('chugBtn');
+  const noAttempts = hasPending && left <= 0; // only block if WAGER attempts exhausted
+  if(btn){
+    if(noAttempts){
+      btn.textContent = '💤 NO ATTEMPTS LEFT';
+      btn.disabled = true;
+      btn.style.opacity = '0.4';
+      btn.onclick = null;
+    } else if(_chugPhase === 'going'){
+      btn.textContent = '🛑 STOP';
+      btn.disabled = false;
+      btn.style.opacity = '';
+      btn.onclick = chugStop;
+    } else {
+      btn.textContent = '🍺 START CHUGGING';
+      btn.disabled = false;
+      btn.style.opacity = '';
+      btn.onclick = chugGo;
+    }
+  }
+
+  // Rage meter + bloodied
+  const rageBar = document.getElementById('chugRageFill');
+  const ragePct = document.getElementById('chugRagePct');
+  const bloodiedBadge = document.getElementById('chugBloodied');
+  const rage = S.rage || 0;
+  if(rageBar){
+    rageBar.style.width = rage + '%';
+    const full = rage >= 100;
+    rageBar.style.boxShadow = full ? '0 0 12px #d4841a, 0 0 4px #ff9a30' : '';
+    rageBar.style.animation  = full ? 'rageFlare 0.6s ease-in-out infinite' : '';
+  }
+  if(ragePct) ragePct.textContent = rage >= 100 ? '🔥 FULL' : rage + '%';
+  if(bloodiedBadge) bloodiedBadge.style.display = S.bloodied ? 'block' : 'none';
+
+  // Upgrade buttons
+  const upEl = document.getElementById('chugUpgrades');
+  if(upEl){
+    upEl.innerHTML = Object.values(CHUG_MODES).filter(m=>m.relic).map(m=>{
+      const locked = !(S.relics && S.relics.includes(m.relic));
+      const active = m.id === mode.id;
+      return `<button class="btn ${active?'gold':'ghost'} sm" style="font-size:8px;${locked?'opacity:.45':''}">
+        ${active?'⚡':''} ${m.name}${locked?' 🔒':''}
+      </button>`;
+    }).join('');
+  }
+}
+
+function chugGo(){
+  if(_chugPhase === 'going') return;
+  const hasPending = !!S._tankPendingWin;
+  if(hasPending){
+    const left = S.chugAttemptsLeft ?? chugGetMaxAttempts();
+    if(left <= 0){ toast('NO WAGER ATTEMPTS LEFT — TAKE SAFE XP'); return; }
+  }
+  if(!S._chugTarget) S._chugTarget = chugPickTarget();
+  _chugPhase = 'going';
+  _chugActive = true;
+  _chugStartMs = Date.now();
+
+  // Blank out target during chug — player must rely on memory
+  const targetEl = document.getElementById('chugTarget');
+  if(targetEl) targetEl.textContent = '??';
+  const res = document.getElementById('chugResult');
+  if(res) res.innerHTML = '<span style="color:#8ad4ff;font-size:18px;letter-spacing:2px;animation:chugPulse 0.7s ease-in-out infinite">🍺 CHUGGING…</span>';
+
+  // Update button to STOP
+  const btn = document.getElementById('chugBtn');
+  if(btn){ btn.textContent = '🛑 STOP'; btn.onclick = chugStop; }
+}
+
+// Alias for HTML ontouchstart/onmousedown (old API kept for safety)
+function chugStart(e){ if(e && e.cancelable) e.preventDefault(); }
+function chugRelease(e){ if(e && e.cancelable) e.preventDefault(); }
+
+function chugStop(){
+  if(_chugPhase !== 'going') return;
+  _chugPhase = 'result';
+  _chugActive = false;
+  const elapsed = (Date.now() - _chugStartMs) / 1000;
+  chugResolve(elapsed);
+}
+
+function chugResolve(elapsed){
+  const mode = chugGetMode();
+  const target = S._chugTarget || 5;
+  const diff = Math.abs(elapsed - target);
+  const hasPending = !!S._tankPendingWin;
+
+  let mult, label, color;
+  if(diff <= mode.perfect){
+    mult = mode.tripleXP ? 3 : 2.5;
+    label = mode.tripleXP ? '🏆 LEGENDARY CHUG!' : '⚡ PERFECT!';
+    color = '#d4841a';
+    S.rage = Math.min(100, (S.rage||0) + 30);
+    S.chugMisses = 0;
+    S.bloodied = false;
+    S.perfectChugs = (S.perfectChugs||0) + 1;
+    if(S.rage >= 100) floatText('🔥 RAGE FULL!', '#d4841a');
+  } else if(diff <= mode.ok){
+    mult = 1;
+    label = '— COUNTS. BARELY.';
+    color = '#8a7060';
+    S.rage = Math.max(0, (S.rage||0) - 5);
+  } else {
+    mult = 0;
+    label = elapsed < target ? '💧 TOO FAST — KEEP DRINKING' : '💧 SPILLED — TOO LONG';
+    color = '#c03028';
+    S.chugMisses = (S.chugMisses||0) + 1;
+    S.rage = Math.max(0, (S.rage||0) - 20);
+    if(S.chugMisses >= 3 && !S.bloodied){
+      S.bloodied = true;
+      floatText('🧸 BLOODIED!', '#c03028');
+      toast('🧸 3 MISSES — BLOODIED! -30% XP until a perfect chug');
+    }
+  }
+
+  const res = document.getElementById('chugResult');
+  const sign = elapsed >= target ? '+' : '-';
+  const offStr = sign + diff.toFixed(1) + 's off target';
+  if(res) res.innerHTML =
+    `<div style="color:${color};font-size:13px;font-weight:bold;letter-spacing:1px">${label}</div>` +
+    `<div style="color:#6a8aaa;font-size:9px;margin-top:3px">${elapsed.toFixed(1)}s · target ${target}s · ${offStr}</div>`;
+
+  // Restore target display
+  const targetEl = document.getElementById('chugTarget');
+  if(targetEl) targetEl.textContent = target + 's';
+
+  // Reset button for next chug / show result
+  const btn = document.getElementById('chugBtn');
+  if(btn){ btn.textContent = '🍺 START CHUGGING'; btn.onclick = chugGo; }
+
+  setTimeout(()=>{
+    _chugPhase = 'ready';
+    if(hasPending){
+      _chugFinishApplyWin(mult);
+    } else {
+      S._chugTarget = chugPickTarget(); // fresh target for next idle chug
+      if(mult >= 2){
+        const bonus = mult >= 2.5 ? 15 : 10;
+        grantCoins(bonus);
+        addLog('🍺 CHUG: '+label+' +'+bonus+'🪙');
+        toast(label+' +'+bonus+'🪙');
+        floatText('+'+bonus+'🪙', '#ffd24a');
+      } else if(mult === 1){
+        grantCoins(3);
+        addLog('🍺 CHUG: '+label+' +3🪙');
+        toast(label);
+      } else {
+        addLog('💧 CHUG: '+label);
+        toast(label);
+      }
+      save(); syncHUD();
+      setTimeout(()=>{ if(!S._tankPendingWin){ const r=document.getElementById('chugResult'); if(r) r.textContent=''; refreshChug(); } }, 2500);
+    }
+  }, 800);
+}
+
+function chugTakeSafe(){
+  if(!S._tankPendingWin) return;
+  _chugFinishApplyWin(1);
+}
+
+function _chugFinishApplyWin(xpMult){
+  const pw = S._tankPendingWin;
+  if(!pw){ save(); syncHUD(); return; }
+  S._tankPendingWin = null;
+  const { t, xpAmount, isRevenge } = pw;
+  let g = 0;
+  if(xpMult > 0){
+    if((S.rage||0) >= 100){
+      xpMult *= 3;
+      S.rage = 0;
+      S.rageActivations = (S.rageActivations||0) + 1;
+      floatText('🔥 BERSERKER RAGE!', '#d4841a');
+      toast('🔥 BERSERKER RAGE — 3× XP BONUS!');
+    }
+    if(S.bloodied){
+      xpMult *= 0.7;
+      floatText('🧸 WOUNDED', '#c03028');
+    }
+    g = grantXP(Math.round(xpAmount * xpMult), t.n);
+    if(xpMult >= 3)      { addLog('🏆 LEGENDARY — '+t.n+' ×'+xpMult+' = +'+g+' XP'); toast('🏆 LEGENDARY! +'+g+' XP'); floatText('LEGENDARY', '#ffd24a'); }
+    else if(xpMult >= 2) { addLog('⚡ PERFECT CHUG — '+t.n+' ×'+xpMult+' = +'+g+' XP'); toast('⚡ ×'+xpMult+'! +'+g+' XP'); }
+    else if(xpMult > 1)  { addLog('✅ CHUG — '+t.n+' ×'+xpMult+' = +'+g+' XP'); toast('✅ +'+g+' XP'); }
+    else                 { addLog('✓ '+t.n+' — +'+g+' XP (safe)'); toast('+'+g+' XP'); }
+    if(isRevenge){ addLog('⚔ REVENGE served via chug.'); toast('⚔ REVENGE SERVED!'); }
+  } else {
+    floatText('SPILLED', '#5a9aff');
+    addLog('💧 '+t.n+' — spilled the chug. No XP lost.');
+    toast('💧 SPILLED — but forfeit is skipped. Drink your beer.');
+  }
+  if(t.drink){ S.drinks++; addPace(t.t===T.SHOT?16:12); }
+  if(t.heal) { S.waters++; addPace(-t.heal); }
+  S.badLuckHeat = Math.max(0, (S.badLuckHeat||0)-1);
+  grantSouvenir(t.t);
+  const coinsGained = Math.max(5, Math.round(t.xp/2));
+  grantCoins(coinsGained);
+  chugResetAttempts();
+  save(); syncHUD(); checkAchievements();
+  refreshChug();
+  if(t.t===T.BOSS) S.shopPending = true;
+  maybeOpenShop();
+}
+
 function denGetMaxSpins(){
   // return spin allowance for best unlocked game
   if(S.relics && S.relics.includes('horseshoe')) return DEN_GAMES.horseshoe.maxSpins;
@@ -2262,8 +2895,9 @@ function denSetGame(id){
 }
 
 function denAdjustBet(delta){
-  const maxBet = (S.coins||0) > 0 ? (S.coins||0) : 200;
-  _denBet = Math.max(5, Math.min(maxBet, _denBet + delta));
+  const coins = S.coins||0;
+  const maxBet = coins > 0 ? coins : 0;
+  _denBet = Math.max(1, Math.min(maxBet, _denBet + delta));
   const el = document.getElementById('denBetAmt');
   if(el) el.textContent = _denBet;
 }
@@ -2295,6 +2929,8 @@ function refreshDen(){
       const xpAmt = document.getElementById('denXPAmt');
       if(xpAmt) xpAmt.textContent = S._pendingWin.xpAmount;
       if(safeBtn) safeBtn.classList.remove('hide');
+      const safeRow = document.getElementById('denSafeRow');
+      if(safeRow) safeRow.style.display = 'flex';
       const inDebt = (S.coins||0) < 0;
       if(spinBtn){
         spinBtn.textContent = inDebt ? '🚫 IN DEBT — NO GAMBLING' : game.icon+' SPIN FOR XP';
@@ -2304,15 +2940,20 @@ function refreshDen(){
     } else {
       xpRow.classList.add('hide'); coinRow.classList.remove('hide');
       if(safeBtn) safeBtn.classList.add('hide');
-      if((S.coins||0) > 0) _denBet = Math.max(5, Math.min(_denBet, S.coins||0));
+      const safeRow2 = document.getElementById('denSafeRow');
+      if(safeRow2) safeRow2.style.display = 'none';
+      const coins = S.coins||0;
+      // always clamp bet to what the player actually has
+      _denBet = Math.max(1, Math.min(_denBet, Math.max(1, coins)));
       const noSpins = (S.denSpinsLeft ?? denGetMaxSpins()) <= 0;
-      const noFunds = (S.coins||0) < 0;
+      const inDebt  = coins < 0;
+      const broke   = coins === 0;
       if(spinBtn){
-        spinBtn.textContent = noFunds
-          ? '🚫 IN DEBT — NO GAMBLING'
-          : game.icon+' SPIN ('+_denBet+'🪙)';
-        spinBtn.disabled = noSpins || noFunds;
-        spinBtn.style.opacity = (noSpins || noFunds) ? '0.4' : '';
+        if(inDebt)  spinBtn.textContent = '🚫 IN DEBT — NO GAMBLING';
+        else if(broke) spinBtn.textContent = '🪙 NO COINS TO BET';
+        else        spinBtn.textContent = game.icon+' SPIN ('+_denBet+'🪙)';
+        spinBtn.disabled = noSpins || inDebt || broke;
+        spinBtn.style.opacity = (noSpins || inDebt || broke) ? '0.4' : '';
       }
       // clamp bet to current coins
       const betEl = document.getElementById('denBetAmt');
@@ -2379,10 +3020,22 @@ function denSpin(){
   if(_denSpinning) return;
   const game = DEN_GAMES[_denGame];
   const hasPending = !!S._pendingWin;
-  // block if in debt (coin gamble OR xp wager)
-  if((S.coins||0) < 0){
-    toast('YOU\'RE IN DEBT — EARN COINS BEFORE GAMBLING');
-    return;
+  // block if broke or in debt (coin gambling only — XP wager is separate)
+  if(!hasPending){
+    if((S.coins||0) < 0){
+      toast('YOU\'RE IN DEBT — EARN COINS BEFORE GAMBLING');
+      return;
+    }
+    if((S.coins||0) === 0){
+      toast('NO COINS — WIN A CHALLENGE TO EARN SOME');
+      return;
+    }
+  } else {
+    // XP wager: block only if in debt
+    if((S.coins||0) < 0){
+      toast('YOU\'RE IN DEBT — EARN COINS BEFORE GAMBLING');
+      return;
+    }
   }
   if(!hasPending){
     // enforce spin cap for coin gambling
@@ -2510,7 +3163,7 @@ function _finishApplyWin(xpMult){
   if(t.heal){ S.waters++; addPace(-t.heal); }
   S.badLuckHeat = Math.max(0, (S.badLuckHeat||0)-1);
   grantSouvenir(t.t);
-  const coinsGained = Math.max(3, Math.round(t.xp/3));
+  const coinsGained = Math.max(5, Math.round(t.xp/2));
   grantCoins(coinsGained);
   denResetSpins();
   save(); syncHUD(); checkAchievements();
@@ -2562,6 +3215,20 @@ function toast(msg){
 let slotSpinning = false;
 function spinSlot(){
   if(slotSpinning) return;
+  if(S._pendingWin){
+    toast('⚔ SETTLE YOUR BET FIRST — SPIN THE DEN OR TAKE SAFE XP');
+    const den = document.getElementById('gamblerDen');
+    if(den) den.scrollIntoView({ behavior:'smooth', block:'center' });
+    return;
+  }
+  if(S._tankPendingWin){
+    toast('🍺 FINISH YOUR CHUG FIRST');
+    const tc = document.getElementById('tankChug');
+    if(tc) tc.scrollIntoView({ behavior:'smooth', block:'center' });
+    const den = document.getElementById('gamblerDen');
+    if(den) den.scrollIntoView({ behavior:'smooth', block:'center' });
+    return;
+  }
   slotSpinning = true;
   const btn = document.getElementById('btnSpin'); if(btn) btn.disabled = true;
   const outcome = spinOutcome();
@@ -2621,7 +3288,8 @@ function acceptSlotResult(){
   if(tile.t===T.KARAOKE) S.karaokeDone = true; // one-time only — never rollable again once it's happened
   if(S.pulls % 3 === 0){
     S.laps++; S.hatUsedThisLap = false; S.shopPending = true;
-    grantXP(25,'lap'); grantCoins(10);
+    grantXP(25,'lap'); grantCoins(30);
+    toast('🏁 LAP BONUS — +30🪙');
     toast('ANOTHER LAP OF THE TOWN — SQUAD TOAST!'); addLog('Another lap of the town — squad toast');
   }
   save();
@@ -2670,7 +3338,7 @@ function openChallengeCard(reopen){
     body: t.body,
     chips: S.resolved ? ['✓ ALREADY CLAIMED'] : [
       `+${t.xp} XP`,
-      `+${Math.max(3, Math.round(t.xp/3))}🪙`,
+      `+${Math.max(5, Math.round(t.xp/2))}🪙`,
       SOUVENIRS[t.t] ? `${SOUVENIRS[t.t].icon} ${SOUVENIRS[t.t].n}` : '',
       t.drink ? '🍺 DRINK TILE' : '',
       t.gamble ? '🎲 FORFEIT IF LOST' : '',
@@ -3140,6 +3808,15 @@ function useItem(id){
   if(!S.items[id] || S.items[id]<=0){ toast('NONE LEFT'); return; }
   const c = CONSUMABLES.find(x=>x.id===id);
   S.items[id]--;
+  if(id==='debtpardon'){
+    if((S.coins||0) >= 0){ toast('YOU\'RE NOT IN DEBT — SAVE IT FOR LATER'); S.items[id]++; return; }
+    const wiped = Math.abs(S.coins);
+    S.coins = 0;
+    addLog(`📜 Debt pardoned — ${wiped}🪙 debt wiped clean.`);
+    toast('📜 DEBT FORGIVEN — BACK TO ZERO');
+    floatText('PARDONED', '#c8980a');
+    save(); syncHUD(); return;
+  }
   if(id==='icebucket'){
     S.skips = (S.skips||0)+1;
     addLog('Used RELOAD — +1 reroll');
