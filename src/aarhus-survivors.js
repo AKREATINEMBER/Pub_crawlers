@@ -203,7 +203,9 @@ const RELICS = [
   { id:'shoes',    n:'SHOES OF SUSPICIOUSLY GOOD BALANCE', icon:'👟', char:'jester', d:'The Jester\'s preferred method of avoiding responsibility at high speed. MOVE tiles send you 2 extra squares. Also +0.2 beer/min — permanently.', price:45, brewBonus:0.2 },
   { id:'shades',   n:'SUNGLASSES AT NIGHT (ICONIC, NOT PRACTICAL)', icon:'🕶️', d:'Look effortlessly cool doing literally any of this. Also +0.3 beer/min — permanently.', price:55, brewBonus:0.3 },
   { id:'bottomlessstein', n:'THE BOTTOMLESS STEIN', icon:'🍺', char:'tank', d:'Rumored to never actually empty. An extra +25% XP on top of your already absurd beer bonus. Also +0.3 beer/min — permanently.', price:60, brewBonus:0.3 },
-  { id:'loadeddice', n:"LOADED DICE (DON'T ASK)", icon:'🎲', char:'gambler', d:'Definitely not legal at the actual casino. An extra +25% XP on gambling tiles, stacking on the House Edge. Also +0.3 beer/min — permanently.', price:60, brewBonus:0.3 },
+  { id:'loadeddice', n:"LOADED DICE (DON'T ASK)", icon:'🎲', char:'gambler', d:"Definitely not legal at the actual casino. An extra +25% XP on gambling tiles AND unlocks Dice game in The Den — rigged in your favour, allegedly. Also +0.3 beer/min.", price:60, brewBonus:0.3 },
+  { id:'tarotdeck',  n:"THE TAROT DECK",            icon:'🃏', char:'gambler', d:"Ancient cards, dubious provenance. Unlocks Cards in The Den — pure 50/50, 2 spins per challenge. Also +0.4 beer/min.", price:75, brewBonus:0.4 },
+  { id:'horseshoe',  n:"THE LUCKY HORSESHOE",        icon:'🧲', char:'gambler', d:"Nailed above every great gambler's door. Unlocks the Horseshoe game in The Den — 60/40 odds in your favour, 1 golden spin per challenge. Also +0.5 beer/min.", price:100, brewBonus:0.5 },
   { id:'jokerscap', n:"THE JOKER'S CAP", icon:'🃏', char:'jester', d:'Bells that only you can hear, apparently. An extra +25% XP on party games and the Wheel. Also +0.3 beer/min — permanently.', price:60, brewBonus:0.3 },
   { id:'ironknuckles', n:'IRON KNUCKLES', icon:'👊', char:'machine', d:'Not technically legal in darts. An extra +25% XP on physical challenges, stacking on Raw Power. Also +0.3 beer/min — permanently.', price:60, brewBonus:0.3 }
 ];
@@ -261,7 +263,7 @@ function freshState(){
     doubleNext:false, startTime:Date.now(), log:[], ach:[],
     flags:{}, resolved:false, secret:null, secretDone:false, secretBlown:false,
     secret2:null, secret2Available:false, secret2Declined:false, secret2Done:false, secret2Blown:false, karaokeDone:false, beerLogCount:0, bossMarks:{}, bossesAvenged:0,
-    coins:0, souvenirs:{}, relics:[], items:{}, hatUsedThisLap:false,
+    coins:0, souvenirs:{}, relics:[], items:{}, hatUsedThisLap:false, denSpinsLeft:3,
     autoWinNext:false, shopPending:false,
     breweryUpgrades:[], coinAccum:0, lastProdTs:null, beerCoinsTotal:0, pendingLevelUps:0
   };
@@ -526,12 +528,10 @@ function tickBreweryProduction(){
     save();
   }
   const rateEl = document.getElementById('brewRateLabel');
-  if(rateEl) rateEl.textContent = '🍺 '+rate.toFixed(1)+'/min';
-  // show one decimal (lifetime whole coins + the fraction brewing right now) so it visibly
-  // creeps forward every few seconds instead of only jumping once a whole coin is done
+  if(rateEl) rateEl.textContent = rate.toFixed(1);
   const liveTotal = (S.beerCoinsTotal||0) + (S.coinAccum||0);
   const lifeEl = document.getElementById('brewLifetime');
-  if(lifeEl) lifeEl.textContent = '🍺 '+liveTotal.toFixed(1)+' BREWED';
+  if(lifeEl) lifeEl.textContent = liveTotal.toFixed(1);
 }
 function offerBreweryUpgrade(){
   showCard({
@@ -925,6 +925,8 @@ function loop(){
 
 /* ---------- navigation ---------- */
 function go(screen){
+  // clear character theme when leaving the game
+  if(screen==='boot' || screen==='char') document.body.setAttribute('data-char','');
   ['boot','char','game','squad','log','bag'].forEach(s=>{
     document.getElementById('screen-'+s).classList.toggle('hide', s!==screen);
   });
@@ -982,6 +984,8 @@ function computeEpicTitle(){
 }
 function syncHUD(){
   if(!S) return;
+  // apply per-character body theme
+  document.body.setAttribute('data-char', S.charId || '');
   document.getElementById('hudName').textContent = S.name;
   document.getElementById('hudLevel').textContent = 'LV '+S.level;
   const titleEl = document.getElementById('hudTitle');
@@ -998,6 +1002,15 @@ function syncHUD(){
   tickBreweryProduction();
   const tierNameEl = document.getElementById('brewTierName');
   if(tierNameEl) tierNameEl.textContent = breweryTierFor(S.level).name;
+  // keep den in sync
+  if(S.charId==='gambler') refreshDen();
+  // debt indicator — red when negative
+  const coinsEl = document.getElementById('stCoins');
+  if(coinsEl){
+    const c = S.coins||0;
+    coinsEl.textContent = c < 0 ? c+' IN DEBT' : c;
+    coinsEl.style.color = c < 0 ? '#c03028' : '';
+  }
 }
 
 /* ---------- XP / level ---------- */
@@ -1145,6 +1158,13 @@ function applyWin(t){
     delete S.bossMarks[t.n];
     S.bossesAvenged = (S.bossesAvenged||0) + 1;
   }
+  // Gambler: offer XP wager before awarding
+  if(S.charId === 'gambler'){
+    S._pendingWin = { t, xpAmount, isRevenge };
+    refreshDen(); // load XP stake into the den
+    return;
+  }
+  // Non-gambler: award immediately
   const g = grantXP(xpAmount, t.n);
   if(isRevenge){
     addLog(`⚔ REVENGE — you beat ${t.n} after it beat you. +50% XP.`);
@@ -1164,6 +1184,334 @@ function applyWin(t){
   addLog(`✓ ${t.n} — +${g} XP, +${coinsGained}🪙`);
   toast('+'+g+' XP · +'+coinsGained+'🪙');
   save(); syncHUD(); checkAchievements();
+  if(t.t===T.BOSS) S.shopPending = true;
+  maybeOpenShop();
+}
+
+/* ---------- Gambler XP Wheel ---------- */
+/* ══════════════════════════════════════════════════════════════
+   THE DEN — Gambler's permanent gambling widget
+   ══════════════════════════════════════════════════════════════ */
+
+// Games available in the den
+// maxSpins = coin-gamble spins allowed per challenge session
+const DEN_GAMES = {
+  wheel: {
+    id:'wheel', icon:'🎡', name:'WHEEL', maxSpins:3,
+    segs:[
+      { label:'LOSE',    mult:0, c:'#6a1008', textCol:'#f5c0b0', pct:0.40 },
+      { label:'WIN',     mult:2, c:'#c8a010', textCol:'#0e0806', pct:0.30 },
+      { label:'NOTHING', mult:1, c:'#2a1a08', textCol:'#8a6a44', pct:0.30 },
+    ]
+  },
+  dice: {
+    id:'dice', icon:'🎲', name:'DICE', maxSpins:2, relic:'loadeddice',
+    segs:[
+      { label:'LOSE',    mult:0, c:'#6a1008', textCol:'#f5c0b0', pct:0.35 },
+      { label:'NOTHING', mult:1, c:'#2a1a08', textCol:'#8a6a44', pct:0.25 },
+      { label:'WIN x2',  mult:2, c:'#5a3a10', textCol:'#d4a820', pct:0.25 },
+      { label:'HIGH x3', mult:3, c:'#c8a010', textCol:'#0e0806', pct:0.15 },
+    ]
+  },
+  cards: {
+    id:'cards', icon:'🃏', name:'CARDS', maxSpins:2, relic:'tarotdeck',
+    // 50/50 — pure win or lose, no nothing
+    segs:[
+      { label:'LOSE',  mult:0, c:'#6a1008', textCol:'#f5c0b0', pct:0.50 },
+      { label:'WIN x2',mult:2, c:'#c8a010', textCol:'#0e0806', pct:0.50 },
+    ]
+  },
+  horseshoe: {
+    id:'horseshoe', icon:'🧲', name:'HORSESHOE', maxSpins:1, relic:'horseshoe',
+    // 60/40 — best odds, one golden shot per challenge
+    segs:[
+      { label:'LOSE',  mult:0, c:'#6a1008', textCol:'#f5c0b0', pct:0.40 },
+      { label:'WIN x2',mult:2, c:'#c8a010', textCol:'#0e0806', pct:0.60 },
+    ]
+  }
+};
+
+function denGetMaxSpins(){
+  // return spin allowance for best unlocked game
+  if(S.relics && S.relics.includes('horseshoe')) return DEN_GAMES.horseshoe.maxSpins;
+  if(S.relics && S.relics.includes('tarotdeck')) return DEN_GAMES.cards.maxSpins;
+  if(S.relics && S.relics.includes('loadeddice')) return DEN_GAMES.dice.maxSpins;
+  return DEN_GAMES.wheel.maxSpins;
+}
+function denResetSpins(){
+  S.denSpinsLeft = denGetMaxSpins();
+  save();
+}
+
+let _denGame = 'wheel';
+let _denBet  = 10;
+let _denSpinning = false;
+
+function denIsUnlocked(gameId){
+  const g = DEN_GAMES[gameId];
+  return !g.relic || (S.relics && S.relics.includes(g.relic));
+}
+
+function denSetGame(id){
+  if(!denIsUnlocked(id)){ toast('🔒 BUY IT IN THE SHOP FIRST'); return; }
+  _denGame = id;
+  refreshDen();
+}
+
+function denAdjustBet(delta){
+  const maxBet = (S.coins||0) > 0 ? (S.coins||0) : 200;
+  _denBet = Math.max(5, Math.min(maxBet, _denBet + delta));
+  const el = document.getElementById('denBetAmt');
+  if(el) el.textContent = _denBet;
+}
+
+function refreshDen(){
+  if(S.charId !== 'gambler') return;
+  const den = document.getElementById('gamblerDen');
+  if(den) den.classList.remove('hide');
+
+  const hasPending = !!S._pendingWin;
+  const game = DEN_GAMES[_denGame];
+
+  // mode label
+  const modeLbl = document.getElementById('denModeLbl');
+  const spinsLeft = S.denSpinsLeft ?? denGetMaxSpins();
+  const maxSpins  = denGetMaxSpins();
+  if(modeLbl) modeLbl.textContent = hasPending
+    ? 'XP WAGER'
+    : 'COIN GAMBLE · '+spinsLeft+'/'+maxSpins+' SPINS';
+
+  // XP row vs coin row
+  const xpRow   = document.getElementById('denXPRow');
+  const coinRow  = document.getElementById('denCoinRow');
+  const safeBtn  = document.getElementById('denSafeBtn');
+  const spinBtn  = document.getElementById('denSpinBtn');
+  if(xpRow && coinRow){
+    if(hasPending){
+      xpRow.classList.remove('hide'); coinRow.classList.add('hide');
+      const xpAmt = document.getElementById('denXPAmt');
+      if(xpAmt) xpAmt.textContent = S._pendingWin.xpAmount;
+      if(safeBtn) safeBtn.classList.remove('hide');
+      const inDebt = (S.coins||0) < 0;
+      if(spinBtn){
+        spinBtn.textContent = inDebt ? '🚫 IN DEBT — NO GAMBLING' : game.icon+' SPIN FOR XP';
+        spinBtn.disabled = inDebt;
+        spinBtn.style.opacity = inDebt ? '0.4' : '';
+      }
+    } else {
+      xpRow.classList.add('hide'); coinRow.classList.remove('hide');
+      if(safeBtn) safeBtn.classList.add('hide');
+      if((S.coins||0) > 0) _denBet = Math.max(5, Math.min(_denBet, S.coins||0));
+      const noSpins = (S.denSpinsLeft ?? denGetMaxSpins()) <= 0;
+      const noFunds = (S.coins||0) < 0;
+      if(spinBtn){
+        spinBtn.textContent = noFunds
+          ? '🚫 IN DEBT — NO GAMBLING'
+          : game.icon+' SPIN ('+_denBet+'🪙)';
+        spinBtn.disabled = noSpins || noFunds;
+        spinBtn.style.opacity = (noSpins || noFunds) ? '0.4' : '';
+      }
+      // clamp bet to current coins
+      const betEl = document.getElementById('denBetAmt');
+      if(betEl) betEl.textContent = _denBet;
+    }
+  }
+  // clear result when refreshing to new state
+  if(!_denSpinning){
+    const res = document.getElementById('denResult');
+    if(res && !hasPending) res.textContent = '';
+  }
+
+  // game switcher
+  const gamesEl = document.getElementById('denGames');
+  if(gamesEl){
+    gamesEl.innerHTML = Object.values(DEN_GAMES).map(g => {
+      const locked = !denIsUnlocked(g.id);
+      const active = g.id === _denGame;
+      return `<button class="btn ${active?'gold':'ghost'} sm"
+        onclick="denSetGame('${g.id}')"
+        style="font-size:8px;${locked?'opacity:.45':''}">
+        ${g.icon} ${g.name}${locked?' 🔒':''}
+      </button>`;
+    }).join('');
+  }
+
+  // draw idle wheel
+  if(!_denSpinning) denPaintWheel(_denGame, 0);
+}
+
+function denPaintWheel(gameId, rotation){
+  const c = document.getElementById('denCanvas'); if(!c) return;
+  const ctx = c.getContext('2d');
+  const segs = DEN_GAMES[gameId].segs;
+  const R=86, cx=90, cy=90;
+  ctx.clearRect(0,0,180,180);
+  ctx.save(); ctx.translate(cx,cy); ctx.rotate(rotation - Math.PI/2);
+  let start = 0;
+  segs.forEach(seg=>{
+    const sweep = seg.pct * Math.PI * 2;
+    ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,R,start,start+sweep); ctx.closePath();
+    ctx.fillStyle = seg.c; ctx.fill();
+    ctx.strokeStyle = '#c8980a'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.save();
+    ctx.rotate(start + sweep/2);
+    ctx.fillStyle = seg.textCol;
+    ctx.font = 'bold 7px monospace';
+    ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    ctx.fillText(seg.label, R-6, 0);
+    ctx.restore();
+    start += sweep;
+  });
+  ctx.restore();
+  // hub
+  ctx.beginPath(); ctx.arc(cx,cy,15,0,Math.PI*2);
+  ctx.fillStyle='#0e0806'; ctx.fill();
+  ctx.strokeStyle='#c8980a'; ctx.lineWidth=2; ctx.stroke();
+  const game = DEN_GAMES[gameId];
+  ctx.font='11px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(game.icon,cx,cy);
+}
+
+function denSpin(){
+  if(_denSpinning) return;
+  const game = DEN_GAMES[_denGame];
+  const hasPending = !!S._pendingWin;
+  // block if in debt (coin gamble OR xp wager)
+  if((S.coins||0) < 0){
+    toast('YOU\'RE IN DEBT — EARN COINS BEFORE GAMBLING');
+    return;
+  }
+  if(!hasPending){
+    // enforce spin cap for coin gambling
+    if((S.denSpinsLeft||0) <= 0){
+      toast('NO SPINS LEFT — COMPLETE A CHALLENGE TO REFRESH');
+      return;
+    }
+    S.denSpinsLeft = (S.denSpinsLeft||1) - 1;
+    // coin mode: deduct bet upfront (debt allowed)
+    S.coins = (S.coins||0) - _denBet;
+    save(); syncHUD();
+  }
+  _denSpinning = true;
+  const spinBtn = document.getElementById('denSpinBtn');
+  const safeBtn = document.getElementById('denSafeBtn');
+  if(spinBtn){ spinBtn.disabled=true; spinBtn.textContent='SPINNING…'; }
+  if(safeBtn) safeBtn.classList.add('hide');
+
+  // pick outcome
+  const r = Math.random();
+  let targetIdx = game.segs.length-1, cum = 0;
+  for(let i=0;i<game.segs.length;i++){
+    cum += game.segs[i].pct;
+    if(r < cum){ targetIdx = i; break; }
+  }
+
+  // compute final rotation
+  let cumAng = 0;
+  const mids = game.segs.map(seg=>{
+    const mid = cumAng + seg.pct * Math.PI;
+    cumAng += seg.pct * Math.PI * 2;
+    return mid;
+  });
+  const jitter = (Math.random()-0.5)*0.5*game.segs[targetIdx].pct*Math.PI*2;
+  const landAt  = mids[targetIdx] + jitter;
+  const finalRot = (5 + Math.random()*3)*Math.PI*2 - landAt;
+
+  const dur = 3500, t0 = Date.now();
+  (function anim(){
+    const p = Math.min(1,(Date.now()-t0)/dur);
+    const e = 1 - Math.pow(1-p,4);
+    denPaintWheel(_denGame, finalRot*e);
+    if(p < 1){ requestAnimationFrame(anim); return; }
+    _denSpinning = false;
+    const seg = game.segs[targetIdx];
+    const res = document.getElementById('denResult');
+    if(res){
+      if(seg.mult===0)        res.innerHTML = '<span style="color:#c03028">💀 BUST</span>';
+      else if(seg.mult>=3)  res.innerHTML = '<span style="color:#d4a820">🏆 WIN \xd7'+seg.mult+'</span>';
+      else if(seg.mult===1) res.innerHTML = '<span style="color:#8a6a44">\u2014 NOTHING</span>';
+      else if(seg.mult===0) res.innerHTML = '<span style="color:#c03028">💀 LOSE</span>';
+      else                  res.innerHTML = '<span style="color:#a0e060">✅ WIN \xd7'+seg.mult+'</span>';
+    }
+    if(hasPending){
+      _finishApplyWin(seg.mult);
+    } else {
+      // coin mode — bet already deducted upfront
+      if(seg.mult === 0){
+        // LOSE — bet is gone, show debt if negative
+        addLog('💀 DEN '+game.name+': lost '+_denBet+'🪙. Balance: '+(S.coins||0));
+        toast('💀 LOST '+_denBet+'🪙'+(S.coins<0?' — IN DEBT 🟥':''));
+        floatText('-'+_denBet, '#c03028');
+      } else if(seg.mult === 1){
+        // NOTHING — push, return bet
+        S.coins = (S.coins||0) + _denBet;
+        addLog('— DEN '+game.name+': nothing. Bet returned.');
+        toast('NOTHING HAPPENS');
+      } else {
+        // WIN — return bet + profit
+        const won = Math.round(_denBet * seg.mult);
+        S.coins = (S.coins||0) + won;
+        const net = won - _denBet;
+        addLog('✅ DEN '+game.name+': bet '+_denBet+'🪙, won '+won+'🪙 (net +'+net+')');
+        toast('+'+net+' 🪙 NET WIN');
+        floatText('+'+net, '#d4a820');
+      }
+      save(); syncHUD();
+      // re-enable spin button after short delay
+      setTimeout(()=>{
+        if(spinBtn){ spinBtn.disabled=false; spinBtn.textContent=game.icon+' SPIN ('+_denBet+'🪙)'; }
+        const res2 = document.getElementById('denResult');
+        if(res2) res2.textContent='';
+      }, 2200);
+    }
+  })();
+}
+
+function denTakeSafe(){
+  if(!S._pendingWin) return;
+  _finishApplyWin(1);
+}
+
+function _finishApplyWin(xpMult){
+  const pw = S._pendingWin;
+  if(!pw){ save(); syncHUD(); return; }
+  S._pendingWin = null;
+  const { t, xpAmount, isRevenge } = pw;
+  let g = 0;
+  if(xpMult > 0){
+    g = grantXP(Math.round(xpAmount * xpMult), t.n);
+    if(isRevenge){
+      addLog('⚔ REVENGE — beat '+t.n+' after it beat you. \xd7'+xpMult+' gamble = +'+g+' XP.');
+      toast('⚔ REVENGE SERVED. '+t.n+' AVENGED.');
+    } else if(xpMult >= 3){
+      addLog('🏆 JACKPOT — '+t.n+' \xd7'+xpMult+' = +'+g+' XP');
+      toast('🏆 JACKPOT! +'+g+' XP');
+    } else if(xpMult > 1){
+      addLog('🎲 WIN — '+t.n+' \xd7'+xpMult+' = +'+g+' XP');
+      toast('🎲 \xd7'+xpMult+'! +'+g+' XP');
+    } else {
+      addLog('✓ '+t.n+' — +'+g+' XP (safe)');
+      toast('+'+g+' XP · SAFE');
+    }
+  } else {
+    floatText('BUST', '#c03028');
+    addLog('💀 '+t.n+' — gambled and lost everything. 0 XP.');
+    toast('💀 BUST. THE HOUSE WINS.');
+  }
+  if(t.drink){
+    S.drinks++;
+    let paceAdd = (t.t===T.SHOT?16:12);
+    if(S.relics.includes('shades')) paceAdd = Math.round(paceAdd*0.8);
+    addPace(paceAdd);
+  }
+  if(t.heal){ S.waters++; addPace(-t.heal); }
+  S.badLuckHeat = Math.max(0, (S.badLuckHeat||0)-1);
+  grantSouvenir(t.t);
+  const coinsGained = Math.max(3, Math.round(t.xp/3));
+  grantCoins(coinsGained);
+  denResetSpins();
+  save(); syncHUD(); checkAchievements();
+  refreshDen();
   if(t.t===T.BOSS) S.shopPending = true;
   maybeOpenShop();
 }
@@ -1721,16 +2069,23 @@ function loseXP(amount, why){
 
 /* ---------- shop ---------- */
 function openShop(){
-  const relicRows = RELICS.filter(r=>!r.char || r.char===S.charId).map(r=>{
+  const ch = CHARS.find(c=>c.id===S.charId);
+  const charName = ch ? ch.name : 'YOUR CHARACTER';
+  // split relics: character-exclusive first, then generic
+  const myRelics  = RELICS.filter(r=> r.char===S.charId);
+  const genRelics = RELICS.filter(r=>!r.char);
+  function relicRow(r){
     const owned = S.relics.includes(r.id);
     const action = owned
-      ? `<span class="green" style="font-size:8px;white-space:nowrap">OWNED</span>`
+      ? `<span class="green" style="font-size:8px;white-space:nowrap">✓ OWNED</span>`
       : `<button class="btn purple sm" style="width:auto;margin:0;padding:7px 9px" onclick="buyRelic('${r.id}')" ${S.coins<r.price?'disabled':''}>${r.price}🪙</button>`;
     return `<div class="chip" style="width:100%;box-sizing:border-box;display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left;padding:8px;">
       <span>${r.icon} <b class="gold">${r.n}</b><br><span class="dim" style="font-size:7px">${r.d}</span></span>
       ${action}
     </div>`;
-  }).join('');
+  }
+  const myRelicRows  = myRelics.map(relicRow).join('');
+  const genRelicRows = genRelics.map(relicRow).join('');
   const itemRows = CONSUMABLES.filter(c=>!c.char || c.char===S.charId).map(c=>{
     const owned = S.items[c.id]||0;
     return `<div class="chip" style="width:100%;box-sizing:border-box;display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left;padding:8px;">
@@ -1738,14 +2093,20 @@ function openShop(){
       <button class="btn cyan sm" style="width:auto;margin:0;padding:7px 9px" onclick="buyConsumable('${c.id}')" ${S.coins<c.price?'disabled':''}>${c.price}🪙</button>
     </div>`;
   }).join('');
+  const mySection = myRelicRows ? `
+    <div class="divider" style="margin:6px 0"></div>
+    <div class="cardBody" style="font-size:9px;margin-bottom:4px"><b class="gold">⚔ ${charName} EXCLUSIVE</b></div>
+    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:6px">${myRelicRows}</div>` : '';
   showCard({
     cls:'good',
     tag:'🛒 PIT STOP',
     title:`🪙 ${S.coins} SKÅL COINS`,
     venue:'',
-    body:'Spend what you\'ve earned. Relics last all night. Items are one-time use, saved in your BAG.',
-    raw:`<div class="cardBody" style="font-size:9px;margin-bottom:4px"><b class="gold">RELICS</b></div>
-         <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px">${relicRows}</div>
+    body:'Spend what you\'ve earned. Relics last all night. Items are one-time use.',
+    raw:`${mySection}
+         <div class="divider" style="margin:6px 0"></div>
+         <div class="cardBody" style="font-size:9px;margin-bottom:4px"><b class="gold">RELICS</b></div>
+         <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px">${genRelicRows}</div>
          <div class="cardBody" style="font-size:9px;margin-bottom:4px"><b class="cyan">ITEMS</b></div>
          <div style="display:flex;flex-direction:column;gap:6px">${itemRows}</div>`,
     buttons:`<button class="btn primary" onclick="closeCard()">✓ DONE SHOPPING</button>`

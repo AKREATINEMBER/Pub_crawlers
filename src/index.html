@@ -45,15 +45,13 @@
     <div id="arenaWrap">
       <canvas id="arena" width="360" height="150"></canvas>
       <div id="arenaLabel">AARHUS · NIGHT 1</div>
-      <div id="brewRateLabel">🍺 0.0/min</div>
 
     </div>
     <div class="panel tight brewDash">
       <div class="hudRow">
         <span class="gold" id="brewTierName">THE SHACK</span>
-        <span class="cyan" id="brewLifetime">🍺 0 BREWED</span>
+        <span class="dim" id="brewStats"><span id="brewLifetime">0</span> brewed &nbsp;·&nbsp; <span id="brewRateLabel">0.0</span>/min</span>
       </div>
-      <p class="small dim" style="margin:4px 0 0">This is your brewery. Everything below just feeds it.</p>
     </div>
 
     <div class="panel tight" style="margin-top:10px">
@@ -72,10 +70,6 @@
       </div>
     </div>
 
-    <div class="panel tight crawlHeader">
-      <h2 style="margin:0">🍻 HIT THE TOWN</h2>
-      <p class="small dim" style="margin:4px 0 0">Pull the lever — every outcome is more coin and XP for the brewery above. No dice, no board, just the reels.</p>
-    </div>
 
     <div id="slotWrap">
       <div id="slotReels">
@@ -100,6 +94,39 @@
     </div>
 
     <button class="btn green sm" style="margin-top:8px" onclick="logBeer()">🍺 LOG A BEER</button>
+
+    <!-- ── GAMBLER DEN — permanent gambling widget, gambler only ── -->
+    <div id="gamblerDen" class="hide">
+      <div class="panel tight" style="margin-top:6px">
+        <div class="hudRow" style="margin-bottom:4px">
+          <span class="gold" style="font-size:9px;letter-spacing:2px">⚔ THE DEN</span>
+          <span id="denModeLbl" class="dim" style="font-size:8px">COIN GAMBLE</span>
+        </div>
+        <div style="position:relative;text-align:center;margin:4px 0 2px">
+          <div style="position:absolute;top:-6px;left:50%;transform:translateX(-50%);
+               width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;
+               border-top:14px solid #c8980a;z-index:5;filter:drop-shadow(0 0 3px rgba(200,152,10,.5))"></div>
+          <canvas id="denCanvas" width="180" height="180" style="border-radius:50%;display:block;margin:0 auto"></canvas>
+        </div>
+        <div id="denResult" style="min-height:22px;font-size:14px;font-weight:bold;letter-spacing:1px;text-align:center;margin:4px 0"></div>
+        <!-- XP stake row (shown when challenge just completed) -->
+        <div id="denXPRow" class="hide hudRow" style="margin-bottom:6px;justify-content:center;gap:8px">
+          <span class="dim" style="font-size:9px">XP AT STAKE:</span>
+          <span id="denXPAmt" style="font-size:16px;color:#d4a820;font-weight:bold">0</span>
+        </div>
+        <!-- Coin bet row (shown in idle mode) -->
+        <div id="denCoinRow" class="hudRow" style="justify-content:center;gap:8px;margin-bottom:6px">
+          <button class="btn ghost sm" onclick="denAdjustBet(-5)" style="padding:2px 8px;font-size:12px">−</button>
+          <span style="font-size:12px;color:#d4a820"><span id="denBetAmt">10</span> 🪙</span>
+          <button class="btn ghost sm" onclick="denAdjustBet(5)" style="padding:2px 8px;font-size:12px">+</button>
+        </div>
+        <div id="denActions" style="display:flex;flex-direction:column;gap:6px">
+          <button id="denSpinBtn" class="btn primary" onclick="denSpin()">🎲 SPIN THE WHEEL</button>
+          <button id="denSafeBtn" class="btn ghost sm hide" onclick="denTakeSafe()" style="font-size:9px;opacity:.7">take safe XP instead</button>
+        </div>
+        <div id="denGames" style="display:flex;gap:4px;margin-top:8px;justify-content:center;flex-wrap:wrap"></div>
+      </div>
+    </div>
   </section>
 
   <!-- ============ SAVE / BACKUP ============ -->

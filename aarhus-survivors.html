@@ -61,9 +61,9 @@ body::after{
   background:linear-gradient(180deg,var(--panel) 0%, #201308 100%);
   border:3px solid #6b4a26;
   box-shadow:0 0 0 3px #170f08, 0 6px 0 0 #170f08, inset 0 0 24px rgba(200,140,50,.18);
-  padding:12px;margin-bottom:10px;
+  padding:10px;margin-bottom:6px;
 }
-.panel.tight{padding:8px;}
+.panel.tight{padding:7px 10px;}
 h1,h2,h3{margin:0 0 8px;font-weight:400;line-height:1.5;}
 h1{font-size:16px;color:var(--gold);text-shadow:0 3px 0 #7a3d00, 0 0 18px rgba(255,210,74,.5);}
 h2{font-size:12px;color:var(--cyan);text-shadow:0 2px 0 #06504a;}
@@ -134,21 +134,21 @@ input[type=text]::placeholder{color:#4a4080;}
 #arenaLabel{position:absolute;top:4px;left:6px;font-size:7px;color:var(--dim);}
 
 #brewRateLabel{position:absolute;bottom:4px;right:6px;font-size:8px;color:#e8b23a;}
-.brewDash{margin-top:6px;border-color:#5a4a1e;}
+.brewDash{margin-top:4px;margin-bottom:4px;border-color:#5a4a1e;}
 .crawlHeader{margin-top:14px;border-color:#3d2f6e;}
 
 /* ---------- HUD ---------- */
-.hudRow{display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:8px;margin-bottom:5px;}
+.hudRow{display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:8px;margin-bottom:3px;}
 .bar{height:12px;background:#07060f;border:2px solid #170f08;box-shadow:inset 0 0 0 1px #5a3f20;position:relative;overflow:hidden;}
 .bar i{display:block;height:100%;width:0%;transition:width .35s cubic-bezier(.2,.9,.3,1);}
-.bar.xp i{background:linear-gradient(90deg,#38f2e0,#a45cff);}
+.bar.xp i{background:linear-gradient(90deg,#e8a33d,#d97e2b);}
 .bar.pace i{background:linear-gradient(90deg,#6ee36e,#ffd24a 55%,#ff4d5e);}
 .bar span{position:absolute;inset:0;text-align:center;font-size:7px;line-height:12px;color:#fff;text-shadow:0 1px 0 #000;}
-.statPills{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;}
-.pill{background:#170f08;border:2px solid #5a3f20;padding:4px 6px;font-size:8px;}
+.statPills{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;}
+.pill{background:#170f08;border:2px solid #5a3f20;padding:3px 6px;font-size:8px;}
 
 /* ---------- slot machine (medieval, no dice, no board) ---------- */
-#slotWrap{background:linear-gradient(180deg,#3a2a1c,#241a10);border:3px solid #5a3a24;box-shadow:0 0 0 3px #170f08, inset 0 0 20px rgba(0,0,0,.4);padding:10px;margin-top:10px;border-radius:4px;}
+#slotWrap{background:linear-gradient(180deg,#3a2a1c,#241a10);border:3px solid #5a3a24;box-shadow:0 0 0 3px #170f08, inset 0 0 20px rgba(0,0,0,.4);padding:10px;margin-top:6px;border-radius:4px;}
 #slotReels{display:flex;justify-content:center;gap:8px;}
 .reel{width:64px;height:64px;background:#0e0b16;border:3px solid #c9a227;border-radius:3px;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 10px rgba(0,0,0,.6);}
 .reelIcon{font-size:30px;}
@@ -292,6 +292,290 @@ textarea{
   flex-direction: column;
   gap: 8px;
 }
+
+/* ══════════════════════════════════════════════════════════════
+   GAMBLER — Medieval Gambling Den
+   Rich crimson velvet, aged gold, carved wood, candlelight.
+   Applied when body[data-char="gambler"]
+   ══════════════════════════════════════════════════════════════ */
+
+/* CSS variable overrides — jewel-tone medieval palette */
+body[data-char="gambler"] {
+  --bg:    #0e0806;
+  --bg2:   #160c08;
+  --panel: #251008;
+  --panel2:#321608;
+  --ink:   #f5e6cc;
+  --dim:   #8a6a44;
+  --gold:  #c8980a;
+  --cyan:  #b03030;   /* deep ruby — replaces teal */
+  --green: #3a7a1e;
+  --red:   #c03028;
+  --mag:   #8b2252;
+  --orange:#c87820;
+  --purple:#7a3a8a;
+}
+
+/* Candlelit stone tavern background */
+body[data-char="gambler"] {
+  background:
+    radial-gradient(ellipse 100% 50% at 50% 0%,   rgba(140,60,10,.35)  0%, transparent 60%),
+    radial-gradient(ellipse  60% 40% at 15% 100%,  rgba(80,20,10,.4)    0%, transparent 55%),
+    radial-gradient(ellipse  60% 40% at 85% 100%,  rgba(80,20,10,.4)    0%, transparent 55%),
+    linear-gradient(180deg, #0e0806 0%, #120a06 55%, #0e0806 100%);
+  background-attachment: fixed;
+}
+
+/* Warm candlelight film grain — amber instead of blue */
+body[data-char="gambler"]::after {
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(160,80,20,.04) 2px,
+    rgba(160,80,20,.04) 4px
+  );
+}
+
+/* Panels — deep mahogany with faint gold inlay border */
+body[data-char="gambler"] .panel,
+body[data-char="gambler"] .panel.tight {
+  background: linear-gradient(180deg, #251008, #1c0c06);
+  border: 1px solid rgba(200,152,10,.3);
+  box-shadow: 0 0 16px rgba(160,80,10,.12), inset 0 0 24px rgba(0,0,0,.35);
+}
+
+/* Challenge inline card — crimson velvet border */
+body[data-char="gambler"] #challengeInline {
+  border-color: #c8980a;
+  box-shadow: 0 0 14px rgba(200,152,10,.28);
+}
+body[data-char="gambler"] .ci-expanded {
+  border-top-color: rgba(200,152,10,.25);
+}
+
+/* Slot machine — aged wood frame with gold trim */
+body[data-char="gambler"] #slotWrap {
+  background: linear-gradient(180deg, #1c0e06, #120a04);
+  border: 3px solid #7a5010;
+  box-shadow: 0 0 0 3px #0e0806, 0 0 18px rgba(200,152,10,.18), inset 0 0 20px rgba(0,0,0,.5);
+  filter: none;
+}
+
+/* Reels — dark wood with gold-trim border */
+body[data-char="gambler"] .reel {
+  background: #0e0806;
+  border-color: #8a6010;
+  box-shadow: inset 0 0 10px rgba(0,0,0,.7), 0 0 8px rgba(200,152,10,.22);
+}
+
+/* Brewery canvas */
+body[data-char="gambler"] #arenaWrap {
+  background: #0e0806;
+  border: 3px solid #7a5010;
+  box-shadow: 0 0 0 3px #0e0806, inset 0 0 30px rgba(120,50,10,.2);
+}
+
+/* Slot result label — warm parchment gold */
+body[data-char="gambler"] #slotResultLabel {
+  color: #d4a820;
+  text-shadow: 0 0 8px rgba(210,170,30,.45);
+}
+
+/* Reel pointer triangle */
+body[data-char="gambler"] .reelPointer {
+  border-top-color: #c8980a;
+  filter: drop-shadow(0 2px 0 #0e0806);
+}
+
+/* HUD title — aged gold */
+body[data-char="gambler"] #hudTitle {
+  color: #c8980a;
+  text-shadow: 0 0 10px rgba(200,152,10,.3);
+}
+
+/* Gold text glow — warm candlelight */
+body[data-char="gambler"] .gold {
+  text-shadow: 0 0 6px rgba(200,152,10,.4);
+}
+
+/* Card suit watermark — faint parchment style */
+body[data-char="gambler"] #screen-game::before {
+  content: "♠ ♥ ♣ ♦";
+  position: fixed;
+  bottom: 80px;
+  right: 12px;
+  font-size: 22px;
+  letter-spacing: 6px;
+  color: rgba(200,152,10,.07);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* XP bar — deep ruby fill on dark wood track */
+body[data-char="gambler"] .bar {
+  background: #0a0604;
+  border-color: #3a1a08;
+  box-shadow: inset 0 0 0 1px #5a2a0a;
+}
+body[data-char="gambler"] .bar.xp i {
+  background: linear-gradient(90deg, #8b0000, #c0392b);
+  box-shadow: 0 0 8px rgba(160,30,30,.55);
+}
+
+/* Stat pills — dark mahogany */
+body[data-char="gambler"] .pill {
+  background: #1c0c06;
+  border-color: rgba(200,152,10,.25);
+}
+
+/* Chips / reward row — gilded tokens */
+body[data-char="gambler"] .chip {
+  background: #1c0c06;
+  border: 2px solid rgba(200,152,10,.4);
+  color: #d4a820;
+}
+
+/* Divider — gold-fleck rule */
+body[data-char="gambler"] .divider {
+  background: repeating-linear-gradient(90deg, rgba(200,152,10,.4) 0 6px, transparent 6px 12px);
+}
+
+/* Log item separator */
+body[data-char="gambler"] .logItem {
+  border-bottom-color: rgba(120,80,20,.35);
+}
+
+/* Bottom nav — dark carved wood with gold top border */
+body[data-char="gambler"] #nav {
+  background: linear-gradient(180deg, #251008, #0e0806);
+  border-top: 3px solid #7a5010;
+}
+body[data-char="gambler"] #nav button {
+  background: #1c0c06;
+  border-color: #0e0806;
+  box-shadow: 0 3px 0 #0e0806;
+  color: #8a6a44;
+}
+body[data-char="gambler"] #nav button.on {
+  background: linear-gradient(180deg, #6a2a0a, #4a1a06);
+  color: #f5e6cc;
+  box-shadow: 0 3px 0 #0e0806, 0 0 12px rgba(180,80,20,.4);
+}
+body[data-char="gambler"] #nav button:active {
+  box-shadow: 0 1px 0 #0e0806;
+}
+
+/* Primary button — deep crimson with gold border */
+body[data-char="gambler"] .btn.primary {
+  background: linear-gradient(135deg, #7a1a06, #9e2210);
+  border-color: #c8980a;
+  box-shadow: 0 5px 0 #0e0806, 0 0 16px rgba(180,40,20,.4);
+  text-shadow: 0 1px 2px rgba(0,0,0,.6);
+}
+body[data-char="gambler"] .btn.primary:active {
+  box-shadow: 0 1px 0 #0e0806, 0 0 24px rgba(180,40,20,.6);
+}
+
+/* Base button shadow — wood instead of indigo */
+body[data-char="gambler"] .btn {
+  color: #f5e6cc;
+  border-color: #4a2408;
+  box-shadow: 0 5px 0 #0e0806, inset 0 2px 0 rgba(220,180,80,.12);
+}
+body[data-char="gambler"] .btn:active {
+  box-shadow: 0 1px 0 #0e0806, inset 0 2px 0 rgba(220,180,80,.12);
+}
+
+/* .btn.gold — rich coin-gold */
+body[data-char="gambler"] .btn.gold {
+  background: linear-gradient(180deg, #7a5800, #5a3c00);
+  border-color: #c8980a;
+  box-shadow: 0 5px 0 #0e0806, 0 0 10px rgba(200,152,10,.28);
+}
+
+/* .btn.cyan → deep ruby */
+body[data-char="gambler"] .btn.cyan {
+  background: linear-gradient(180deg, #7a1a10, #500e0a);
+  border-color: #c03028;
+  box-shadow: 0 5px 0 #0e0806, 0 0 10px rgba(180,40,30,.3);
+}
+
+/* .btn.red */
+body[data-char="gambler"] .btn.red {
+  box-shadow: 0 5px 0 #0e0806, 0 0 10px rgba(180,40,30,.3);
+}
+
+/* .btn.purple — deep plum */
+body[data-char="gambler"] .btn.purple {
+  background: linear-gradient(180deg, #4a1a5a, #300e3a);
+  border-color: #8a4a9a;
+  box-shadow: 0 5px 0 #0e0806, 0 0 10px rgba(120,60,140,.3);
+}
+
+/* .btn.ghost */
+body[data-char="gambler"] .btn.ghost {
+  background: rgba(30,14,6,.6);
+  border-color: rgba(200,152,10,.25);
+  color: #8a6a44;
+  box-shadow: none;
+}
+
+/* LOG A BEER — forest tavern green */
+body[data-char="gambler"] .btn.green {
+  background: linear-gradient(180deg, #2a5a10, #1a3a08);
+  color: #a0e060;
+  border-color: #5a9a20;
+  box-shadow: 0 3px 0 #0e0806, 0 0 8px rgba(80,160,30,.18);
+}
+
+/* Input fields — parchment dark */
+body[data-char="gambler"] input[type=text] {
+  background: #0e0806;
+  border: 3px solid #5a3010;
+  color: #f5e6cc;
+}
+
+/* Card overlay — dark wood backing with gold frame */
+body[data-char="gambler"] .card {
+  background: linear-gradient(180deg, #251008, #160a04);
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px #0e0806, 0 0 40px rgba(200,152,10,.22), 0 8px 32px rgba(0,0,0,.7);
+}
+body[data-char="gambler"] .cardTag {
+  color: #d4a820;
+  text-shadow: 0 0 8px rgba(210,170,30,.5);
+}
+body[data-char="gambler"] .card.chaos   { box-shadow: 0 0 0 3px #0e0806, 0 0 40px rgba(180,40,160,.35); }
+body[data-char="gambler"] .card.forfeit { box-shadow: 0 0 0 3px #0e0806, 0 0 40px rgba(180,40,30,.4); }
+body[data-char="gambler"] .card.boss    { box-shadow: 0 0 0 3px #0e0806, 0 0 50px rgba(120,60,140,.5); }
+body[data-char="gambler"] .card.good    { box-shadow: 0 0 0 3px #0e0806, 0 0 40px rgba(80,160,30,.3); }
+body[data-char="gambler"] .card.rarity-common    { box-shadow: 0 0 0 3px #0e0806, 0 0 30px rgba(185,185,185,.25); }
+body[data-char="gambler"] .card.rarity-rare      { box-shadow: 0 0 0 3px #0e0806, 0 0 40px rgba(56,194,242,.35); }
+body[data-char="gambler"] .card.rarity-epic      { box-shadow: 0 0 0 3px #0e0806, 0 0 45px rgba(140,60,180,.5); }
+body[data-char="gambler"] .card.rarity-legendary { box-shadow: 0 0 0 3px #0e0806, 0 0 55px rgba(200,152,10,.6); }
+body[data-char="gambler"] .card.rarity-unique    { box-shadow: 0 0 0 3px #0e0806, 0 0 65px rgba(180,40,120,.7); }
+
+/* Character selection cards */
+body[data-char="gambler"] .charCard {
+  border-color: #4a2408;
+  box-shadow: 0 4px 0 #0e0806;
+}
+body[data-char="gambler"] .charCard.sel {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px var(--gold), 0 4px 0 #0e0806, inset 0 0 20px rgba(200,152,10,.15);
+}
+
+/* Curse animation — crimson flicker */
+@keyframes curseFlicker-gambler {
+  0%,100% { box-shadow: 0 0 0 3px #0e0806, 0 0 45px rgba(140,30,30,.55); }
+  45%     { box-shadow: 0 0 0 3px #0e0806, 0 0 18px rgba(140,30,30,.2); }
+  50%     { box-shadow: 0 0 0 3px #0e0806, 0 0 65px rgba(200,40,40,.8); }
+  55%     { box-shadow: 0 0 0 3px #0e0806, 0 0 18px rgba(140,30,30,.2); }
+}
+body[data-char="gambler"] .card.curse {
+  animation: curseFlicker-gambler 1.8s ease-in-out infinite;
+}
 </style>
 </head>
 <body>
@@ -328,15 +612,13 @@ textarea{
     <div id="arenaWrap">
       <canvas id="arena" width="360" height="150"></canvas>
       <div id="arenaLabel">AARHUS · NIGHT 1</div>
-      <div id="brewRateLabel">🍺 0.0/min</div>
 
     </div>
     <div class="panel tight brewDash">
       <div class="hudRow">
         <span class="gold" id="brewTierName">THE SHACK</span>
-        <span class="cyan" id="brewLifetime">🍺 0 BREWED</span>
+        <span class="dim" id="brewStats"><span id="brewLifetime">0</span> brewed &nbsp;·&nbsp; <span id="brewRateLabel">0.0</span>/min</span>
       </div>
-      <p class="small dim" style="margin:4px 0 0">This is your brewery. Everything below just feeds it.</p>
     </div>
 
     <div class="panel tight" style="margin-top:10px">
@@ -355,10 +637,6 @@ textarea{
       </div>
     </div>
 
-    <div class="panel tight crawlHeader">
-      <h2 style="margin:0">🍻 HIT THE TOWN</h2>
-      <p class="small dim" style="margin:4px 0 0">Pull the lever — every outcome is more coin and XP for the brewery above. No dice, no board, just the reels.</p>
-    </div>
 
     <div id="slotWrap">
       <div id="slotReels">
@@ -383,6 +661,39 @@ textarea{
     </div>
 
     <button class="btn green sm" style="margin-top:8px" onclick="logBeer()">🍺 LOG A BEER</button>
+
+    <!-- ── GAMBLER DEN — permanent gambling widget, gambler only ── -->
+    <div id="gamblerDen" class="hide">
+      <div class="panel tight" style="margin-top:6px">
+        <div class="hudRow" style="margin-bottom:4px">
+          <span class="gold" style="font-size:9px;letter-spacing:2px">⚔ THE DEN</span>
+          <span id="denModeLbl" class="dim" style="font-size:8px">COIN GAMBLE</span>
+        </div>
+        <div style="position:relative;text-align:center;margin:4px 0 2px">
+          <div style="position:absolute;top:-6px;left:50%;transform:translateX(-50%);
+               width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;
+               border-top:14px solid #c8980a;z-index:5;filter:drop-shadow(0 0 3px rgba(200,152,10,.5))"></div>
+          <canvas id="denCanvas" width="180" height="180" style="border-radius:50%;display:block;margin:0 auto"></canvas>
+        </div>
+        <div id="denResult" style="min-height:22px;font-size:14px;font-weight:bold;letter-spacing:1px;text-align:center;margin:4px 0"></div>
+        <!-- XP stake row (shown when challenge just completed) -->
+        <div id="denXPRow" class="hide hudRow" style="margin-bottom:6px;justify-content:center;gap:8px">
+          <span class="dim" style="font-size:9px">XP AT STAKE:</span>
+          <span id="denXPAmt" style="font-size:16px;color:#d4a820;font-weight:bold">0</span>
+        </div>
+        <!-- Coin bet row (shown in idle mode) -->
+        <div id="denCoinRow" class="hudRow" style="justify-content:center;gap:8px;margin-bottom:6px">
+          <button class="btn ghost sm" onclick="denAdjustBet(-5)" style="padding:2px 8px;font-size:12px">−</button>
+          <span style="font-size:12px;color:#d4a820"><span id="denBetAmt">10</span> 🪙</span>
+          <button class="btn ghost sm" onclick="denAdjustBet(5)" style="padding:2px 8px;font-size:12px">+</button>
+        </div>
+        <div id="denActions" style="display:flex;flex-direction:column;gap:6px">
+          <button id="denSpinBtn" class="btn primary" onclick="denSpin()">🎲 SPIN THE WHEEL</button>
+          <button id="denSafeBtn" class="btn ghost sm hide" onclick="denTakeSafe()" style="font-size:9px;opacity:.7">take safe XP instead</button>
+        </div>
+        <div id="denGames" style="display:flex;gap:4px;margin-top:8px;justify-content:center;flex-wrap:wrap"></div>
+      </div>
+    </div>
   </section>
 
   <!-- ============ SAVE / BACKUP ============ -->
@@ -671,7 +982,9 @@ const RELICS = [
   { id:'shoes',    n:'SHOES OF SUSPICIOUSLY GOOD BALANCE', icon:'👟', char:'jester', d:'The Jester\'s preferred method of avoiding responsibility at high speed. MOVE tiles send you 2 extra squares. Also +0.2 beer/min — permanently.', price:45, brewBonus:0.2 },
   { id:'shades',   n:'SUNGLASSES AT NIGHT (ICONIC, NOT PRACTICAL)', icon:'🕶️', d:'Look effortlessly cool doing literally any of this. Also +0.3 beer/min — permanently.', price:55, brewBonus:0.3 },
   { id:'bottomlessstein', n:'THE BOTTOMLESS STEIN', icon:'🍺', char:'tank', d:'Rumored to never actually empty. An extra +25% XP on top of your already absurd beer bonus. Also +0.3 beer/min — permanently.', price:60, brewBonus:0.3 },
-  { id:'loadeddice', n:"LOADED DICE (DON'T ASK)", icon:'🎲', char:'gambler', d:'Definitely not legal at the actual casino. An extra +25% XP on gambling tiles, stacking on the House Edge. Also +0.3 beer/min — permanently.', price:60, brewBonus:0.3 },
+  { id:'loadeddice', n:"LOADED DICE (DON'T ASK)", icon:'🎲', char:'gambler', d:"Definitely not legal at the actual casino. An extra +25% XP on gambling tiles AND unlocks Dice game in The Den — rigged in your favour, allegedly. Also +0.3 beer/min.", price:60, brewBonus:0.3 },
+  { id:'tarotdeck',  n:"THE TAROT DECK",            icon:'🃏', char:'gambler', d:"Ancient cards, dubious provenance. Unlocks Cards in The Den — pure 50/50, 2 spins per challenge. Also +0.4 beer/min.", price:75, brewBonus:0.4 },
+  { id:'horseshoe',  n:"THE LUCKY HORSESHOE",        icon:'🧲', char:'gambler', d:"Nailed above every great gambler's door. Unlocks the Horseshoe game in The Den — 60/40 odds in your favour, 1 golden spin per challenge. Also +0.5 beer/min.", price:100, brewBonus:0.5 },
   { id:'jokerscap', n:"THE JOKER'S CAP", icon:'🃏', char:'jester', d:'Bells that only you can hear, apparently. An extra +25% XP on party games and the Wheel. Also +0.3 beer/min — permanently.', price:60, brewBonus:0.3 },
   { id:'ironknuckles', n:'IRON KNUCKLES', icon:'👊', char:'machine', d:'Not technically legal in darts. An extra +25% XP on physical challenges, stacking on Raw Power. Also +0.3 beer/min — permanently.', price:60, brewBonus:0.3 }
 ];
@@ -729,7 +1042,7 @@ function freshState(){
     doubleNext:false, startTime:Date.now(), log:[], ach:[],
     flags:{}, resolved:false, secret:null, secretDone:false, secretBlown:false,
     secret2:null, secret2Available:false, secret2Declined:false, secret2Done:false, secret2Blown:false, karaokeDone:false, beerLogCount:0, bossMarks:{}, bossesAvenged:0,
-    coins:0, souvenirs:{}, relics:[], items:{}, hatUsedThisLap:false,
+    coins:0, souvenirs:{}, relics:[], items:{}, hatUsedThisLap:false, denSpinsLeft:3,
     autoWinNext:false, shopPending:false,
     breweryUpgrades:[], coinAccum:0, lastProdTs:null, beerCoinsTotal:0, pendingLevelUps:0
   };
@@ -994,12 +1307,10 @@ function tickBreweryProduction(){
     save();
   }
   const rateEl = document.getElementById('brewRateLabel');
-  if(rateEl) rateEl.textContent = '🍺 '+rate.toFixed(1)+'/min';
-  // show one decimal (lifetime whole coins + the fraction brewing right now) so it visibly
-  // creeps forward every few seconds instead of only jumping once a whole coin is done
+  if(rateEl) rateEl.textContent = rate.toFixed(1);
   const liveTotal = (S.beerCoinsTotal||0) + (S.coinAccum||0);
   const lifeEl = document.getElementById('brewLifetime');
-  if(lifeEl) lifeEl.textContent = '🍺 '+liveTotal.toFixed(1)+' BREWED';
+  if(lifeEl) lifeEl.textContent = liveTotal.toFixed(1);
 }
 function offerBreweryUpgrade(){
   showCard({
@@ -1393,6 +1704,8 @@ function loop(){
 
 /* ---------- navigation ---------- */
 function go(screen){
+  // clear character theme when leaving the game
+  if(screen==='boot' || screen==='char') document.body.setAttribute('data-char','');
   ['boot','char','game','squad','log','bag'].forEach(s=>{
     document.getElementById('screen-'+s).classList.toggle('hide', s!==screen);
   });
@@ -1450,6 +1763,8 @@ function computeEpicTitle(){
 }
 function syncHUD(){
   if(!S) return;
+  // apply per-character body theme
+  document.body.setAttribute('data-char', S.charId || '');
   document.getElementById('hudName').textContent = S.name;
   document.getElementById('hudLevel').textContent = 'LV '+S.level;
   const titleEl = document.getElementById('hudTitle');
@@ -1466,6 +1781,15 @@ function syncHUD(){
   tickBreweryProduction();
   const tierNameEl = document.getElementById('brewTierName');
   if(tierNameEl) tierNameEl.textContent = breweryTierFor(S.level).name;
+  // keep den in sync
+  if(S.charId==='gambler') refreshDen();
+  // debt indicator — red when negative
+  const coinsEl = document.getElementById('stCoins');
+  if(coinsEl){
+    const c = S.coins||0;
+    coinsEl.textContent = c < 0 ? c+' IN DEBT' : c;
+    coinsEl.style.color = c < 0 ? '#c03028' : '';
+  }
 }
 
 /* ---------- XP / level ---------- */
@@ -1613,6 +1937,13 @@ function applyWin(t){
     delete S.bossMarks[t.n];
     S.bossesAvenged = (S.bossesAvenged||0) + 1;
   }
+  // Gambler: offer XP wager before awarding
+  if(S.charId === 'gambler'){
+    S._pendingWin = { t, xpAmount, isRevenge };
+    refreshDen(); // load XP stake into the den
+    return;
+  }
+  // Non-gambler: award immediately
   const g = grantXP(xpAmount, t.n);
   if(isRevenge){
     addLog(`⚔ REVENGE — you beat ${t.n} after it beat you. +50% XP.`);
@@ -1632,6 +1963,334 @@ function applyWin(t){
   addLog(`✓ ${t.n} — +${g} XP, +${coinsGained}🪙`);
   toast('+'+g+' XP · +'+coinsGained+'🪙');
   save(); syncHUD(); checkAchievements();
+  if(t.t===T.BOSS) S.shopPending = true;
+  maybeOpenShop();
+}
+
+/* ---------- Gambler XP Wheel ---------- */
+/* ══════════════════════════════════════════════════════════════
+   THE DEN — Gambler's permanent gambling widget
+   ══════════════════════════════════════════════════════════════ */
+
+// Games available in the den
+// maxSpins = coin-gamble spins allowed per challenge session
+const DEN_GAMES = {
+  wheel: {
+    id:'wheel', icon:'🎡', name:'WHEEL', maxSpins:3,
+    segs:[
+      { label:'LOSE',    mult:0, c:'#6a1008', textCol:'#f5c0b0', pct:0.40 },
+      { label:'WIN',     mult:2, c:'#c8a010', textCol:'#0e0806', pct:0.30 },
+      { label:'NOTHING', mult:1, c:'#2a1a08', textCol:'#8a6a44', pct:0.30 },
+    ]
+  },
+  dice: {
+    id:'dice', icon:'🎲', name:'DICE', maxSpins:2, relic:'loadeddice',
+    segs:[
+      { label:'LOSE',    mult:0, c:'#6a1008', textCol:'#f5c0b0', pct:0.35 },
+      { label:'NOTHING', mult:1, c:'#2a1a08', textCol:'#8a6a44', pct:0.25 },
+      { label:'WIN x2',  mult:2, c:'#5a3a10', textCol:'#d4a820', pct:0.25 },
+      { label:'HIGH x3', mult:3, c:'#c8a010', textCol:'#0e0806', pct:0.15 },
+    ]
+  },
+  cards: {
+    id:'cards', icon:'🃏', name:'CARDS', maxSpins:2, relic:'tarotdeck',
+    // 50/50 — pure win or lose, no nothing
+    segs:[
+      { label:'LOSE',  mult:0, c:'#6a1008', textCol:'#f5c0b0', pct:0.50 },
+      { label:'WIN x2',mult:2, c:'#c8a010', textCol:'#0e0806', pct:0.50 },
+    ]
+  },
+  horseshoe: {
+    id:'horseshoe', icon:'🧲', name:'HORSESHOE', maxSpins:1, relic:'horseshoe',
+    // 60/40 — best odds, one golden shot per challenge
+    segs:[
+      { label:'LOSE',  mult:0, c:'#6a1008', textCol:'#f5c0b0', pct:0.40 },
+      { label:'WIN x2',mult:2, c:'#c8a010', textCol:'#0e0806', pct:0.60 },
+    ]
+  }
+};
+
+function denGetMaxSpins(){
+  // return spin allowance for best unlocked game
+  if(S.relics && S.relics.includes('horseshoe')) return DEN_GAMES.horseshoe.maxSpins;
+  if(S.relics && S.relics.includes('tarotdeck')) return DEN_GAMES.cards.maxSpins;
+  if(S.relics && S.relics.includes('loadeddice')) return DEN_GAMES.dice.maxSpins;
+  return DEN_GAMES.wheel.maxSpins;
+}
+function denResetSpins(){
+  S.denSpinsLeft = denGetMaxSpins();
+  save();
+}
+
+let _denGame = 'wheel';
+let _denBet  = 10;
+let _denSpinning = false;
+
+function denIsUnlocked(gameId){
+  const g = DEN_GAMES[gameId];
+  return !g.relic || (S.relics && S.relics.includes(g.relic));
+}
+
+function denSetGame(id){
+  if(!denIsUnlocked(id)){ toast('🔒 BUY IT IN THE SHOP FIRST'); return; }
+  _denGame = id;
+  refreshDen();
+}
+
+function denAdjustBet(delta){
+  const maxBet = (S.coins||0) > 0 ? (S.coins||0) : 200;
+  _denBet = Math.max(5, Math.min(maxBet, _denBet + delta));
+  const el = document.getElementById('denBetAmt');
+  if(el) el.textContent = _denBet;
+}
+
+function refreshDen(){
+  if(S.charId !== 'gambler') return;
+  const den = document.getElementById('gamblerDen');
+  if(den) den.classList.remove('hide');
+
+  const hasPending = !!S._pendingWin;
+  const game = DEN_GAMES[_denGame];
+
+  // mode label
+  const modeLbl = document.getElementById('denModeLbl');
+  const spinsLeft = S.denSpinsLeft ?? denGetMaxSpins();
+  const maxSpins  = denGetMaxSpins();
+  if(modeLbl) modeLbl.textContent = hasPending
+    ? 'XP WAGER'
+    : 'COIN GAMBLE · '+spinsLeft+'/'+maxSpins+' SPINS';
+
+  // XP row vs coin row
+  const xpRow   = document.getElementById('denXPRow');
+  const coinRow  = document.getElementById('denCoinRow');
+  const safeBtn  = document.getElementById('denSafeBtn');
+  const spinBtn  = document.getElementById('denSpinBtn');
+  if(xpRow && coinRow){
+    if(hasPending){
+      xpRow.classList.remove('hide'); coinRow.classList.add('hide');
+      const xpAmt = document.getElementById('denXPAmt');
+      if(xpAmt) xpAmt.textContent = S._pendingWin.xpAmount;
+      if(safeBtn) safeBtn.classList.remove('hide');
+      const inDebt = (S.coins||0) < 0;
+      if(spinBtn){
+        spinBtn.textContent = inDebt ? '🚫 IN DEBT — NO GAMBLING' : game.icon+' SPIN FOR XP';
+        spinBtn.disabled = inDebt;
+        spinBtn.style.opacity = inDebt ? '0.4' : '';
+      }
+    } else {
+      xpRow.classList.add('hide'); coinRow.classList.remove('hide');
+      if(safeBtn) safeBtn.classList.add('hide');
+      if((S.coins||0) > 0) _denBet = Math.max(5, Math.min(_denBet, S.coins||0));
+      const noSpins = (S.denSpinsLeft ?? denGetMaxSpins()) <= 0;
+      const noFunds = (S.coins||0) < 0;
+      if(spinBtn){
+        spinBtn.textContent = noFunds
+          ? '🚫 IN DEBT — NO GAMBLING'
+          : game.icon+' SPIN ('+_denBet+'🪙)';
+        spinBtn.disabled = noSpins || noFunds;
+        spinBtn.style.opacity = (noSpins || noFunds) ? '0.4' : '';
+      }
+      // clamp bet to current coins
+      const betEl = document.getElementById('denBetAmt');
+      if(betEl) betEl.textContent = _denBet;
+    }
+  }
+  // clear result when refreshing to new state
+  if(!_denSpinning){
+    const res = document.getElementById('denResult');
+    if(res && !hasPending) res.textContent = '';
+  }
+
+  // game switcher
+  const gamesEl = document.getElementById('denGames');
+  if(gamesEl){
+    gamesEl.innerHTML = Object.values(DEN_GAMES).map(g => {
+      const locked = !denIsUnlocked(g.id);
+      const active = g.id === _denGame;
+      return `<button class="btn ${active?'gold':'ghost'} sm"
+        onclick="denSetGame('${g.id}')"
+        style="font-size:8px;${locked?'opacity:.45':''}">
+        ${g.icon} ${g.name}${locked?' 🔒':''}
+      </button>`;
+    }).join('');
+  }
+
+  // draw idle wheel
+  if(!_denSpinning) denPaintWheel(_denGame, 0);
+}
+
+function denPaintWheel(gameId, rotation){
+  const c = document.getElementById('denCanvas'); if(!c) return;
+  const ctx = c.getContext('2d');
+  const segs = DEN_GAMES[gameId].segs;
+  const R=86, cx=90, cy=90;
+  ctx.clearRect(0,0,180,180);
+  ctx.save(); ctx.translate(cx,cy); ctx.rotate(rotation - Math.PI/2);
+  let start = 0;
+  segs.forEach(seg=>{
+    const sweep = seg.pct * Math.PI * 2;
+    ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,R,start,start+sweep); ctx.closePath();
+    ctx.fillStyle = seg.c; ctx.fill();
+    ctx.strokeStyle = '#c8980a'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.save();
+    ctx.rotate(start + sweep/2);
+    ctx.fillStyle = seg.textCol;
+    ctx.font = 'bold 7px monospace';
+    ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    ctx.fillText(seg.label, R-6, 0);
+    ctx.restore();
+    start += sweep;
+  });
+  ctx.restore();
+  // hub
+  ctx.beginPath(); ctx.arc(cx,cy,15,0,Math.PI*2);
+  ctx.fillStyle='#0e0806'; ctx.fill();
+  ctx.strokeStyle='#c8980a'; ctx.lineWidth=2; ctx.stroke();
+  const game = DEN_GAMES[gameId];
+  ctx.font='11px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(game.icon,cx,cy);
+}
+
+function denSpin(){
+  if(_denSpinning) return;
+  const game = DEN_GAMES[_denGame];
+  const hasPending = !!S._pendingWin;
+  // block if in debt (coin gamble OR xp wager)
+  if((S.coins||0) < 0){
+    toast('YOU\'RE IN DEBT — EARN COINS BEFORE GAMBLING');
+    return;
+  }
+  if(!hasPending){
+    // enforce spin cap for coin gambling
+    if((S.denSpinsLeft||0) <= 0){
+      toast('NO SPINS LEFT — COMPLETE A CHALLENGE TO REFRESH');
+      return;
+    }
+    S.denSpinsLeft = (S.denSpinsLeft||1) - 1;
+    // coin mode: deduct bet upfront (debt allowed)
+    S.coins = (S.coins||0) - _denBet;
+    save(); syncHUD();
+  }
+  _denSpinning = true;
+  const spinBtn = document.getElementById('denSpinBtn');
+  const safeBtn = document.getElementById('denSafeBtn');
+  if(spinBtn){ spinBtn.disabled=true; spinBtn.textContent='SPINNING…'; }
+  if(safeBtn) safeBtn.classList.add('hide');
+
+  // pick outcome
+  const r = Math.random();
+  let targetIdx = game.segs.length-1, cum = 0;
+  for(let i=0;i<game.segs.length;i++){
+    cum += game.segs[i].pct;
+    if(r < cum){ targetIdx = i; break; }
+  }
+
+  // compute final rotation
+  let cumAng = 0;
+  const mids = game.segs.map(seg=>{
+    const mid = cumAng + seg.pct * Math.PI;
+    cumAng += seg.pct * Math.PI * 2;
+    return mid;
+  });
+  const jitter = (Math.random()-0.5)*0.5*game.segs[targetIdx].pct*Math.PI*2;
+  const landAt  = mids[targetIdx] + jitter;
+  const finalRot = (5 + Math.random()*3)*Math.PI*2 - landAt;
+
+  const dur = 3500, t0 = Date.now();
+  (function anim(){
+    const p = Math.min(1,(Date.now()-t0)/dur);
+    const e = 1 - Math.pow(1-p,4);
+    denPaintWheel(_denGame, finalRot*e);
+    if(p < 1){ requestAnimationFrame(anim); return; }
+    _denSpinning = false;
+    const seg = game.segs[targetIdx];
+    const res = document.getElementById('denResult');
+    if(res){
+      if(seg.mult===0)        res.innerHTML = '<span style="color:#c03028">💀 BUST</span>';
+      else if(seg.mult>=3)  res.innerHTML = '<span style="color:#d4a820">🏆 WIN \xd7'+seg.mult+'</span>';
+      else if(seg.mult===1) res.innerHTML = '<span style="color:#8a6a44">\u2014 NOTHING</span>';
+      else if(seg.mult===0) res.innerHTML = '<span style="color:#c03028">💀 LOSE</span>';
+      else                  res.innerHTML = '<span style="color:#a0e060">✅ WIN \xd7'+seg.mult+'</span>';
+    }
+    if(hasPending){
+      _finishApplyWin(seg.mult);
+    } else {
+      // coin mode — bet already deducted upfront
+      if(seg.mult === 0){
+        // LOSE — bet is gone, show debt if negative
+        addLog('💀 DEN '+game.name+': lost '+_denBet+'🪙. Balance: '+(S.coins||0));
+        toast('💀 LOST '+_denBet+'🪙'+(S.coins<0?' — IN DEBT 🟥':''));
+        floatText('-'+_denBet, '#c03028');
+      } else if(seg.mult === 1){
+        // NOTHING — push, return bet
+        S.coins = (S.coins||0) + _denBet;
+        addLog('— DEN '+game.name+': nothing. Bet returned.');
+        toast('NOTHING HAPPENS');
+      } else {
+        // WIN — return bet + profit
+        const won = Math.round(_denBet * seg.mult);
+        S.coins = (S.coins||0) + won;
+        const net = won - _denBet;
+        addLog('✅ DEN '+game.name+': bet '+_denBet+'🪙, won '+won+'🪙 (net +'+net+')');
+        toast('+'+net+' 🪙 NET WIN');
+        floatText('+'+net, '#d4a820');
+      }
+      save(); syncHUD();
+      // re-enable spin button after short delay
+      setTimeout(()=>{
+        if(spinBtn){ spinBtn.disabled=false; spinBtn.textContent=game.icon+' SPIN ('+_denBet+'🪙)'; }
+        const res2 = document.getElementById('denResult');
+        if(res2) res2.textContent='';
+      }, 2200);
+    }
+  })();
+}
+
+function denTakeSafe(){
+  if(!S._pendingWin) return;
+  _finishApplyWin(1);
+}
+
+function _finishApplyWin(xpMult){
+  const pw = S._pendingWin;
+  if(!pw){ save(); syncHUD(); return; }
+  S._pendingWin = null;
+  const { t, xpAmount, isRevenge } = pw;
+  let g = 0;
+  if(xpMult > 0){
+    g = grantXP(Math.round(xpAmount * xpMult), t.n);
+    if(isRevenge){
+      addLog('⚔ REVENGE — beat '+t.n+' after it beat you. \xd7'+xpMult+' gamble = +'+g+' XP.');
+      toast('⚔ REVENGE SERVED. '+t.n+' AVENGED.');
+    } else if(xpMult >= 3){
+      addLog('🏆 JACKPOT — '+t.n+' \xd7'+xpMult+' = +'+g+' XP');
+      toast('🏆 JACKPOT! +'+g+' XP');
+    } else if(xpMult > 1){
+      addLog('🎲 WIN — '+t.n+' \xd7'+xpMult+' = +'+g+' XP');
+      toast('🎲 \xd7'+xpMult+'! +'+g+' XP');
+    } else {
+      addLog('✓ '+t.n+' — +'+g+' XP (safe)');
+      toast('+'+g+' XP · SAFE');
+    }
+  } else {
+    floatText('BUST', '#c03028');
+    addLog('💀 '+t.n+' — gambled and lost everything. 0 XP.');
+    toast('💀 BUST. THE HOUSE WINS.');
+  }
+  if(t.drink){
+    S.drinks++;
+    let paceAdd = (t.t===T.SHOT?16:12);
+    if(S.relics.includes('shades')) paceAdd = Math.round(paceAdd*0.8);
+    addPace(paceAdd);
+  }
+  if(t.heal){ S.waters++; addPace(-t.heal); }
+  S.badLuckHeat = Math.max(0, (S.badLuckHeat||0)-1);
+  grantSouvenir(t.t);
+  const coinsGained = Math.max(3, Math.round(t.xp/3));
+  grantCoins(coinsGained);
+  denResetSpins();
+  save(); syncHUD(); checkAchievements();
+  refreshDen();
   if(t.t===T.BOSS) S.shopPending = true;
   maybeOpenShop();
 }
@@ -2189,16 +2848,23 @@ function loseXP(amount, why){
 
 /* ---------- shop ---------- */
 function openShop(){
-  const relicRows = RELICS.filter(r=>!r.char || r.char===S.charId).map(r=>{
+  const ch = CHARS.find(c=>c.id===S.charId);
+  const charName = ch ? ch.name : 'YOUR CHARACTER';
+  // split relics: character-exclusive first, then generic
+  const myRelics  = RELICS.filter(r=> r.char===S.charId);
+  const genRelics = RELICS.filter(r=>!r.char);
+  function relicRow(r){
     const owned = S.relics.includes(r.id);
     const action = owned
-      ? `<span class="green" style="font-size:8px;white-space:nowrap">OWNED</span>`
+      ? `<span class="green" style="font-size:8px;white-space:nowrap">✓ OWNED</span>`
       : `<button class="btn purple sm" style="width:auto;margin:0;padding:7px 9px" onclick="buyRelic('${r.id}')" ${S.coins<r.price?'disabled':''}>${r.price}🪙</button>`;
     return `<div class="chip" style="width:100%;box-sizing:border-box;display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left;padding:8px;">
       <span>${r.icon} <b class="gold">${r.n}</b><br><span class="dim" style="font-size:7px">${r.d}</span></span>
       ${action}
     </div>`;
-  }).join('');
+  }
+  const myRelicRows  = myRelics.map(relicRow).join('');
+  const genRelicRows = genRelics.map(relicRow).join('');
   const itemRows = CONSUMABLES.filter(c=>!c.char || c.char===S.charId).map(c=>{
     const owned = S.items[c.id]||0;
     return `<div class="chip" style="width:100%;box-sizing:border-box;display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left;padding:8px;">
@@ -2206,14 +2872,20 @@ function openShop(){
       <button class="btn cyan sm" style="width:auto;margin:0;padding:7px 9px" onclick="buyConsumable('${c.id}')" ${S.coins<c.price?'disabled':''}>${c.price}🪙</button>
     </div>`;
   }).join('');
+  const mySection = myRelicRows ? `
+    <div class="divider" style="margin:6px 0"></div>
+    <div class="cardBody" style="font-size:9px;margin-bottom:4px"><b class="gold">⚔ ${charName} EXCLUSIVE</b></div>
+    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:6px">${myRelicRows}</div>` : '';
   showCard({
     cls:'good',
     tag:'🛒 PIT STOP',
     title:`🪙 ${S.coins} SKÅL COINS`,
     venue:'',
-    body:'Spend what you\'ve earned. Relics last all night. Items are one-time use, saved in your BAG.',
-    raw:`<div class="cardBody" style="font-size:9px;margin-bottom:4px"><b class="gold">RELICS</b></div>
-         <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px">${relicRows}</div>
+    body:'Spend what you\'ve earned. Relics last all night. Items are one-time use.',
+    raw:`${mySection}
+         <div class="divider" style="margin:6px 0"></div>
+         <div class="cardBody" style="font-size:9px;margin-bottom:4px"><b class="gold">RELICS</b></div>
+         <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px">${genRelicRows}</div>
          <div class="cardBody" style="font-size:9px;margin-bottom:4px"><b class="cyan">ITEMS</b></div>
          <div style="display:flex;flex-direction:column;gap:6px">${itemRows}</div>`,
     buttons:`<button class="btn primary" onclick="closeCard()">✓ DONE SHOPPING</button>`
