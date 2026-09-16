@@ -144,6 +144,9 @@
           <span id="chugLeft" style="font-size:11px;color:#ffd24a;font-weight:bold;margin-left:4px">2</span>
         </div>
 
+        <!-- Rank progress stats -->
+        <div id="chugRankStats" style="text-align:center;font-size:7px;color:#5a3028;letter-spacing:1px;margin-top:8px">⚡ 0 perfects · 🔥 0 rage activations</div>
+
         <!-- Rage meter -->
         <div style="margin-top:10px">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
@@ -245,7 +248,6 @@
     <div class="panel tight center">
       <p class="small" style="font-size:14px;margin:0">🪙 <span id="bagCoins" class="gold">0</span> SKÅL COINS</p>
     </div>
-    <button class="btn purple sm" onclick="openShop()">🛒 OPEN SHOP</button>
     <div class="panel">
       <h2>🍺 BREWERY UPGRADES</h2>
       <p class="small dim">Chosen at every level-up — each one permanently boosts production and changes how your brewery looks.</p>
@@ -275,10 +277,15 @@
 
 </div>
 
+<section id="screen-shop" class="hide">
+  <div id="shopInner" style="max-width:520px;margin:0 auto;"></div>
+</section>
+
 <!-- bottom nav -->
 <div id="nav" class="hide">
   <button id="navGame" class="on" onclick="go('game')">GAME</button>
   <button id="navBag" onclick="go('bag')">BAG</button>
+  <button id="navShop" onclick="go('shop')">SHOP</button>
   <button id="navSquad" onclick="go('squad')">SAVE</button>
   <button id="navLog" onclick="go('log')">LOG</button>
 </div>

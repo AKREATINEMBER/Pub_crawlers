@@ -792,3 +792,75 @@ body[data-char="tank"] #tankChug .panel {
 body[data-char="tank"] .card.curse {
   animation: curseFlicker-tank 1.8s ease-in-out infinite;
 }
+
+/* ── SHOP SCREEN ──────────────────────────────────────────────────────── */
+#screen-shop{
+  padding:0 0 calc(80px + env(safe-area-inset-bottom)) 0;
+}
+.shop-header{
+  padding:28px 16px 18px;
+  text-align:center;
+}
+.shop-header__tag{
+  font-size:8px;letter-spacing:3px;opacity:0.5;margin-bottom:4px;
+}
+.shop-header__title{
+  font-size:24px;font-weight:bold;letter-spacing:2px;margin-bottom:6px;
+}
+.shop-header__tagline{
+  font-size:8px;letter-spacing:1px;opacity:0.45;margin-bottom:14px;line-height:1.5;
+}
+.shop-header__coins{
+  display:inline-flex;align-items:center;gap:10px;
+  background:rgba(0,0,0,0.28);border:1px solid rgba(255,255,255,0.14);
+  border-radius:20px;padding:8px 20px;
+}
+.shop-coins-num{font-size:20px;font-weight:bold;letter-spacing:1px;}
+.shop-coins-label{font-size:7px;letter-spacing:3px;opacity:0.45;align-self:flex-end;padding-bottom:2px;}
+.shop-exclusive-wrap{
+  border:1px solid rgba(212,132,26,0.35);border-radius:12px;
+  background:rgba(212,132,26,0.06);padding:12px 12px 6px;
+  margin:0 14px 12px;box-shadow:0 0 18px rgba(212,132,26,0.07) inset;
+}
+.shop-exclusive-label{
+  font-size:7px;letter-spacing:4px;color:#d4841a;margin-bottom:12px;
+  padding-left:10px;border-left:2px solid #d4841a;
+}
+.shop-section{
+  padding:0 14px 4px;
+}
+.shop-section__label{
+  font-size:7px;letter-spacing:4px;opacity:0.35;
+  padding:12px 0 10px;border-bottom:1px solid rgba(255,255,255,0.07);
+  margin-bottom:10px;
+}
+.shop-item{
+  display:flex;align-items:flex-start;gap:12px;
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);
+  border-radius:10px;padding:12px 12px 10px;margin-bottom:8px;
+}
+.shop-item--owned{opacity:0.48;border-color:rgba(255,255,255,0.05);}
+.shop-item--exclusive{border-color:rgba(212,132,26,0.2);}
+.shop-item__icon{width:40px;height:40px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.shop-item__body{flex:1;min-width:0;}
+.shop-item__name{font-size:10px;letter-spacing:1px;font-weight:bold;margin-bottom:5px;line-height:1.3;}
+.shop-item__desc{font-size:8px;letter-spacing:0.4px;opacity:0.5;line-height:1.6;margin-bottom:9px;}
+.shop-item__action{display:flex;align-items:center;justify-content:flex-end;gap:8px;}
+
+/* Gambler shop theme */
+body[data-char="gambler"] .shop-header__title{color:#c8980a;}
+body[data-char="gambler"] .shop-exclusive-wrap{
+  border-color:rgba(200,152,10,0.45);background:rgba(200,152,10,0.07);
+  box-shadow:0 0 20px rgba(200,152,10,0.08) inset;
+}
+body[data-char="gambler"] .shop-exclusive-label{color:#c8980a;border-left-color:#c8980a;}
+body[data-char="gambler"] .shop-item--exclusive{border-color:rgba(200,152,10,0.25);}
+
+/* Tank shop theme */
+body[data-char="tank"] .shop-header__title{color:#d4841a;}
+body[data-char="tank"] .shop-exclusive-wrap{
+  border-color:rgba(212,132,26,0.5);background:rgba(100,25,8,0.14);
+  box-shadow:0 0 20px rgba(212,132,26,0.09) inset;
+}
+body[data-char="tank"] .shop-exclusive-label{color:#d4841a;border-left-color:#d4841a;}
+body[data-char="tank"] .shop-item--exclusive{border-color:rgba(212,132,26,0.28);}
