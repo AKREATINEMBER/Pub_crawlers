@@ -368,13 +368,27 @@ body[data-char="gambler"] {
   --purple:#7a3a8a;
 }
 
-/* Candlelit stone tavern background */
+/* Candlelit stone tavern background — brick texture tinted ruby/gold */
 body[data-char="gambler"] {
-  background:
+  background-color: #0e0806;
+  background-image:
     radial-gradient(ellipse 100% 50% at 50% 0%,   rgba(140,60,10,.35)  0%, transparent 60%),
     radial-gradient(ellipse  60% 40% at 15% 100%,  rgba(80,20,10,.4)    0%, transparent 55%),
     radial-gradient(ellipse  60% 40% at 85% 100%,  rgba(80,20,10,.4)    0%, transparent 55%),
+    linear-gradient(335deg, #3a1408 23px, transparent 23px),
+    linear-gradient(155deg, #3a1408 23px, transparent 23px),
+    linear-gradient(335deg, #4a1c0c 23px, transparent 23px),
+    linear-gradient(155deg, #4a1c0c 23px, transparent 23px),
     linear-gradient(180deg, #0e0806 0%, #120a06 55%, #0e0806 100%);
+  background-size:
+    auto, auto, auto,
+    58px 58px, 58px 58px, 58px 58px, 58px 58px,
+    auto;
+  background-position:
+    center, center, center,
+    0px 2px, 4px 35px, 29px 31px, 34px 6px,
+    center;
+  background-repeat: no-repeat, no-repeat, no-repeat, repeat, repeat, repeat, repeat, no-repeat;
   background-attachment: fixed;
 }
 
@@ -520,30 +534,54 @@ body[data-char="gambler"] #nav button:active {
 
 /* Primary button — deep crimson with gold border */
 body[data-char="gambler"] .btn.primary {
-  background: linear-gradient(135deg, #7a1a06, #9e2210);
-  border-color: #c8980a;
-  box-shadow: 0 5px 0 #0e0806, 0 0 16px rgba(180,40,20,.4);
-  text-shadow: 0 1px 2px rgba(0,0,0,.6);
+  background: linear-gradient(180deg, #ff7a4a 0%, #e8482a 30%, #a82810 70%, #7a1806 100%);
+  border-color: #ffc860;
+  color: #2a0e00;
+  box-shadow:
+    0 7px 0 #4a1206,
+    0 8px 0 #280a02,
+    inset 0 1px 0 rgba(255,230,180,.55),
+    inset 0 2px 6px rgba(255,150,100,.2),
+    inset 0 -2px 4px rgba(0,0,0,.35),
+    inset 0 0 0 2px rgba(255,190,80,.3);
+  text-shadow: 0 1px 0 rgba(255,210,160,.4);
 }
 body[data-char="gambler"] .btn.primary:active {
-  box-shadow: 0 1px 0 #0e0806, 0 0 24px rgba(180,40,20,.6);
+  box-shadow:
+    0 2px 0 #4a1206,
+    inset 0 1px 0 rgba(255,230,180,.55),
+    inset 0 -2px 4px rgba(0,0,0,.35),
+    inset 0 0 0 2px rgba(255,190,80,.3);
 }
 
-/* Base button shadow — wood instead of indigo */
+/* Base button — brighter gold-trimmed wood */
 body[data-char="gambler"] .btn {
   color: #f5e6cc;
-  border-color: #4a2408;
-  box-shadow: 0 5px 0 #0e0806, inset 0 2px 0 rgba(220,180,80,.12);
+  border-color: #c8980a;
+  background: linear-gradient(180deg, #6a3a10 0%, #4a2408 100%);
+  box-shadow:
+    0 5px 0 #2a1204,
+    0 6px 0 #160a02,
+    inset 0 2px 0 rgba(255,210,120,.25);
 }
 body[data-char="gambler"] .btn:active {
-  box-shadow: 0 1px 0 #0e0806, inset 0 2px 0 rgba(220,180,80,.12);
+  box-shadow:
+    0 1px 0 #2a1204,
+    inset 0 2px 0 rgba(255,210,120,.25);
 }
 
 /* .btn.gold — rich coin-gold */
 body[data-char="gambler"] .btn.gold {
-  background: linear-gradient(180deg, #7a5800, #5a3c00);
-  border-color: #c8980a;
-  box-shadow: 0 5px 0 #0e0806, 0 0 10px rgba(200,152,10,.28);
+  background: linear-gradient(180deg, #ffd24a 0%, #e8a020 35%, #b87810 70%, #7a5000 100%);
+  border-color: #ffe89a;
+  color: #2a1600;
+  text-shadow: 0 1px 0 rgba(255,240,200,.5);
+  box-shadow:
+    0 5px 0 #3a2400,
+    0 6px 0 #201200,
+    inset 0 1px 0 rgba(255,245,220,.55),
+    inset 0 -2px 4px rgba(0,0,0,.3),
+    inset 0 0 0 2px rgba(255,220,140,.3);
 }
 
 /* .btn.cyan → deep ruby */
@@ -642,9 +680,26 @@ body[data-char="tank"] {
   --bg:   #120408;
 }
 
-/* Page background — dried-blood dark, low torchlight */
+/* Page background — dried-blood dark, low torchlight, brick texture tinted rust/red */
 body[data-char="tank"] {
-  background: radial-gradient(ellipse at 50% 20%, #2a080e 0%, #120408 65%, #0a0204 100%);
+  background-color: #120408;
+  background-image:
+    radial-gradient(ellipse at 50% 20%, rgba(80,20,20,.4) 0%, transparent 65%),
+    linear-gradient(335deg, #2e0a0e 23px, transparent 23px),
+    linear-gradient(155deg, #2e0a0e 23px, transparent 23px),
+    linear-gradient(335deg, #3e1014 23px, transparent 23px),
+    linear-gradient(155deg, #3e1014 23px, transparent 23px),
+    radial-gradient(ellipse at 50% 20%, #2a080e 0%, #120408 65%, #0a0204 100%);
+  background-size:
+    auto,
+    58px 58px, 58px 58px, 58px 58px, 58px 58px,
+    auto;
+  background-position:
+    center,
+    0px 2px, 4px 35px, 29px 31px, 34px 6px,
+    center;
+  background-repeat: no-repeat, repeat, repeat, repeat, repeat, no-repeat;
+  background-attachment: fixed;
 }
 
 /* Atmospheric overlay — ember glow from bottom, blood mist at top */
@@ -753,14 +808,24 @@ body[data-char="tank"] .chip {
 
 /* Primary button — blood-iron red, heavy shadow */
 body[data-char="tank"] .btn {
-  background: linear-gradient(180deg, #5a1018, #380810);
-  border-color: #7a1820;
-  color: #e8c4b8;
-  box-shadow: 0 3px 0 #080102, 0 0 8px rgba(120,20,20,.2);
+  background: linear-gradient(180deg, #d4522a 0%, #a82c12 40%, #7a1a08 100%);
+  border-color: #ff8040;
+  color: #ffe4c8;
+  text-shadow: 0 1px 0 rgba(0,0,0,.4);
+  box-shadow:
+    0 5px 0 #380810,
+    0 6px 0 #200408,
+    inset 0 1px 0 rgba(255,200,150,.4),
+    inset 0 -2px 4px rgba(0,0,0,.3),
+    inset 0 0 0 2px rgba(255,120,50,.2);
 }
 body[data-char="tank"] .btn:active:not(:disabled) {
-  transform: translateY(2px);
-  box-shadow: 0 1px 0 #080102;
+  transform: translateY(3px);
+  box-shadow:
+    0 2px 0 #380810,
+    inset 0 1px 0 rgba(255,200,150,.4),
+    inset 0 -2px 4px rgba(0,0,0,.3),
+    inset 0 0 0 2px rgba(255,120,50,.2);
 }
 body[data-char="tank"] .btn:disabled {
   opacity: 0.35;
@@ -768,12 +833,26 @@ body[data-char="tank"] .btn:disabled {
 
 /* Chug button — forge amber, feels heavy and weighty */
 body[data-char="tank"] #chugBtn {
-  background: linear-gradient(180deg, #7a2808, #4a1404);
-  border-color: #d4841a;
-  color: #ffd8a0;
-  box-shadow: 0 3px 0 #080102, 0 0 16px rgba(212,132,26,.25);
+  background: linear-gradient(180deg, #ffb347 0%, #e8801a 35%, #b85a0a 70%, #7a3604 100%);
+  border-color: #ffd24a;
+  color: #3a1a00;
+  text-shadow: 0 1px 0 rgba(255,220,160,.5);
+  box-shadow:
+    0 7px 0 #4a1404,
+    0 8px 0 #280a02,
+    inset 0 1px 0 rgba(255,240,200,.6),
+    inset 0 2px 6px rgba(255,180,80,.25),
+    inset 0 -2px 4px rgba(0,0,0,.35),
+    inset 0 0 0 2px rgba(255,180,60,.3);
   font-size: 13px;
   letter-spacing: 2px;
+}
+body[data-char="tank"] #chugBtn:active:not(:disabled) {
+  box-shadow:
+    0 2px 0 #4a1404,
+    inset 0 1px 0 rgba(255,240,200,.6),
+    inset 0 -2px 4px rgba(0,0,0,.35),
+    inset 0 0 0 2px rgba(255,180,60,.3);
 }
 
 /* Ghost / secondary buttons */
