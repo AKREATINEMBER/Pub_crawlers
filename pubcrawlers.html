@@ -1082,10 +1082,6 @@ body[data-char="tank"] .shop-item--exclusive{border-color:rgba(212,132,26,0.28);
           <div id="chugToler" class="dim" style="font-size:7px;letter-spacing:1px;margin-top:6px">±0.5s PERFECT · ±1.2s CLEAN · ±2.2s OK</div>
         </div>
 
-        <!-- Instruction -->
-        <div style="text-align:center;color:#4a6a8a;font-size:8px;letter-spacing:1px;margin:10px 0 8px">
-          SHOW TO A FRIEND · THEN CHUG BLIND
-        </div>
 
         <!-- Result -->
         <div id="chugResult" style="min-height:44px;text-align:center;margin:4px 0 8px"></div>
@@ -1108,23 +1104,23 @@ body[data-char="tank"] .shop-item--exclusive{border-color:rgba(212,132,26,0.28);
         </div>
 
         <!-- Rank progress stats -->
-        <div id="chugRankStats" style="text-align:center;font-size:7px;color:#5a3028;letter-spacing:1px;margin-top:8px">⚡ 0 perfects · 🔥 0 rage activations</div>
+        <div id="chugRankStats" style="text-align:center;font-size:8px;color:#a06830;letter-spacing:1px;margin-top:8px">⚡ 0 perfects · 🔥 0 rage activations</div>
 
         <!-- Rage meter -->
         <div style="margin-top:10px">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
-            <span style="font-size:7px;letter-spacing:2px;color:#8a4a30">🔥 BERSERKER RAGE</span>
+            <span style="font-size:7px;letter-spacing:2px;color:#d4841a;font-weight:bold">🔥 BERSERKER RAGE</span>
             <span id="chugRagePct" style="font-size:8px;color:#d4841a;font-weight:bold">0%</span>
           </div>
-          <div style="background:rgba(80,20,10,.4);border-radius:3px;height:6px;overflow:hidden;border:1px solid rgba(180,60,30,.25)">
-            <div id="chugRageFill" style="height:100%;width:0%;background:linear-gradient(90deg,#6a1008,#c03018,#e84a20);border-radius:3px;transition:width 0.4s ease"></div>
+          <div style="background:rgba(100,30,10,.7);border-radius:5px;height:18px;overflow:hidden;border:1px solid rgba(220,80,30,.5)">
+            <div id="chugRageFill" style="height:100%;width:0%;background:linear-gradient(90deg,#8a1008,#d03520,#ff6030);border-radius:5px;transition:width 0.4s ease;box-shadow:inset 0 1px 0 rgba(255,150,100,.25)"></div>
           </div>
-          <div style="font-size:7px;color:#5a3028;letter-spacing:1px;margin-top:2px;text-align:right">FULL = 3× XP BONUS ON NEXT CHALLENGE</div>
+          <div style="font-size:7px;color:#a06020;letter-spacing:1px;margin-top:2px;text-align:right">FULL = 3× XP BONUS ON NEXT CHALLENGE</div>
         </div>
         <!-- War wounds badge -->
-        <div id="chugBloodied" style="display:none;margin-top:6px;padding:5px 8px;background:rgba(120,10,10,.35);border:1px solid rgba(180,20,20,.4);border-radius:4px;text-align:center">
-          <span style="font-size:9px;color:#e04040;letter-spacing:1px">🧸 BLOODIED — -30% XP</span>
-          <div style="font-size:7px;color:#7a3030;margin-top:1px">Land a perfect chug to recover</div>
+        <div id="chugBloodied" style="display:none;margin-top:6px;padding:6px 10px;background:rgba(150,10,10,.55);border:1px solid rgba(220,40,30,.7);border-radius:4px;text-align:center;box-shadow:0 0 10px rgba(200,20,10,.4)">
+          <span style="font-size:10px;color:#ff5555;font-weight:bold;letter-spacing:1px">🩸 WAR WOUNDS — -30% XP</span>
+          <div style="font-size:7px;color:#c06060;margin-top:2px;letter-spacing:1px">NAIL A PERFECT CHUG TO RECOVER</div>
         </div>
         <div id="chugUpgrades" style="display:flex;gap:4px;margin-top:8px;justify-content:center;flex-wrap:wrap"></div>
       </div>
@@ -1467,7 +1463,7 @@ const ICON_MAP = {
   '🃏': '<rect x="2" y="0" width="10" height="1" fill="#1a1a1a"/><rect x="2" y="1" width="1" height="1" fill="#1a1a1a"/><rect x="3" y="1" width="10" height="1" fill="#f8f8f8"/><rect x="13" y="1" width="1" height="1" fill="#1a1a1a"/><rect x="2" y="2" width="1" height="1" fill="#1a1a1a"/><rect x="3" y="2" width="1" height="1" fill="#f8f8f8"/><rect x="4" y="2" width="2" height="1" fill="#cc2020"/><rect x="6" y="2" width="2" height="1" fill="#f8f8f8"/><rect x="8" y="2" width="2" height="1" fill="#2020cc"/><rect x="10" y="2" width="3" height="1" fill="#f8f8f8"/><rect x="13" y="2" width="1" height="1" fill="#1a1a1a"/><rect x="2" y="3" width="1" height="1" fill="#1a1a1a"/><rect x="3" y="3" width="1" height="1" fill="#f8f8f8"/><rect x="4" y="3" width="2" height="1" fill="#cc2020"/><rect x="6" y="3" width="2" height="1" fill="#f8f8f8"/><rect x="8" y="3" width="2" height="1" fill="#2020cc"/><rect x="10" y="3" width="3" height="1" fill="#f8f8f8"/><rect x="13" y="3" width="1" height="1" fill="#1a1a1a"/><rect x="2" y="4" width="1" height="1" fill="#1a1a1a"/><rect x="3" y="4" width="3" height="1" fill="#f8f8f8"/><rect x="6" y="4" width="3" height="1" fill="#ffe040"/><rect x="9" y="4" width="4" height="1" fill="#f8f8f8"/><rect x="13" y="4" width="1" height="1" fill="#1a1a1a"/><rect x="2" y="5" width="1" height="1" fill="#1a1a1a"/><rect x="3" y="5" width="2" height="1" fill="#f8f8f8"/><rect x="5" y="5" width="1" height="1" fill="#ffe040"/><rect x="6" y="5" width="1" height="1" fill="#7818a0"/><rect x="7" y="5" width="1" height="1" fill="#a020c0"/><rect x="8" y="5" width="1" height="1" fill="#7818a0"/><rect x="9" y="5" width="1" height="1" fill="#ffe040"/><rect x="10" y="5" width="3" height="1" fill="#f8f8f8"/><rect x="13" y="5" width="1" height="1" fill="#1a1a1a"/><rect x="2" y="6" width="1" height="1" fill="#1a1a1a"/><rect x="3" y="6" width="2" height="1" fill="#f8f8f8"/><rect x="5" y="6" width="1" height="1" fill="#ffe040"/><rect x="6" y="6" width="1" height="1" fill="#a020c0"/><rect x="7" y="6" width="1" height="1" fill="#7818a0"/><rect x="8" y="6" width="1" height="1" fill="#a020c0"/><rect x="9" y="6" width="1" height="1" fill="#ffe040"/><rect x="10" y="6" width="3" height="1" fill="#f8f8f8"/><rect x="13" y="6" width="1" height="1" fill="#1a1a1a"/><rect x="2" y="7" width="1" height="1" fill="#1a1a1a"/><rect x="3" y="7" width="3" height="1" fill="#f8f8f8"/><rect x="6" y="7" width="3" height="1" fill="#ffe040"/><rect x="9" y="7" width="4" height="1" fill="#f8f8f8"/><rect x="13" y="7" width="1" height="1" fill="#1a1a1a"/><rect x="2" y="8" width="1" height="1" fill="#1a1a1a"/><rect x="3" y="8" width="10" height="1" fill="#f8f8f8"/><rect x="13" y="8" width="1" height="1" fill="#1a1a1a"/><rect x="2" y="9" width="1" height="1" fill="#1a1a1a"/><rect x="3" y="9" width="2" height="1" fill="#f8f8f8"/><rect x="5" y="9" width="2" height="1" fill="#cc2020"/><rect x="7" y="9" width="3" height="1" fill="#f8f8f8"/><rect x="10" y="9" width="2" height="1" fill="#2020cc"/><rect x="12" y="9" width="1" height="1" fill="#f8f8f8"/><rect x="13" y="9" width="1" height="1" fill="#1a1a1a"/><rect x="2" y="10" width="1" height="1" fill="#1a1a1a"/><rect x="3" y="10" width="2" height="1" fill="#f8f8f8"/><rect x="5" y="10" width="2" height="1" fill="#cc2020"/><rect x="7" y="10" width="3" height="1" fill="#f8f8f8"/><rect x="10" y="10" width="2" height="1" fill="#2020cc"/><rect x="12" y="10" width="1" height="1" fill="#f8f8f8"/><rect x="13" y="10" width="1" height="1" fill="#1a1a1a"/><rect x="2" y="11" width="1" height="1" fill="#1a1a1a"/><rect x="3" y="11" width="10" height="1" fill="#f8f8f8"/><rect x="13" y="11" width="1" height="1" fill="#1a1a1a"/><rect x="2" y="12" width="1" height="1" fill="#1a1a1a"/><rect x="3" y="12" width="5" height="1" fill="#f8f8f8"/><rect x="8" y="12" width="1" height="1" fill="#c0a020"/><rect x="9" y="12" width="4" height="1" fill="#f8f8f8"/><rect x="13" y="12" width="1" height="1" fill="#1a1a1a"/><rect x="2" y="13" width="1" height="1" fill="#1a1a1a"/><rect x="3" y="13" width="4" height="1" fill="#f8f8f8"/><rect x="7" y="13" width="3" height="1" fill="#c0a020"/><rect x="10" y="13" width="3" height="1" fill="#f8f8f8"/><rect x="13" y="13" width="1" height="1" fill="#1a1a1a"/><rect x="2" y="14" width="1" height="1" fill="#1a1a1a"/><rect x="3" y="14" width="5" height="1" fill="#f8f8f8"/><rect x="8" y="14" width="1" height="1" fill="#c0a020"/><rect x="9" y="14" width="4" height="1" fill="#f8f8f8"/><rect x="13" y="14" width="1" height="1" fill="#1a1a1a"/><rect x="2" y="15" width="10" height="1" fill="#1a1a1a"/>',
   '🧲': '<rect x="4" y="1" width="9" height="1" fill="#1a1a1a"/><rect x="3" y="2" width="1" height="1" fill="#1a1a1a"/><rect x="4" y="2" width="5" height="1" fill="#cc2020"/><rect x="9" y="2" width="5" height="1" fill="#c0c0c0"/><rect x="14" y="2" width="1" height="1" fill="#1a1a1a"/><rect x="3" y="3" width="1" height="1" fill="#1a1a1a"/><rect x="4" y="3" width="1" height="1" fill="#cc2020"/><rect x="5" y="3" width="2" height="1" fill="#ff4040"/><rect x="7" y="3" width="2" height="1" fill="#cc2020"/><rect x="9" y="3" width="1" height="1" fill="#1a1a1a"/><rect x="10" y="3" width="1" height="1" fill="#e0e0e0"/><rect x="11" y="3" width="2" height="1" fill="#c0c0c0"/><rect x="13" y="3" width="1" height="1" fill="#909090"/><rect x="14" y="3" width="1" height="1" fill="#c0c0c0"/><rect x="15" y="3" width="1" height="1" fill="#1a1a1a"/><rect x="3" y="4" width="1" height="1" fill="#1a1a1a"/><rect x="4" y="4" width="4" height="1" fill="#cc2020"/><rect x="8" y="4" width="2" height="1" fill="#1a1a1a"/><rect x="11" y="4" width="1" height="1" fill="#1a1a1a"/><rect x="12" y="4" width="2" height="1" fill="#c0c0c0"/><rect x="14" y="4" width="1" height="1" fill="#909090"/><rect x="15" y="4" width="1" height="1" fill="#1a1a1a"/><rect x="3" y="5" width="1" height="1" fill="#1a1a1a"/><rect x="4" y="5" width="3" height="1" fill="#cc2020"/><rect x="7" y="5" width="2" height="1" fill="#1a1a1a"/><rect x="11" y="5" width="1" height="1" fill="#1a1a1a"/><rect x="12" y="5" width="2" height="1" fill="#c0c0c0"/><rect x="14" y="5" width="1" height="1" fill="#909090"/><rect x="15" y="5" width="1" height="1" fill="#1a1a1a"/><rect x="3" y="6" width="1" height="1" fill="#1a1a1a"/><rect x="4" y="6" width="2" height="1" fill="#cc2020"/><rect x="6" y="6" width="2" height="1" fill="#1a1a1a"/><rect x="11" y="6" width="1" height="1" fill="#1a1a1a"/><rect x="12" y="6" width="2" height="1" fill="#c0c0c0"/><rect x="14" y="6" width="1" height="1" fill="#909090"/><rect x="15" y="6" width="1" height="1" fill="#1a1a1a"/><rect x="3" y="7" width="1" height="1" fill="#1a1a1a"/><rect x="4" y="7" width="1" height="1" fill="#cc2020"/><rect x="5" y="7" width="2" height="1" fill="#1a1a1a"/><rect x="11" y="7" width="1" height="1" fill="#1a1a1a"/><rect x="12" y="7" width="2" height="1" fill="#c0c0c0"/><rect x="14" y="7" width="1" height="1" fill="#909090"/><rect x="15" y="7" width="1" height="1" fill="#1a1a1a"/><rect x="3" y="8" width="2" height="1" fill="#1a1a1a"/><rect x="7" y="8" width="6" height="1" fill="#1a1a1a"/><rect x="13" y="8" width="2" height="1" fill="#c0c0c0"/><rect x="15" y="8" width="1" height="1" fill="#1a1a1a"/><rect x="7" y="9" width="1" height="1" fill="#1a1a1a"/><rect x="8" y="9" width="4" height="1" fill="#606060"/><rect x="12" y="9" width="2" height="1" fill="#c0c0c0"/><rect x="14" y="9" width="1" height="1" fill="#1a1a1a"/><rect x="7" y="10" width="1" height="1" fill="#1a1a1a"/><rect x="8" y="10" width="4" height="1" fill="#606060"/><rect x="12" y="10" width="2" height="1" fill="#c0c0c0"/><rect x="14" y="10" width="1" height="1" fill="#1a1a1a"/><rect x="7" y="11" width="1" height="1" fill="#1a1a1a"/><rect x="8" y="11" width="4" height="1" fill="#606060"/><rect x="12" y="11" width="2" height="1" fill="#c0c0c0"/><rect x="14" y="11" width="1" height="1" fill="#1a1a1a"/><rect x="7" y="12" width="1" height="1" fill="#1a1a1a"/><rect x="8" y="12" width="4" height="1" fill="#606060"/><rect x="12" y="12" width="2" height="1" fill="#c0c0c0"/><rect x="14" y="12" width="1" height="1" fill="#1a1a1a"/><rect x="8" y="13" width="1" height="1" fill="#1a1a1a"/><rect x="9" y="13" width="3" height="1" fill="#606060"/><rect x="12" y="13" width="1" height="1" fill="#c0c0c0"/><rect x="13" y="13" width="1" height="1" fill="#1a1a1a"/><rect x="8" y="14" width="6" height="1" fill="#1a1a1a"/>',
   '🫗': '<rect x="4" y="1" width="4" height="1" fill="#1a1a1a"/><rect x="3" y="2" width="1" height="1" fill="#1a1a1a"/><rect x="4" y="2" width="4" height="1" fill="#ffe040"/><rect x="8" y="2" width="1" height="1" fill="#1a1a1a"/><rect x="3" y="3" width="1" height="1" fill="#1a1a1a"/><rect x="4" y="3" width="7" height="1" fill="#ffc000"/><rect x="11" y="3" width="1" height="1" fill="#1a1a1a"/><rect x="3" y="4" width="1" height="1" fill="#1a1a1a"/><rect x="4" y="4" width="8" height="1" fill="#ff8000"/><rect x="12" y="4" width="1" height="1" fill="#1a1a1a"/><rect x="4" y="5" width="1" height="1" fill="#1a1a1a"/><rect x="5" y="5" width="6" height="1" fill="#ff8000"/><rect x="11" y="5" width="1" height="1" fill="#1a1a1a"/><rect x="4" y="6" width="9" height="1" fill="#1a1a1a"/><rect x="4" y="7" width="1" height="1" fill="#1a1a1a"/><rect x="5" y="7" width="8" height="1" fill="#a0d8f0"/><rect x="13" y="7" width="1" height="1" fill="#1a1a1a"/><rect x="4" y="8" width="1" height="1" fill="#1a1a1a"/><rect x="5" y="8" width="1" height="1" fill="#d0ecf8"/><rect x="6" y="8" width="7" height="1" fill="#a0d8f0"/><rect x="13" y="8" width="1" height="1" fill="#1a1a1a"/><rect x="4" y="9" width="1" height="1" fill="#1a1a1a"/><rect x="5" y="9" width="1" height="1" fill="#d0ecf8"/><rect x="6" y="9" width="7" height="1" fill="#a0d8f0"/><rect x="13" y="9" width="1" height="1" fill="#1a1a1a"/><rect x="4" y="10" width="1" height="1" fill="#1a1a1a"/><rect x="5" y="10" width="1" height="1" fill="#d0ecf8"/><rect x="6" y="10" width="1" height="1" fill="#e8f4fc"/><rect x="7" y="10" width="6" height="1" fill="#a0d8f0"/><rect x="13" y="10" width="1" height="1" fill="#1a1a1a"/><rect x="4" y="11" width="1" height="1" fill="#1a1a1a"/><rect x="5" y="11" width="1" height="1" fill="#d0ecf8"/><rect x="6" y="11" width="1" height="1" fill="#e8f4fc"/><rect x="7" y="11" width="6" height="1" fill="#a0d8f0"/><rect x="13" y="11" width="1" height="1" fill="#1a1a1a"/><rect x="4" y="12" width="1" height="1" fill="#1a1a1a"/><rect x="5" y="12" width="1" height="1" fill="#d0ecf8"/><rect x="6" y="12" width="2" height="1" fill="#e8f4fc"/><rect x="8" y="12" width="5" height="1" fill="#a0d8f0"/><rect x="13" y="12" width="1" height="1" fill="#1a1a1a"/><rect x="4" y="13" width="9" height="1" fill="#1a1a1a"/>',
-  '📯': '<image href="data:image/png;base64,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" x="0" y="0" width="16" height="16"/>',
+  '📯': '<image href="data:image/png;base64,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" x="0" y="0" width="16" height="16"/>',
   '⚗️': '<rect x="6" y="0" width="2" height="1" fill="#1a1a1a"/><rect x="5" y="1" width="1" height="1" fill="#1a1a1a"/><rect x="6" y="1" width="2" height="1" fill="#a0d8f0"/><rect x="8" y="1" width="1" height="1" fill="#1a1a1a"/><rect x="5" y="2" width="1" height="1" fill="#1a1a1a"/><rect x="6" y="2" width="2" height="1" fill="#a0d8f0"/><rect x="8" y="2" width="1" height="1" fill="#1a1a1a"/><rect x="4" y="3" width="1" height="1" fill="#1a1a1a"/><rect x="5" y="3" width="4" height="1" fill="#a0d8f0"/><rect x="9" y="3" width="1" height="1" fill="#1a1a1a"/><rect x="4" y="4" width="1" height="1" fill="#1a1a1a"/><rect x="5" y="4" width="4" height="1" fill="#a0d8f0"/><rect x="9" y="4" width="1" height="1" fill="#1a1a1a"/><rect x="3" y="5" width="9" height="1" fill="#1a1a1a"/><rect x="3" y="6" width="1" height="1" fill="#1a1a1a"/><rect x="4" y="6" width="9" height="1" fill="#a0d8f0"/><rect x="13" y="6" width="1" height="1" fill="#1a1a1a"/><rect x="2" y="7" width="1" height="1" fill="#1a1a1a"/><rect x="3" y="7" width="1" height="1" fill="#a0d8f0"/><rect x="4" y="7" width="1" height="1" fill="#e8f4fc"/><rect x="5" y="7" width="9" height="1" fill="#a0d8f0"/><rect x="14" y="7" width="1" height="1" fill="#1a1a1a"/><rect x="2" y="8" width="1" height="1" fill="#1a1a1a"/><rect x="3" y="8" width="1" height="1" fill="#a0d8f0"/><rect x="4" y="8" width="1" height="1" fill="#e8f4fc"/><rect x="5" y="8" width="9" height="1" fill="#a0d8f0"/><rect x="14" y="8" width="1" height="1" fill="#1a1a1a"/><rect x="2" y="9" width="1" height="1" fill="#1a1a1a"/><rect x="3" y="9" width="11" height="1" fill="#a0d8f0"/><rect x="14" y="9" width="1" height="1" fill="#1a1a1a"/><rect x="2" y="10" width="1" height="1" fill="#1a1a1a"/><rect x="3" y="10" width="2" height="1" fill="#a0d8f0"/><rect x="5" y="10" width="1" height="1" fill="#ff4040"/><rect x="6" y="10" width="8" height="1" fill="#a0d8f0"/><rect x="14" y="10" width="1" height="1" fill="#1a1a1a"/><rect x="2" y="11" width="1" height="1" fill="#1a1a1a"/><rect x="3" y="11" width="2" height="1" fill="#a0d8f0"/><rect x="5" y="11" width="1" height="1" fill="#ff4040"/><rect x="6" y="11" width="1" height="1" fill="#cc2020"/><rect x="7" y="11" width="7" height="1" fill="#a0d8f0"/><rect x="14" y="11" width="1" height="1" fill="#1a1a1a"/><rect x="2" y="12" width="1" height="1" fill="#1a1a1a"/><rect x="3" y="12" width="11" height="1" fill="#a0d8f0"/><rect x="14" y="12" width="1" height="1" fill="#1a1a1a"/><rect x="2" y="13" width="1" height="1" fill="#1a1a1a"/><rect x="3" y="13" width="11" height="1" fill="#808060"/><rect x="14" y="13" width="1" height="1" fill="#1a1a1a"/><rect x="2" y="14" width="13" height="1" fill="#1a1a1a"/>',
   '👊': '<rect x="4" y="1" width="8" height="1" fill="#1a0800"/><rect x="3" y="2" width="1" height="1" fill="#1a0800"/><rect x="4" y="2" width="8" height="1" fill="#d4956a"/><rect x="12" y="2" width="1" height="1" fill="#1a0800"/><rect x="3" y="3" width="1" height="1" fill="#1a0800"/><rect x="4" y="3" width="1" height="1" fill="#e8b090"/><rect x="5" y="3" width="7" height="1" fill="#d4956a"/><rect x="12" y="3" width="1" height="1" fill="#1a0800"/><rect x="3" y="4" width="1" height="1" fill="#1a0800"/><rect x="4" y="4" width="1" height="1" fill="#e8b090"/><rect x="5" y="4" width="7" height="1" fill="#d4956a"/><rect x="12" y="4" width="1" height="1" fill="#1a0800"/><rect x="3" y="5" width="1" height="1" fill="#1a0800"/><rect x="4" y="5" width="8" height="1" fill="#d4956a"/><rect x="12" y="5" width="1" height="1" fill="#1a0800"/><rect x="3" y="6" width="1" height="1" fill="#1a0800"/><rect x="4" y="6" width="8" height="1" fill="#d4956a"/><rect x="12" y="6" width="1" height="1" fill="#1a0800"/><rect x="2" y="7" width="12" height="1" fill="#1a0800"/><rect x="2" y="8" width="1" height="1" fill="#1a0800"/><rect x="3" y="8" width="12" height="1" fill="#d4956a"/><rect x="15" y="8" width="1" height="1" fill="#1a0800"/><rect x="2" y="9" width="1" height="1" fill="#1a0800"/><rect x="3" y="9" width="1" height="1" fill="#e8b090"/><rect x="4" y="9" width="11" height="1" fill="#d4956a"/><rect x="15" y="9" width="1" height="1" fill="#1a0800"/><rect x="2" y="10" width="1" height="1" fill="#1a0800"/><rect x="3" y="10" width="1" height="1" fill="#e8b090"/><rect x="4" y="10" width="10" height="1" fill="#d4956a"/><rect x="14" y="10" width="1" height="1" fill="#e8b090"/><rect x="15" y="10" width="1" height="1" fill="#1a0800"/><rect x="2" y="11" width="1" height="1" fill="#1a0800"/><rect x="3" y="11" width="12" height="1" fill="#d4956a"/><rect x="15" y="11" width="1" height="1" fill="#1a0800"/><rect x="2" y="12" width="1" height="1" fill="#1a0800"/><rect x="3" y="12" width="12" height="1" fill="#d4956a"/><rect x="15" y="12" width="1" height="1" fill="#1a0800"/><rect x="2" y="13" width="1" height="1" fill="#1a0800"/><rect x="3" y="13" width="1" height="1" fill="#b07048"/><rect x="4" y="13" width="10" height="1" fill="#d4956a"/><rect x="14" y="13" width="1" height="1" fill="#b07048"/><rect x="15" y="13" width="1" height="1" fill="#1a0800"/><rect x="2" y="14" width="14" height="1" fill="#1a0800"/>',
   '🪺': '<rect x="3" y="1" width="10" height="1" fill="#1a0d00"/><rect x="2" y="2" width="1" height="1" fill="#1a0d00"/><rect x="3" y="2" width="10" height="1" fill="#8B4513"/><rect x="13" y="2" width="1" height="1" fill="#1a0d00"/><rect x="2" y="3" width="1" height="1" fill="#1a0d00"/><rect x="3" y="3" width="1" height="1" fill="#8B4513"/><rect x="4" y="3" width="1" height="1" fill="#6b3010"/><rect x="5" y="3" width="9" height="1" fill="#8B4513"/><rect x="14" y="3" width="1" height="1" fill="#1a0d00"/><rect x="2" y="4" width="1" height="1" fill="#1a0d00"/><rect x="3" y="4" width="1" height="1" fill="#8B4513"/><rect x="4" y="4" width="1" height="1" fill="#6b3010"/><rect x="5" y="4" width="1" height="1" fill="#8B4513"/><rect x="6" y="4" width="6" height="1" fill="#c06030"/><rect x="12" y="4" width="3" height="1" fill="#8B4513"/><rect x="15" y="4" width="1" height="1" fill="#1a0d00"/><rect x="2" y="5" width="1" height="1" fill="#1a0d00"/><rect x="3" y="5" width="3" height="1" fill="#8B4513"/><rect x="6" y="5" width="1" height="1" fill="#c06030"/><rect x="7" y="5" width="5" height="1" fill="#d08050"/><rect x="12" y="5" width="3" height="1" fill="#8B4513"/><rect x="15" y="5" width="1" height="1" fill="#1a0d00"/><rect x="2" y="6" width="1" height="1" fill="#1a0d00"/><rect x="3" y="6" width="3" height="1" fill="#8B4513"/><rect x="6" y="6" width="1" height="1" fill="#c06030"/><rect x="7" y="6" width="1" height="1" fill="#d08050"/><rect x="8" y="6" width="3" height="1" fill="#e0c060"/><rect x="11" y="6" width="1" height="1" fill="#c06030"/><rect x="12" y="6" width="3" height="1" fill="#8B4513"/><rect x="15" y="6" width="1" height="1" fill="#1a0d00"/><rect x="2" y="7" width="1" height="1" fill="#1a0d00"/><rect x="3" y="7" width="3" height="1" fill="#8B4513"/><rect x="6" y="7" width="1" height="1" fill="#c06030"/><rect x="7" y="7" width="1" height="1" fill="#d08050"/><rect x="8" y="7" width="2" height="1" fill="#ffe080"/><rect x="10" y="7" width="1" height="1" fill="#e0c060"/><rect x="11" y="7" width="1" height="1" fill="#c06030"/><rect x="12" y="7" width="3" height="1" fill="#8B4513"/><rect x="15" y="7" width="1" height="1" fill="#1a0d00"/><rect x="2" y="8" width="1" height="1" fill="#1a0d00"/><rect x="3" y="8" width="3" height="1" fill="#8B4513"/><rect x="6" y="8" width="1" height="1" fill="#c06030"/><rect x="7" y="8" width="1" height="1" fill="#d08050"/><rect x="8" y="8" width="2" height="1" fill="#ffe080"/><rect x="10" y="8" width="1" height="1" fill="#e0c060"/><rect x="11" y="8" width="1" height="1" fill="#c06030"/><rect x="12" y="8" width="3" height="1" fill="#8B4513"/><rect x="15" y="8" width="1" height="1" fill="#1a0d00"/><rect x="2" y="9" width="1" height="1" fill="#1a0d00"/><rect x="3" y="9" width="3" height="1" fill="#8B4513"/><rect x="6" y="9" width="1" height="1" fill="#c06030"/><rect x="7" y="9" width="1" height="1" fill="#d08050"/><rect x="8" y="9" width="3" height="1" fill="#e0c060"/><rect x="11" y="9" width="1" height="1" fill="#c06030"/><rect x="12" y="9" width="3" height="1" fill="#8B4513"/><rect x="15" y="9" width="1" height="1" fill="#1a0d00"/><rect x="2" y="10" width="1" height="1" fill="#1a0d00"/><rect x="3" y="10" width="3" height="1" fill="#8B4513"/><rect x="6" y="10" width="1" height="1" fill="#c06030"/><rect x="7" y="10" width="5" height="1" fill="#d08050"/><rect x="12" y="10" width="3" height="1" fill="#8B4513"/><rect x="15" y="10" width="1" height="1" fill="#1a0d00"/><rect x="2" y="11" width="1" height="1" fill="#1a0d00"/><rect x="3" y="11" width="3" height="1" fill="#8B4513"/><rect x="6" y="11" width="6" height="1" fill="#c06030"/><rect x="12" y="11" width="3" height="1" fill="#8B4513"/><rect x="15" y="11" width="1" height="1" fill="#1a0d00"/><rect x="2" y="12" width="1" height="1" fill="#1a0d00"/><rect x="3" y="12" width="1" height="1" fill="#8B4513"/><rect x="4" y="12" width="1" height="1" fill="#6b3010"/><rect x="5" y="12" width="9" height="1" fill="#8B4513"/><rect x="14" y="12" width="1" height="1" fill="#1a0d00"/><rect x="2" y="13" width="1" height="1" fill="#1a0d00"/><rect x="3" y="13" width="10" height="1" fill="#8B4513"/><rect x="13" y="13" width="1" height="1" fill="#1a0d00"/><rect x="2" y="14" width="12" height="1" fill="#1a0d00"/>',
@@ -1510,7 +1506,9 @@ const RELICS = [
 
 const CONSUMABLES = [
   { id:'fakeid',    n:"THE WORLD'S MOST CONVINCING FAKE ID", icon:'🪪', char:'tank', d:'The Tank\'s go-to for doors, dealers, and one very specific ex. Auto-wins your next challenge tile, no questions asked.', price:25 },
+  { id:'anotherround', n:"ONE MORE IN THE TANK", icon:'🥃', char:'tank', d:"The Tank doesn't quit. +1 chug attempt right now — because sometimes the bar needs a second opinion.", price:25 },
   { id:'icebucket',   n:"ONE MORE SPIN, I SWEAR",   icon:'🔁', d:'Instantly refills a reroll — spin the lever again for free. Famous last words.', price:15 },
+  { id:'haggle',      n:"THE GIFT OF THE GAB",      icon:'🤝', d:"Smooth talk your way to one deal. Use it in the shop to pay for any item in XP instead of coins. Works once, burns after.", price:5 },
   { id:'debtpardon',  n:"THE DEBT COLLECTOR'S NIGHTMARE", icon:'📜', d:"A sealed letter from someone high up. All outstanding debts: forgiven. Balances restored to zero. Nobody asks questions.", price:80 }
 ];
 
@@ -1563,7 +1561,7 @@ function freshState(){
     flags:{}, resolved:false, secret:null, secretDone:false, secretBlown:false,
     secret2:null, secret2Available:false, secret2Declined:false, secret2Done:false, secret2Blown:false, karaokeDone:false, beerLogCount:0, bossMarks:{}, bossesAvenged:0,
     coins:0, souvenirs:{}, relics:[], items:{}, hatUsedThisLap:false, denSpinsLeft:3, chugAttemptsLeft:2,
-    rage:0, bloodied:false, chugMisses:0, perfectChugs:0, rageActivations:0,
+    rage:0, bloodied:false, chugMisses:0, perfectChugs:0, rageActivations:0, haggleActive:false,
     autoWinNext:false, shopPending:false,
     breweryUpgrades:[], coinAccum:0, lastProdTs:null, beerCoinsTotal:0, pendingLevelUps:0
   };
@@ -2722,7 +2720,7 @@ function syncHUD(){
   if(titleEl){
     const title = computeEpicTitle();
     const wounded = S.charId==='tank' && S.bloodied;
-    titleEl.textContent = wounded ? '🧸 BLOODIED · '+title : title;
+    titleEl.textContent = wounded ? '🩸 WAR WOUNDS · '+title : title;
     titleEl.style.color = wounded ? '#c03028' : '';
   }
   const need = xpNeeded(S.level);
@@ -2943,6 +2941,9 @@ function applyWin(t){
   // Tank: offer XP wager via chug meter
   if(S.charId === 'tank'){
     S._tankPendingWin = { t, xpAmount, isRevenge };
+    S.chugAttemptsLeft = chugGetMaxAttempts(); // fresh wager attempts
+    S.chugRoundLeft = chugGetMaxAttempts();      // also reset idle pool (new lever pull)
+    S._chugTarget = chugPickTarget();
     refreshChug();
     return;
   }
@@ -3023,16 +3024,17 @@ const DEN_GAMES = {
 // Tolerances: perfect = tight window for bonus XP, ok = 1.8s window for base XP
 // No middle "clean" tier — just nail it or settle for ok.
 const CHUG_MODES = {
-  basic:  { id:'basic',  name:'BASIC CHUG',  attempts:2, perfect:0.3,  ok:1.8, perfectBonus:false },
-  iron:   { id:'iron',   name:'IRON CHUG',   attempts:3, perfect:0.5,  ok:1.8, perfectBonus:false, relic:'ironthroat' },
-  horn:   { id:'horn',   name:'HORN CHUG',   attempts:3, perfect:0.65, ok:1.8, perfectBonus:true,  relic:'vikinghorn' },
-  legend: { id:'legend', name:'LEGEND MODE', attempts:3, perfect:0.25, ok:1.8, perfectBonus:true,  relic:'meadaltar', tripleXP:true },
+  basic:  { id:'basic',  name:'BASIC CHUG',  attempts:1, minT:3, maxT:9,  perfect:0.3,  ok:0.9, perfectBonus:false },
+  iron:   { id:'iron',   name:'IRON CHUG',   attempts:2, minT:4, maxT:11, perfect:0.45, ok:1.1, perfectBonus:false, relic:'ironthroat' },
+  horn:   { id:'horn',   name:'HORN CHUG',   attempts:3, minT:5, maxT:13, perfect:0.6,  ok:1.4, perfectBonus:true,  relic:'vikinghorn' },
+  legend: { id:'legend', name:'LEGEND MODE', attempts:4, minT:6, maxT:15, perfect:0.75, ok:1.7, perfectBonus:true,  relic:'meadaltar', tripleXP:true },
 };
 
-// Pick a target — 5 to 15 seconds
+// Pick a target — range depends on current chug mode
 function chugPickTarget(){
-  const base = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
-  return base[Math.floor(Math.random()*base.length)];
+  const m = chugGetMode();
+  const min = m.minT || 3, max = m.maxT || 9;
+  return min + Math.floor(Math.random() * (max - min + 1));
 }
 
 function chugGetMode(){
@@ -3044,7 +3046,8 @@ function chugGetMode(){
 function chugGetMaxAttempts(){ return chugGetMode().attempts; }
 function chugResetAttempts(){
   S.chugAttemptsLeft = chugGetMaxAttempts();
-  S._chugTarget = null; // fresh target each challenge
+  S.chugRoundLeft = chugGetMaxAttempts(); // total chugs allowed this round
+  S._chugTarget = chugPickTarget(); // fresh target
   S.chugMisses = 0;     // reset consecutive miss streak (bloodied persists until healed by a perfect)
   save();
 }
@@ -3072,9 +3075,9 @@ function refreshChug(){
   if(xpRow) xpRow.classList.toggle('hide', !hasPending);
   if(xpAmt && hasPending) xpAmt.textContent = S._tankPendingWin.xpAmount;
 
-  // Target display
+  // Target display — only show once revealed (after previous chug ends)
   const targetEl = document.getElementById('chugTarget');
-  if(targetEl) targetEl.textContent = target + 's';
+  if(targetEl) targetEl.textContent = target ? target + 's' : '—';
 
   // Tolerance hint
   const tolerEl = document.getElementById('chugToler');
@@ -3089,25 +3092,30 @@ function refreshChug(){
   // Attempts counter — only relevant during a pending XP wager
   const left = S.chugAttemptsLeft ?? chugGetMaxAttempts();
   const leftEl = document.getElementById('chugLeft');
-  if(leftEl) leftEl.textContent = left;
+  const roundLeftDisp = S.chugRoundLeft ?? chugGetMaxAttempts();
+  const wagerLeftDisp = S.chugAttemptsLeft ?? chugGetMaxAttempts();
+  if(leftEl) leftEl.textContent = hasPending ? wagerLeftDisp : roundLeftDisp;
   const attRow = document.getElementById('chugAttemptsRow');
-  // Show attempts row only when there's a pending wager (limited shots at XP)
-  if(attRow) attRow.style.display = hasPending ? 'flex' : 'none';
+  // Always show attempts row so player knows how many chugs they have left
+  if(attRow) attRow.style.display = 'flex';
 
-  // Main button — idle chugs are always available (unlimited, just for coins)
+  // Main button — wager uses chugAttemptsLeft; idle uses chugRoundLeft
   const btn = document.getElementById('chugBtn');
-  const noAttempts = hasPending && left <= 0; // only block if WAGER attempts exhausted
+  const roundLeft = S.chugRoundLeft ?? chugGetMaxAttempts();
+  const wagerLeft = S.chugAttemptsLeft ?? chugGetMaxAttempts();
+  const noAttempts = hasPending ? wagerLeft <= 0 : roundLeft <= 0;
   if(btn){
-    if(noAttempts){
-      btn.textContent = '💤 NO ATTEMPTS LEFT';
-      btn.disabled = true;
-      btn.style.opacity = '0.4';
-      btn.onclick = null;
-    } else if(_chugPhase === 'going'){
+    if(_chugPhase === 'going'){
+      // Always allow stopping an active chug — check this BEFORE noAttempts
       btn.textContent = '🛑 STOP';
       btn.disabled = false;
       btn.style.opacity = '';
       btn.onclick = chugStop;
+    } else if(noAttempts){
+      btn.textContent = '💤 NO ATTEMPTS LEFT';
+      btn.disabled = true;
+      btn.style.opacity = '0.4';
+      btn.onclick = null;
     } else {
       btn.textContent = '🍺 START CHUGGING';
       btn.disabled = false;
@@ -3153,15 +3161,20 @@ function chugGo(){
   if(hasPending){
     const left = S.chugAttemptsLeft ?? chugGetMaxAttempts();
     if(left <= 0){ toast('NO WAGER ATTEMPTS LEFT — TAKE SAFE XP'); return; }
+    S.chugAttemptsLeft = Math.max(0, left - 1); // use one wager attempt
+  } else {
+    const left = S.chugRoundLeft ?? chugGetMaxAttempts();
+    if(left <= 0){ toast('NO CHUGS LEFT THIS ROUND'); return; }
+    S.chugRoundLeft = Math.max(0, left - 1); // use one idle attempt
   }
-  if(!S._chugTarget) S._chugTarget = chugPickTarget();
+  if(!S._chugTarget) S._chugTarget = chugPickTarget(); // fallback: pick if somehow missing
   _chugPhase = 'going';
   _chugActive = true;
   _chugStartMs = Date.now();
 
-  // Blank out target during chug — player must rely on memory
+  // Keep target visible during chug so player knows what to aim for
   const targetEl = document.getElementById('chugTarget');
-  if(targetEl) targetEl.textContent = '??';
+  if(targetEl && S._chugTarget) targetEl.textContent = S._chugTarget + 's';
   const res = document.getElementById('chugResult');
   if(res) res.innerHTML = '<span style="color:#8ad4ff;font-size:18px;letter-spacing:2px;animation:chugPulse 0.7s ease-in-out infinite">🍺 CHUGGING…</span>';
 
@@ -3216,8 +3229,8 @@ function chugResolve(elapsed){
       S.chugMisses = (S.chugMisses||0) + 1;
       if(S.chugMisses >= 3 && !S.bloodied){
         S.bloodied = true;
-        floatText('🧸 BLOODIED!', '#c03028');
-        toast('🧸 3 MISSES IN A ROW — BLOODIED! -30% XP until a perfect chug');
+        floatText('🩸 WAR WOUNDS!', '#c03028');
+        toast('🩸 WAR WOUNDS — 3 misses in a row! -30% XP until a perfect chug');
       }
     }
   }
@@ -3290,7 +3303,7 @@ function _chugFinishApplyWin(xpMult, isSafe){
     }
     if(S.bloodied){
       xpMult *= 0.7;
-      floatText('🧸 WOUNDED', '#c03028');
+      floatText('🩸 WAR WOUNDS', '#c03028');
     }
     g = grantXP(Math.round(xpAmount * xpMult), t.n);
     if(xpMult >= 3)      { addLog('🏆 LEGENDARY — '+t.n+' ×'+xpMult+' = +'+g+' XP'); toast('🏆 LEGENDARY! +'+g+' XP'); floatText('LEGENDARY', '#ffd24a'); }
@@ -4409,7 +4422,8 @@ function renderShop(){
     } else {
       const fn  = type==='relic' ? `buyRelic('${r.id}')` : `buyConsumable('${r.id}')`;
       const cls = type==='relic' ? 'purple' : 'cyan';
-      actionHtml = `<button class="btn ${cls} sm" style="width:auto;margin:0;padding:6px 10px" onclick="${fn}" ${afford?'':'disabled'}>${r.price} <span style="opacity:0.6;font-size:7px">COINS</span></button>`;
+      const xpBtn = S.haggleActive ? ` <button class="btn blue sm" style="width:auto;margin:0;padding:6px 10px;margin-left:4px" onclick="buyWithXP('${type==='relic'?'relic':'item'}','${r.id}')">${r.price} <span style="opacity:0.6;font-size:7px">XP</span></button>` : '';
+      actionHtml = `<button class="btn ${cls} sm" style="width:auto;margin:0;padding:6px 10px" onclick="${fn}" ${afford?'':'disabled'}>${r.price} <span style="opacity:0.6;font-size:7px">COINS</span></button>${xpBtn}`;
     }
     return `<div class="shop-item${owned?' shop-item--owned':''}${isExclusive?' shop-item--exclusive':''}">
       <div class="shop-item__icon">${ico(r.icon, 40, type==='relic'?'#c8a030':'#4fb3a3')}</div>
@@ -4434,6 +4448,7 @@ function renderShop(){
     </div>` : '';
 
   document.getElementById('shopInner').innerHTML = `
+    ${S.haggleActive ? '<div style="text-align:center;padding:6px;background:rgba(100,200,255,.12);border:1px solid rgba(100,200,255,.3);border-radius:4px;margin-bottom:8px;font-size:8px;letter-spacing:1px;color:#8ad4ff">🤝 HAGGLE MODE — one item, pay in XP</div>' : ''}
     <div class="shop-header">
       <div class="shop-header__tag">${theme.tag}</div>
       <div class="shop-header__title">${theme.title}</div>
@@ -4471,6 +4486,27 @@ function buyConsumable(id){
   save(); syncHUD(); renderShop();
 }
 
+function buyWithXP(type, id){
+  if(!S.haggleActive){ toast('NO HAGGLE ACTIVE'); return; }
+  const list = type==='relic' ? RELICS : CONSUMABLES;
+  const r = list.find(x=>x.id===id); if(!r) return;
+  const xpCost = r.price; // 1:1 coin to XP
+  if(S.xp < xpCost){ toast('NOT ENOUGH XP — need '+xpCost+' XP'); return; }
+  S.xp -= xpCost; S.haggleActive = false;
+  if(type==='relic'){
+    if(S.relics.includes(id)){ toast('ALREADY OWNED'); S.xp += xpCost; S.haggleActive = true; return; }
+    S.relics.push(id);
+    addLog('🤝 Haggled: '+r.n+' — paid '+xpCost+' XP');
+    toast(r.icon+' '+r.n+' — YOURS FOR '+xpCost+' XP');
+    if(r.brewBonus){ S.brewBonus = (S.brewBonus||0)+r.brewBonus; }
+  } else {
+    S.items[id] = (S.items[id]||0)+1;
+    addLog('🤝 Haggled: '+r.n+' — paid '+xpCost+' XP');
+    toast(r.n+' — YOURS FOR '+xpCost+' XP');
+  }
+  floatText('-'+xpCost+' XP', '#8ad4ff');
+  save(); syncHUD(); renderShop();
+}
 /* ---------- bag / inventory ---------- */
 function useItem(id){
   if(!S.items[id] || S.items[id]<=0){ toast('NONE LEFT'); return; }
@@ -4493,6 +4529,21 @@ function useItem(id){
     S.autoWinNext = true;
     addLog('Activated FAKE ID — next challenge is covered');
     toast('🪪 FAKE ID READY FOR YOUR NEXT TILE');
+  } else if(id==='haggle'){
+    S.haggleActive = true;
+    addLog('🤝 Gift of the Gab — next shop item can be bought with XP');
+    toast('🤝 HAGGLE MODE ON — one item, paid in XP');
+    floatText('HAGGLE READY', '#8ad4ff');
+    save(); syncHUD();
+    // Open the shop so they can use it immediately
+    openShop(); return;
+  } else if(id==='anotherround'){
+    S.chugRoundLeft = (S.chugRoundLeft||0) + 1;
+    S.chugAttemptsLeft = (S.chugAttemptsLeft||0) + 1;
+    addLog('🥃 One More In The Tank — +1 chug attempt');
+    toast('🥃 ONE MORE IN THE TANK — CHUG ATTEMPT RESTORED');
+    floatText('+1 CHUG', '#ffd24a');
+    refreshChug();
   } else if(c){
     addLog('Used item: '+c.n);
   }
