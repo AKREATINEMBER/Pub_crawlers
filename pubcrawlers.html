@@ -122,18 +122,40 @@ p{margin:0 0 8px;}
 /* ---------- title screen ---------- */
 #screen-boot{text-align:center;padding-top:14vh;}
 .logo{
-  font-size:38px;line-height:1.2;letter-spacing:2px;
+  font-size:38px;line-height:1.2;letter-spacing:3px;font-weight:900;
   background:linear-gradient(180deg,#ffe08a 0%,#ffd24a 35%,#e8a33d 65%,#c1392b 100%);
   -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:#e8a33d;
-  text-shadow:0 4px 0 #3a1206;
-  filter:drop-shadow(0 0 10px rgba(232,163,61,.5));
+  filter:
+    drop-shadow(0 1px 0 #3a1206)
+    drop-shadow(0 2px 0 #4a1a06)
+    drop-shadow(0 3px 0 #5a2206)
+    drop-shadow(0 4px 0 #3a1206)
+    drop-shadow(0 6px 12px rgba(0,0,0,.7));
   animation:logoPulse 2.4s ease-in-out infinite;
 }
 @keyframes logoPulse{
-  0%,100%{transform:scale(1);filter:drop-shadow(0 0 10px rgba(232,163,61,.5));}
-  50%{transform:scale(1.045);filter:drop-shadow(0 0 24px rgba(255,210,74,.9));}
+  0%,100%{transform:scale(1);filter:drop-shadow(0 1px 0 #3a1206) drop-shadow(0 2px 0 #4a1a06) drop-shadow(0 3px 0 #5a2206) drop-shadow(0 4px 0 #3a1206) drop-shadow(0 6px 12px rgba(0,0,0,.7)) drop-shadow(0 0 8px rgba(232,163,61,.3));}
+  50%{transform:scale(1.045);filter:drop-shadow(0 1px 0 #3a1206) drop-shadow(0 2px 0 #4a1a06) drop-shadow(0 3px 0 #5a2206) drop-shadow(0 4px 0 #3a1206) drop-shadow(0 6px 12px rgba(0,0,0,.7)) drop-shadow(0 0 22px rgba(255,210,74,.8));}
 }
 .sub{font-size:13px;color:var(--cyan);margin-top:12px;letter-spacing:1.5px;}
+.bootstart{
+  background:linear-gradient(180deg,#9adf6a 0%,#6ec040 30%,#3a8c1e 70%,#2a6614 100%);
+  color:#0a1f04;text-shadow:0 1px 0 rgba(200,255,160,.4);font-size:14px;padding:16px 10px;
+  box-shadow:
+    0 7px 0 #0e1a08,
+    0 8px 0 #080e04,
+    inset 0 1px 0 rgba(255,255,220,.55),
+    inset 0 2px 6px rgba(180,255,120,.2),
+    inset 0 -2px 4px rgba(0,0,0,.35),
+    inset 0 0 0 2px rgba(120,220,70,.25);
+}
+.bootstart:active{
+  box-shadow:
+    0 2px 0 #0e1a08,
+    inset 0 1px 0 rgba(255,255,220,.55),
+    inset 0 -2px 4px rgba(0,0,0,.35),
+    inset 0 0 0 2px rgba(120,220,70,.25);
+}
 .blink{animation:blink 1.05s steps(2,start) infinite;}
 @keyframes blink{0%,49%{opacity:1}50%,100%{opacity:.12}}
 
@@ -160,19 +182,21 @@ input[type=text]::placeholder{color:#fff;opacity:.9;}
 #arena{width:100%;height:auto;}
 #arenaLabel{position:absolute;top:4px;left:6px;font-size:7px;color:var(--dim);}
 
-#brewRateLabel{position:absolute;bottom:4px;right:6px;font-size:8px;color:#e8b23a;}
+#brewRateLabel{position:absolute;bottom:6px;right:8px;font-size:13px;color:#e8b23a;text-shadow:0 2px 0 #3a1e00, 0 0 10px rgba(232,178,58,.5);letter-spacing:1px;}
 .brewDash{margin-top:4px;margin-bottom:4px;border-color:#5a4a1e;}
 .crawlHeader{margin-top:14px;border-color:#3d2f6e;}
 
 /* ---------- HUD ---------- */
-.hudRow{display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:8px;margin-bottom:3px;}
+.hudRow{display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:8px;margin-bottom:5px;}
 .bar{height:12px;background:#07060f;border:2px solid #170f08;box-shadow:inset 0 0 0 1px #5a3f20;position:relative;overflow:hidden;}
 .bar i{display:block;height:100%;width:0%;transition:width .35s cubic-bezier(.2,.9,.3,1);}
-.bar.xp i{background:linear-gradient(90deg,#e8a33d,#d97e2b);}
+.bar.xp{height:22px;}
+.bar.xp i{background:linear-gradient(90deg,#38f2e0,#a45cff);}
 .bar.pace i{background:linear-gradient(90deg,#6ee36e,#ffd24a 55%,#ff4d5e);}
 .bar span{position:absolute;inset:0;text-align:center;font-size:7px;line-height:12px;color:#fff;text-shadow:0 1px 0 #000;}
-.statPills{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;}
-.pill{background:#170f08;border:2px solid #5a3f20;padding:3px 6px;font-size:8px;}
+.bar.xp span{font-size:10px;line-height:22px;}
+.statPills{display:flex;gap:0;flex-wrap:nowrap;margin-top:8px;}
+.pill{background:#170f08;border:2px solid #5a3f20;padding:8px 4px;font-size:12px;flex:1;text-align:center;}
 
 /* ---------- slot machine (medieval, no dice, no board) ---------- */
 #slotWrap{background:linear-gradient(180deg,#3a2a1c,#241a10);border:3px solid #5a3a24;box-shadow:0 0 0 3px #170f08, inset 0 0 20px rgba(0,0,0,.4);padding:10px;margin-top:6px;border-radius:4px;}
@@ -913,13 +937,11 @@ body[data-char="tank"] .shop-item--exclusive{border-color:rgba(212,132,26,0.28);
   <!-- ============ BOOT ============ -->
   <section id="screen-boot">
     <div class="logo">PUB CRAWLERS</div>
-    <div class="sub">A ROGUELIKE PUB CRAWL</div>
-    <div style="margin:18px auto;width:78px;"><canvas id="bootSprite" width="78" height="78"></canvas></div>
-    <div class="panel tight">
-
+    <div style="margin:22px auto;width:110px;">
+      <canvas id="bootSprite" width="110" height="110" style="display:block;"></canvas>
     </div>
-    <button class="btn primary blink" onclick="go('char')">▶ PRESS START</button>
-    <button class="btn ghost sm" onclick="openRules()">HOW TO PLAY</button>
+    <button class="btn bootstart" onclick="go('char')">PRESS START</button>
+    <button class="btn ghost" style="font-size:12px;padding:13px 10px;color:var(--ink);letter-spacing:1.5px;margin-top:18px;background:linear-gradient(180deg,#4a3318 0%,#2e1e0c 50%,#1a0e06 100%);box-shadow:0 7px 0 #080502,0 8px 0 #040200,inset 0 1px 0 rgba(255,200,120,.3),inset 0 2px 6px rgba(200,140,60,.12),inset 0 -2px 4px rgba(0,0,0,.5),inset 0 0 0 2px rgba(120,80,30,.3);" onclick="openRules()">HOW TO PLAY</button>
   </section>
 
   <!-- ============ CHARACTER SELECT ============ -->
@@ -937,26 +959,27 @@ body[data-char="tank"] .shop-item--exclusive{border-color:rgba(212,132,26,0.28);
   <section id="screen-game" class="hide">
     <div id="arenaWrap">
       <canvas id="arena" width="360" height="150"></canvas>
-      <div id="arenaLabel">NIGHT 1</div>
+      <div id="brewRateLabel">🍺 0.0/min</div>
 
     </div>
     <div class="panel tight brewDash">
-      <div class="hudRow" style="margin-bottom:4px">
-        <span class="gold" id="brewTierName">THE SHACK</span>
-        <span class="dim" style="font-size:9px"><span id="brewLifetime">0</span> 🍺 brewed</span>
+      <div class="hudRow" style="align-items:center;">
+        <span style="font-size:11px;color:var(--gold)">Every challenge you take feeds the brewery.</span>
+        <span class="gold" id="brewLifetime" style="font-size:11px;">🍺 0 BREWED</span>
       </div>
-      <div class="hudRow" style="margin-bottom:3px">
-        <span id="hudLevel" class="cyan" style="font-size:9px;letter-spacing:1px">LV 1</span>
-        <span id="xpTxt" class="dim" style="font-size:8px">0 / 17 XP</span>
-      </div>
-      <div class="bar xp" style="margin:0"><i id="xpFill"></i></div>
+    </div>
+
+    <div class="panel tight crawlHeader">
+      <h2 style="margin:0">🍻 HIT THE TOWN</h2>
+      <p class="small dim" style="margin:4px 0 0">Pull the lever — every outcome is more coin and XP for the brewery above. No dice, no board, just the reels.</p>
     </div>
 
     <div class="panel tight" style="margin-top:10px">
       <div class="hudRow">
-        <span id="hudName" class="gold">—</span>
+        <span style="font-size:15px;color:var(--gold);letter-spacing:1px;"><span id="hudName">—</span> <span id="hudCharName" class="dim" style="font-size:12px;"></span></span>
+        <span id="hudLevel" style="font-size:15px;color:#4ab0e8;text-shadow:0 2px 0 #0a2a4a,0 0 10px rgba(74,176,232,.4);letter-spacing:1px;">LV 1</span>
       </div>
-      <p id="hudTitle" class="small dim" style="margin:0 0 6px;line-height:1.7"></p>
+      <div class="bar xp"><i id="xpFill"></i><span id="xpTxt">0 / 30 XP</span></div>
       <div class="statPills">
         <div class="pill">🍺 <span id="stDrinks" class="gold">0</span></div>
         <div class="pill">💀 <span id="stFails" class="red">0</span></div>
@@ -976,7 +999,17 @@ body[data-char="tank"] .shop-item--exclusive{border-color:rgba(212,132,26,0.28);
       <div id="slotResultLabel">PULL THE LEVER</div>
     </div>
 
-    <button class="btn primary" id="btnSpin" onclick="spinSlot()">🎰 PULL THE LEVER</button>
+    <button class="btn primary" id="btnSpin" onclick="handleRoll()">🎰 PULL THE LEVER</button>
+
+    <div id="diceWrap" class="hide" style="background:linear-gradient(180deg,#2a1a0a,#170f08);border:3px solid #6b4a26;box-shadow:0 0 0 3px #170f08,inset 0 0 20px rgba(0,0,0,.4);padding:10px;margin-top:10px;">
+      <canvas id="pintCanvas" width="340" height="160" style="display:block;margin:0 auto;"></canvas>
+      <div id="pintResultLabel" style="text-align:center;margin-top:6px;font-size:9px;color:#ffd24a;letter-spacing:1px;min-height:14px;"></div>
+      <button id="tapBtn" class="btn gold big"
+        style="margin-top:8px;font-size:14px;width:100px;height:100px;border-radius:50%;margin-left:auto;margin-right:auto;display:block;padding:0;box-shadow:0 6px 0 #170f08,inset 0 2px 0 rgba(255,220,160,.3),inset 0 0 0 3px rgba(200,150,30,.4);"
+        onmousedown="startFill()" ontouchstart="startFill(event)"
+        onmouseup="stopFill()" ontouchend="stopFill(event)"
+        onmouseleave="stopFill()">🍺<br>HOLD<br>THE TAP</button>
+    </div>
 
     <div id="challengeInline" class="hide" onclick="toggleChallengeExpand()">
       <div class="ci-header">
@@ -1202,12 +1235,14 @@ const store = {
 const CHARS = [
   { id:'tank',  name:'THE TANK',   hair:'#8a5a2b', body:'#2e6bd6', pants:'#243a6b', acc:'#ffd24a', accType:'crown',
     perk:'+40% XP on beer challenges, -25% on party games\nBeer tiles come up more for you.\nParty games come up less.' },
-  { id:'gambler', name:'THE GAMBLER', hair:'#1a1a1a', body:'#111111', pants:'#2b2b2b', acc:'#ff3ea5', accType:'hat',
-    perk:'Double XP at the casino, -25% on physical duels\nGambling tiles come up more for you.\nDouble forfeits — you knew the risk.' },
-  { id:'jester', name:'THE JESTER', hair:'#ff6a1f', body:'#a45cff', pants:'#4b2d80', acc:'#38f2e0', accType:'horns',
-    perk:'+50% XP from the Wheel, +30% on party games, -25% on beer\nParty games and the Wheel come up more.\n1 free re-spin.' },
+  { id:'gambler', name:'THE GAMBLER', hair:'#1a1a1a', body:'#2a6b2a', pants:'#1a3d1a', acc:'#2e7d2e', accType:'fedora', scaleMult:1.18,
+    perk:"At the table he's never been beat\nPut him in a fight and watch him retreat.\n\nDouble XP at the casino, -25% on physical duels\nGambling tiles come up more for you.\nDouble forfeits — you knew the risk." },
+  { id:'jester', name:'THE JESTER', hair:'#2a0a0a', body:'#c1392b', pants:'#170f08', acc:'#c1392b', accType:'jesterhat', scaleMult:1.18,
+    perk:"Chaos in his blood, he's always in luck\nWhen it comes to beer, he doesn't give a duck.\n\n+50% XP from the Wheel, +30% on party games, -25% on beer\nParty games and the Wheel come up more.\n1 free re-spin." },
   { id:'machine', name:'SIR DRINKS-A-LOT', hair:'#8a8f99', body:'#9aa2af', pants:'#454a54', acc:'#c9a227', accType:'helmet', scaleMult:1.18, chestIcon:'beer',
-    perk:'+50% XP on physical challenges, -25% at the casino\nPhysical tiles come up more for you.\nGambling tiles come up less.' }
+    perk:"Built like a wall, hits like a door\nSend him to the casino, he's out on the floor.\n\n+50% XP on physical challenges, -25% at the casino\nPhysical tiles come up more for you.\nGambling tiles come up less." },
+  { id:'wizard', name:'THE BREW-ZARD', hair:'#d6c8a0', body:'#8a8a8a', pants:'#5a5a5a', acc:'#a0a0a0', accType:'wizardhat', scaleMult:1.18,
+    perk:"Master of beer, staff in his hand\nParty games? He doesn't understand." }
 ];
 
 /* ---------- board: 28 tiles in a 10x6 ring ---------- */
@@ -1532,7 +1567,7 @@ const SPRITE = [
 // never trigger at the same moment as anyone else's
 const ANIM_CYCLE = 200;
 const ANIM_WINDOW = 45;
-const ANIM_OFFSET = { tank:0, gambler:50, jester:100, machine:150 };
+const ANIM_OFFSET = { tank:0, gambler:50, jester:100, machine:150, wizard:175 };
 function drawCharAnimation(ctx, ch, px, py, scale, bob, frame){
   const offset = ANIM_OFFSET[ch.id];
   if(offset==null) return;
@@ -1608,65 +1643,130 @@ function drawCharAnimation(ctx, ch, px, py, scale, bob, frame){
       });
     }
   } else if(ch.id==='machine'){
-    // reaches behind his back, chugs the whole thing in a couple of gulps, then crushes the mug
-    if(t<45){
-      let mugX, mugY, visible=true, crushed=false, burst=0;
-      if(t<8){
-        const p = t/8;
-        mugX = 8.6 - 3.4*p; mugY = 7.9 - 0.3*p;
-      } else if(t<14){
-        const p = (t-8)/6;
-        mugX = 5.2 + 0.6*p; mugY = 7.6 + (5.3-7.6)*p;
-      } else if(t<24){
-        const jt = t-14;
-        mugX = 5.8 + Math.sin(jt*2)*0.15; mugY = 5.3 + Math.sin(jt*2)*0.1;
-      } else if(t<30){
-        mugX = 5.8; mugY = 5.3; crushed = true; burst = (t-24)/6;
-      } else {
-        visible = false;
+    // The glass lives in his right hand at arm height at rest.
+    // During the animation window he raises it to his mouth, drinks with a foam bubble,
+    // then lowers it back to rest. No crush — he just enjoys it like a gentleman.
+    const REST_X = 9.2, REST_Y = 8.8;
+    const MOUTH_X = 5.8, MOUTH_Y = 5.1;
+
+    let mugX = REST_X, mugY = REST_Y, foamAlpha = 0, drinkT = 0;
+
+    if(t < 45){
+      if(t < 10){
+        // raise
+        const p = t / 10;
+        const e = p*p*(3-2*p);
+        mugX = REST_X + (MOUTH_X - REST_X)*e;
+        mugY = REST_Y + (MOUTH_Y - REST_Y)*e;
+      } else if(t < 26){
+        // drinking — gentle jitter, foam bubbles
+        mugX = MOUTH_X + Math.sin((t-10)*0.9)*0.08;
+        mugY = MOUTH_Y + Math.sin((t-10)*1.3)*0.05;
+        drinkT = (t-10)/16;
+        foamAlpha = Math.sin(drinkT*Math.PI) * 0.9;
+      } else if(t < 36){
+        // lower back down
+        const p = (t-26) / 10;
+        const e = p*p*(3-2*p);
+        mugX = MOUTH_X + (REST_X - MOUTH_X)*e;
+        mugY = MOUTH_Y + (REST_Y - MOUTH_Y)*e;
       }
-      if(visible && !crushed){
-        ctx.save();
-        ctx.fillStyle = '#e8b23a';
-        ctx.fillRect(px+mugX*scale, py+mugY*scale+bob, scale*1.5, scale*1.25);
-        ctx.fillStyle = '#f2e2bd';
-        ctx.fillRect(px+mugX*scale, py+(mugY-0.28)*scale+bob, scale*1.5, scale*0.3);
-        ctx.fillStyle = '#e8b23a';
-        ctx.fillRect(px+(mugX+1.5)*scale, py+(mugY+0.25)*scale+bob, scale*0.5, scale*0.65);
-        ctx.restore();
-      } else if(crushed){
-        ctx.save();
-        ctx.globalAlpha = Math.max(0,1-burst);
-        ctx.fillStyle = '#c99a3a';
+      // otherwise t 36-44: resting — falls through to rest draw below
+    }
+
+    // draw the glass: tall pint glass shape
+    const gx = px + mugX*scale, gy = py + mugY*scale + bob;
+    const gw = scale*1.3, gh = scale*1.6;
+    // amber beer fill (level drops as he drinks)
+    const fillFrac = drinkT > 0 ? Math.max(0.15, 1 - drinkT*0.7) : 1;
+    ctx.save();
+    ctx.fillStyle = '#e8b23a';
+    ctx.fillRect(gx + scale*0.08, gy + gh*(1-fillFrac), gw - scale*0.15, gh*fillFrac);
+    // glass outline (clear)
+    ctx.strokeStyle = '#c8d8e8';
+    ctx.lineWidth = Math.max(1, scale*0.18);
+    ctx.strokeRect(gx + scale*0.08, gy, gw - scale*0.15, gh);
+    // foam top
+    const foamY = gy + gh*(1-fillFrac) - scale*0.22;
+    ctx.fillStyle = `rgba(255,252,240,${0.85 + foamAlpha*0.15})`;
+    ctx.fillRect(gx + scale*0.1, foamY, gw - scale*0.2, scale*0.28);
+    // handle
+    ctx.strokeStyle = '#c8d8e8';
+    ctx.lineWidth = Math.max(1, scale*0.15);
+    ctx.beginPath();
+    ctx.arc(gx + gw + scale*0.15, gy + gh*0.4, scale*0.35, -Math.PI*0.45, Math.PI*0.45);
+    ctx.stroke();
+    ctx.restore();
+
+    // foam bubble pops during the drink
+    if(foamAlpha > 0.1){
+      ctx.save();
+      ctx.globalAlpha = foamAlpha * 0.8;
+      ctx.fillStyle = '#fff8e8';
+      const bubs = [[0.3,-0.5],[0.7,-0.7],[1.1,-0.4],[0.5,-1.0]];
+      bubs.forEach(([bx,by],i)=>{
+        const s = 0.18 + 0.08*Math.sin(frame*0.4+i);
         ctx.beginPath();
-        ctx.moveTo(px+(mugX+0.2)*scale, py+(mugY+0.2)*scale+bob);
-        ctx.lineTo(px+(mugX+1.1)*scale, py+(mugY+0.05)*scale+bob);
-        ctx.lineTo(px+(mugX+1.4)*scale, py+(mugY+0.7)*scale+bob);
-        ctx.lineTo(px+(mugX+0.6)*scale, py+(mugY+1.0)*scale+bob);
-        ctx.lineTo(px+(mugX+0.1)*scale, py+(mugY+0.6)*scale+bob);
-        ctx.closePath(); ctx.fill();
-        ctx.restore();
-        if(burst<1){
+        ctx.arc(gx + bx*scale, gy + by*scale, s*scale, 0, Math.PI*2);
+        ctx.fill();
+      });
+      ctx.restore();
+    }
+  } else if(ch.id==='wizard'){
+    // beard — drawn over the lower face/body rows
+    ctx.fillStyle = '#d6c8a0';
+    ctx.fillRect(px+3*scale, py+5.0*scale+bob, scale*6, scale*1.1);
+    ctx.fillRect(px+2.8*scale, py+6.0*scale+bob, scale*6.4, scale*1.2);
+    ctx.fillRect(px+3.2*scale, py+7.1*scale+bob, scale*5.6, scale*1.1);
+    ctx.fillRect(px+3.6*scale, py+8.0*scale+bob, scale*4.8, scale*1.0);
+    ctx.fillRect(px+4.0*scale, py+8.9*scale+bob, scale*4.0, scale*0.9);
+    ctx.fillRect(px+4.6*scale, py+9.7*scale+bob, scale*2.8, scale*0.7);
+
+    // staff — right side of sprite, from top of hand down past feet
+    const staffX = px+11.2*scale;
+    ctx.fillStyle = '#8a6030';
+    ctx.fillRect(staffX, py+6.5*scale+bob, scale*0.9, scale*6.8);
+    // staff orb at the top
+    ctx.fillStyle = '#a0e8ff';
+    ctx.beginPath(); ctx.arc(staffX+scale*0.45, py+6.2*scale+bob, scale*1.1, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.globalAlpha = 0.6;
+    ctx.beginPath(); ctx.arc(staffX+scale*0.2, py+5.8*scale+bob, scale*0.38, 0, Math.PI*2); ctx.fill();
+    ctx.globalAlpha = 1;
+
+    // sparkle cast animation — orb pulses then fires particles outward
+    if(t<45){
+      const staffTipX = staffX + scale*0.45;
+      const staffTipY = py+6.2*scale+bob;
+
+      const chargeT = Math.min(1, t/20);
+      ctx.save();
+      ctx.globalAlpha = chargeT * 0.6;
+      ctx.fillStyle = '#a0e8ff';
+      ctx.beginPath();
+      ctx.arc(staffTipX, staffTipY, scale*(1.1 + chargeT*0.9), 0, Math.PI*2);
+      ctx.fill();
+      ctx.restore();
+
+      if(t >= 18){
+        const ft = (t-18)/27; // 0→1 over the firing phase
+        const numParticles = 7;
+        for(let i=0; i<numParticles; i++){
+          const angle = (i/numParticles)*Math.PI*2 + ft*0.4;
+          const dist = ft * scale * 8.5;
+          const alpha = Math.max(0, 1 - ft*1.1);
+          const pSize = scale*(0.35 + 0.25*Math.sin(i*1.7));
+          const colours = ['#ffffff','#a0e8ff','#ffd24a','#ff88ff'];
           ctx.save();
-          ctx.globalAlpha = 1-burst;
-          ctx.font = Math.round(scale*1.4)+'px sans-serif';
-          ctx.textAlign='center'; ctx.textBaseline='middle';
-          ctx.fillText('💥', px+(mugX+0.9)*scale, py+(mugY+0.4)*scale+bob);
+          ctx.globalAlpha = alpha;
+          ctx.fillStyle = colours[i % colours.length];
+          const px2 = staffTipX + Math.cos(angle)*dist;
+          const py2 = staffTipY + Math.sin(angle)*dist;
+          ctx.fillRect(px2-pSize*0.5, py2-pSize*1.5, pSize, pSize*3);
+          ctx.fillRect(px2-pSize*1.5, py2-pSize*0.5, pSize*3, pSize);
           ctx.restore();
         }
       }
-    } else {
-      // resting chest badge, worn the rest of the time
-      ctx.save();
-      ctx.fillStyle = '#e8b23a';
-      ctx.fillRect(px+4.9*scale, py+7.65*scale+bob, scale*1.7, scale*1.35);
-      ctx.fillStyle = '#f2e2bd';
-      ctx.fillRect(px+4.9*scale, py+7.35*scale+bob, scale*1.7, scale*0.35);
-      ctx.fillStyle = '#e8b23a';
-      ctx.fillRect(px+6.55*scale, py+7.95*scale+bob, scale*0.55, scale*0.7);
-      ctx.fillStyle = '#170f08';
-      ctx.fillRect(px+4.9*scale, py+7.65*scale+bob, scale*1.7, scale*0.18);
-      ctx.restore();
     }
   }
 }
@@ -1713,6 +1813,72 @@ function drawChar(ctx, ch, px, py, scale, frame){
     ctx.fillRect(px+5.3*scale, ay+scale*2.5, scale*0.9, scale*2);
     ctx.fillStyle = ch.acc;
     ctx.fillRect(px+5*scale, ay-scale*1.6, scale*2, scale*1.8);
+  } else if(ch.accType==='wizardhat'){
+    const hatCol  = '#a0a0a0';   // mid grey
+    const hatDark = '#686868';   // darker grey shading
+    // wide brim
+    ctx.fillStyle = hatDark;
+    ctx.fillRect(px+1*scale, ay-scale*0.3, scale*10, scale*1.0);
+    // tall cone: 4 sections stepping inward as they rise
+    ctx.fillStyle = hatCol;
+    ctx.fillRect(px+3*scale,   ay-scale*1.2, scale*6,   scale*1.0);
+    ctx.fillRect(px+3.8*scale, ay-scale*2.3, scale*4.4, scale*1.2);
+    ctx.fillRect(px+4.5*scale, ay-scale*3.5, scale*3.0, scale*1.3);
+    ctx.fillRect(px+5.1*scale, ay-scale*4.6, scale*1.8, scale*1.2);
+    // shading stripe on the left of the cone
+    ctx.fillStyle = hatDark;
+    ctx.fillRect(px+3*scale,   ay-scale*1.2, scale*0.7, scale*1.0);
+    ctx.fillRect(px+3.8*scale, ay-scale*2.3, scale*0.7, scale*1.2);
+    ctx.fillRect(px+4.5*scale, ay-scale*3.5, scale*0.6, scale*1.3);
+    // star tip
+    ctx.fillStyle = '#aad4f0';
+    ctx.fillRect(px+5.6*scale, ay-scale*5.3, scale*0.8, scale*0.8);
+    ctx.fillRect(px+5.2*scale, ay-scale*5.0, scale*1.6, scale*0.45);
+  } else if(ch.accType==='fedora'){
+    const brim  = ch.acc;           // green
+    const crown = '#1e5c1e';        // slightly darker green for the crown body
+    const band  = '#0e2e0e';        // very dark band stripe
+    const shine = '#4aad4a';        // lighter highlight on crown top
+    // wide brim — extends past the sprite edges for that classic fedora look
+    ctx.fillStyle = brim;
+    ctx.fillRect(px+0*scale, ay,           scale*12, scale*1.1);
+    // crown — tall, sits above the brim, slightly narrower
+    ctx.fillStyle = crown;
+    ctx.fillRect(px+2.5*scale, ay-scale*3.2, scale*7, scale*3.3);
+    // pinched-crown dip in the middle of the top
+    ctx.fillStyle = '#170f08';
+    ctx.fillRect(px+5.3*scale, ay-scale*3.5, scale*1.4, scale*0.6);
+    // darker band stripe along the brim-crown join
+    ctx.fillStyle = band;
+    ctx.fillRect(px+2.5*scale, ay-scale*0.6, scale*7, scale*0.7);
+    // highlight along the top of the crown
+    ctx.fillStyle = shine;
+    ctx.fillRect(px+2.8*scale, ay-scale*3.0, scale*6.4, scale*0.45);
+  } else if(ch.accType==='jesterhat'){
+    const red = '#c1392b', blk = '#170f08', bell = '#e8c34a';
+    // brim band
+    ctx.fillStyle = red;
+    ctx.fillRect(px+2*scale, ay-scale*0.5, scale*8, scale*1.2);
+    ctx.fillStyle = blk;
+    ctx.fillRect(px+2*scale, ay-scale*0.5, scale*4, scale*1.2);
+    // left prong (black) leaning up-left
+    ctx.fillStyle = blk;
+    ctx.fillRect(px+2.2*scale, ay-scale*1.7, scale*1.8, scale*1.3);
+    ctx.fillRect(px+1.8*scale, ay-scale*2.8, scale*1.6, scale*1.2);
+    ctx.fillRect(px+1.5*scale, ay-scale*3.7, scale*1.4, scale*1.0);
+    // right prong (red) leaning up-right
+    ctx.fillStyle = red;
+    ctx.fillRect(px+8.0*scale, ay-scale*1.7, scale*1.8, scale*1.3);
+    ctx.fillRect(px+8.1*scale, ay-scale*2.8, scale*1.6, scale*1.2);
+    ctx.fillRect(px+8.2*scale, ay-scale*3.7, scale*1.4, scale*1.0);
+    // bells
+    ctx.fillStyle = bell;
+    ctx.beginPath(); ctx.arc(px+2.1*scale, ay-scale*4.3, scale*0.7, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(px+9.0*scale, ay-scale*4.3, scale*0.7, 0, Math.PI*2); ctx.fill();
+    // clappers
+    ctx.fillStyle = blk;
+    ctx.beginPath(); ctx.arc(px+2.1*scale, ay-scale*4.1, scale*0.2, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(px+9.0*scale, ay-scale*4.1, scale*0.2, 0, Math.PI*2); ctx.fill();
   }
 }
 
@@ -1728,9 +1894,9 @@ function charDrawParams(ch, baseScale, basePx, basePy){
 /* ---------- boot sprite ---------- */
 function paintBootSprite(){
   const c = document.getElementById('bootSprite'); if(!c) return;
-  const ctx = c.getContext('2d'); ctx.clearRect(0,0,78,78);
-  const ch = CHARS[Math.floor((Date.now()/1400)%4)];
-  const {scale,px,py} = charDrawParams(ch, 5.5, 6, 12);
+  const ctx = c.getContext('2d'); ctx.clearRect(0,0,110,110);
+  const ch = CHARS[Math.floor((Date.now()/1400)%CHARS.length)];
+  const {scale,px,py} = charDrawParams(ch, 8, 8, 16);
   drawChar(ctx, ch, px, py, scale, Math.floor(Date.now()/40));
 }
 setInterval(paintBootSprite, 90);
@@ -1923,6 +2089,15 @@ function computeBreweryRate(){
 function breweryUpgradeVisualCount(tag){
   return (S && S.breweryUpgrades) ? S.breweryUpgrades.filter(u=>u.visual===tag).length : 0;
 }
+function dayNightBrewMultiplier(){
+  // same 8-min cycle as the sky — peaks at 1.6× during midday, dips to 0.5× at deep night
+  const CYCLE_MS = 8 * 60 * 1000;
+  const t = (Date.now() % CYCLE_MS) / CYCLE_MS;
+  // smooth sine curve: t=0.45 (midday) → max, t=0.0/1.0 (midnight) → min
+  const angle = (t - 0.45) * Math.PI * 2; // midday = 0 offset
+  const raw = Math.cos(angle); // -1 to +1
+  return 0.5 + (raw + 1) / 2 * 1.1; // maps to 0.5 → 1.6
+}
 function tickBreweryProduction(){
   if(!S || !S.lastProdTs) return;
   const now = Date.now();
@@ -1931,7 +2106,9 @@ function tickBreweryProduction(){
   if(elapsedMin<=0) return;
   const CATCHUP_CAP_MIN = 180; // don't dump hours of coins if the phone was closed/asleep a long time
   if(elapsedMin>CATCHUP_CAP_MIN) elapsedMin = CATCHUP_CAP_MIN;
-  const rate = computeBreweryRate();
+  const baseRate = computeBreweryRate();
+  const mult = dayNightBrewMultiplier();
+  const rate = baseRate * mult;
   S.coinAccum = (S.coinAccum||0) + rate*elapsedMin;
   const whole = Math.floor(S.coinAccum);
   if(whole>0){
@@ -1943,7 +2120,9 @@ function tickBreweryProduction(){
   }
   const liveTotal = (S.beerCoinsTotal||0) + (S.coinAccum||0);
   const lifeEl = document.getElementById('brewLifetime');
-  if(lifeEl) lifeEl.textContent = liveTotal.toFixed(1);
+  if(lifeEl) lifeEl.textContent = '🍺 '+liveTotal.toFixed(1)+' BREWED';
+  const rateEl = document.getElementById('brewRateLabel');
+  if(rateEl) rateEl.textContent = '🍺 '+rate.toFixed(1)+'/min';
 }
 function offerBreweryUpgrade(){
   showCard({
@@ -2008,44 +2187,109 @@ function ensureBreweryEntities(tier){
   }
 }
 // each character casts a distinct color over their own brewery sky — same tier progression underneath, different mood on top
-const CHAR_SKY_TINT = { tank:'#2e6bd6', gambler:'#1e7a4a', jester:'#a45cff', machine:'#c1392b' };
+const CHAR_SKY_TINT = { tank:'#2e6bd6', gambler:'#2a6b2a', jester:'#c1392b', machine:'#c1392b', wizard:'#a0a0a0' };
 function drawBrewery(ctx, W, H, frame){
   const tier = breweryTierFor(S.level);
   ensureBreweryEntities(tier);
   const groundY = H - 20;
 
-  // night sky
+  // day/night cycle — full loop every 8 minutes of real time
+  const CYCLE_MS = 8 * 60 * 1000;
+  const cycleT = (Date.now() % CYCLE_MS) / CYCLE_MS; // 0→1 over 8 min
+  // phase boundaries: 0.0 night → 0.2 dawn → 0.35 day → 0.55 dusk → 0.7 night
+  function lerpCol(a, b, t){
+    const ah=parseInt(a.slice(1),16), bh=parseInt(b.slice(1),16);
+    const ar=(ah>>16)&255, ag=(ah>>8)&255, ab_=ah&255;
+    const br=(bh>>16)&255, bg=(bh>>8)&255, bb_=bh&255;
+    const r=Math.round(ar+(br-ar)*t), g2=Math.round(ag+(bg-ag)*t), b2=Math.round(ab_+(bb_-ab_)*t);
+    return `rgb(${r},${g2},${b2})`;
+  }
+  function cycleBlend(night, dawn, day, dusk, t){
+    if(t<0.20) return lerpCol(night, dawn, t/0.20);
+    if(t<0.35) return lerpCol(dawn, day, (t-0.20)/0.15);
+    if(t<0.55) return lerpCol(day, dusk, (t-0.35)/0.20);
+    if(t<0.70) return lerpCol(dusk, night, (t-0.55)/0.15);
+    return night;
+  }
+  const skyTop    = cycleBlend('#08050f','#a04820','#1a72c8','#3a1060','#08050f', cycleT);
+  const skyBot    = cycleBlend('#170f08','#d86030','#60b0e8','#6a1838','#170f08', cycleT);
+  const isNight   = cycleT < 0.18 || cycleT > 0.68;
+  const isDawn    = cycleT >= 0.18 && cycleT < 0.35;
+  const isDay     = cycleT >= 0.35 && cycleT < 0.55;
+  const isDusk    = cycleT >= 0.55 && cycleT < 0.68;
+  const nightness = isNight ? 1 : isDawn ? 1-(cycleT-0.18)/0.17 : isDusk ? (cycleT-0.55)/0.13 : 0;
+  const dayness   = isDay ? 1 : isDawn ? (cycleT-0.20)/0.15 : isDusk ? 1-(cycleT-0.55)/0.15 : 0;
+
+  // sky gradient
   const g = ctx.createLinearGradient(0,0,0,groundY);
-  g.addColorStop(0, tier.sky[1]); g.addColorStop(1, tier.sky[0]);
+  g.addColorStop(0, skyTop); g.addColorStop(1, skyBot);
   ctx.fillStyle = g; ctx.fillRect(0,0,W,groundY);
 
-  // character sky tint
+  // character sky tint (only at night/dusk to avoid washing out daylight)
   const tint = CHAR_SKY_TINT[S && S.charId];
-  if(tint){
+  if(tint && nightness > 0){
     ctx.save();
     ctx.globalCompositeOperation = 'color'; // imparts hue while keeping the tier's own brightness/darkness intact
-    ctx.globalAlpha = 0.75;
+    ctx.globalAlpha = 0.75 * nightness;
     ctx.fillStyle = tint;
     ctx.fillRect(0,0,W,groundY);
     ctx.restore();
   }
 
-  // a plain moon, stars once epic kicks in
-  ctx.globalAlpha = 0.8; ctx.fillStyle = '#d8d4e8';
-  ctx.beginPath(); ctx.arc(326, 20, 9, 0, Math.PI*2); ctx.fill();
-  ctx.globalAlpha = 1;
-  if(tier.epic>=1){
+  // sun (day) — arcs across the sky
+  if(dayness > 0.02){
+    const sunPhase = (cycleT - 0.20) / 0.50; // 0 at dawn, 1 at dusk
+    const sunX = W * sunPhase;
+    const sunY = groundY * 0.55 - Math.sin(sunPhase * Math.PI) * groundY * 0.45;
+    ctx.save();
+    ctx.globalAlpha = dayness * 0.95;
+    // outer glow
+    const sg = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, 22);
+    sg.addColorStop(0, 'rgba(255,240,180,0.6)'); sg.addColorStop(1, 'rgba(255,200,80,0)');
+    ctx.fillStyle = sg; ctx.beginPath(); ctx.arc(sunX, sunY, 22, 0, Math.PI*2); ctx.fill();
+    // sun disc
+    ctx.fillStyle = '#ffe87a';
+    ctx.beginPath(); ctx.arc(sunX, sunY, 8, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+  }
+
+  // moon (night) — fixed position, fades with night
+  if(nightness > 0.02){
+    ctx.save();
+    ctx.globalAlpha = nightness * 0.85;
+    ctx.fillStyle = '#d8d4e8';
+    ctx.beginPath(); ctx.arc(326, 20, 9, 0, Math.PI*2); ctx.fill();
+    // crescent shadow
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.globalAlpha = nightness * 0.55;
+    ctx.beginPath(); ctx.arc(330, 18, 8, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+  }
+
+  // stars — visible at night, fade during day
+  if(nightness > 0.05 || tier.epic >= 1){
+    const starAlpha = nightness;
     breweryStars.forEach(s=>{
-      const a = 0.25 + 0.45*Math.max(0, Math.sin(frame/26 + s.seed));
-      ctx.globalAlpha = a; ctx.fillStyle='#fff';
+      const twinkle = 0.25 + 0.45*Math.max(0, Math.sin(frame/26 + s.seed));
+      ctx.globalAlpha = twinkle * starAlpha; ctx.fillStyle='#fff';
       ctx.fillRect(s.x, s.y, 1.4, 1.4);
     });
     ctx.globalAlpha = 1;
   }
 
-  // ground — packed dirt, not pavement
-  ctx.fillStyle = '#0c0a12'; ctx.fillRect(0, groundY, W, H-groundY);
-  ctx.fillStyle = '#171420';
+  // dawn/dusk horizon glow
+  if(isDawn || isDusk){
+    const glowStr = isDawn ? (cycleT-0.18)/0.17 : 1-(cycleT-0.55)/0.13;
+    const glowCol = isDawn ? 'rgba(255,140,60,' : 'rgba(220,80,40,';
+    const hg = ctx.createLinearGradient(0, groundY*0.4, 0, groundY);
+    hg.addColorStop(0, glowCol+'0)'); hg.addColorStop(1, glowCol+(0.35*glowStr)+')');
+    ctx.fillStyle = hg; ctx.fillRect(0, groundY*0.4, W, groundY*0.6);
+  }
+
+  // ground — darker at night, lighter tan during day
+  const groundCol = isDay ? '#1a1508' : nightness > 0.5 ? '#0c0a12' : lerpCol('#1a1508','#0c0a12', nightness);
+  ctx.fillStyle = groundCol; ctx.fillRect(0, groundY, W, H-groundY);
+  ctx.fillStyle = lerpCol('#2a2010','#171420', nightness);
   ctx.fillRect(0, groundY, W, 3);
 
   // buildings — stone base, timber cross-frame, peaked roof
@@ -2080,7 +2324,8 @@ function drawBrewery(ctx, W, H, frame){
         const shouldLight = (lit < tier.torches+1) && ((r+c+i)%2===0);
         if(shouldLight){
           const flick = 0.7 + 0.3*Math.sin(frame/6 + r*3 + c*5);
-          ctx.fillStyle = `rgba(255,${Math.round(110+40*flick)},${Math.round(40*flick)},1)`;
+          const winAlpha = 0.25 + 0.75*nightness;
+          ctx.fillStyle = `rgba(255,${Math.round(110+40*flick)},${Math.round(40*flick)},${winAlpha})`;
           lit++;
         } else {
           ctx.fillStyle = '#0e0b16';
@@ -2388,7 +2633,7 @@ function startRun(){
 /* ---------- HUD ---------- */
 // each character's base epithet — the title grows from here as the night earns more of them
 const CHAR_TITLE_BASE = {
-  tank: 'THE UNSHAKABLE', gambler: 'THE HOUSE EDGE', jester: 'THE CHAOS AGENT', machine: 'THE RAW POWER'
+  tank: 'THE UNSHAKABLE', gambler: 'THE HOUSE EDGE', jester: 'THE CHAOS AGENT', machine: 'THE RAW POWER', wizard: 'THE BREW-ZARD SUPREME'
 };
 function tankRankLabel(){
   const pc = S.perfectChugs || 0;
@@ -2463,7 +2708,11 @@ function syncHUD(){
   document.getElementById('stFails').textContent = S.fails;
   document.getElementById('stWins').textContent = S.wins;
   document.getElementById('stSkips').textContent = S.skips;
-  document.getElementById('arenaLabel').textContent = (breweryName||'THE CRAWL') + ' · ' + (S.currentTile?S.currentTile.n:'NO OUTCOME YET');
+  const charNameEl = document.getElementById('hudCharName');
+  if(charNameEl){
+    const ch = CHARS.find(c=>c.id===S.charId);
+    charNameEl.textContent = ch ? '· '+ch.name : '';
+  }
   tickBreweryProduction();
   const tierNameEl = document.getElementById('brewTierName');
   if(tierNameEl) tierNameEl.textContent = breweryTierFor(S.level).name;
@@ -2500,6 +2749,7 @@ function syncHUD(){
     coinsEl.textContent = c < 0 ? c+' IN DEBT' : c;
     coinsEl.style.color = c < 0 ? '#c03028' : '';
   }
+  syncRollUI();
 }
 
 /* ---------- XP / level ---------- */
@@ -3459,6 +3709,199 @@ function acceptSlotResult(){
   }
   save();
   showChallengeInline();
+}
+
+function handleRoll(){
+  if(S && S.charId === 'machine') startFill();
+  else spinSlot();
+}
+
+function syncRollUI(){
+  const isSir = S && S.charId === 'machine';
+  const slot = document.getElementById('slotWrap');
+  const pint = document.getElementById('diceWrap');
+  const btn  = document.getElementById('btnSpin');
+  if(slot) slot.classList.toggle('hide', isSir);
+  if(pint) pint.classList.toggle('hide', !isSir);
+  if(btn) btn.classList.toggle('hide', isSir);
+  if(btn && !isSir) btn.textContent = '🎰 PULL THE LEVER';
+  if(isSir) paintPint(0, false, false);
+}
+
+/* ---------- pint glass fill animation (Sir Drinks-A-Lot) ---------- */
+let _pintAnimFrame = null;
+let _pintFill = 0;
+let _pintHolding = false;
+
+function paintPint(fillFrac, foamSettled, tapPulled){
+  const c = document.getElementById('pintCanvas'); if(!c) return;
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
+  ctx.clearRect(0,0,W,H);
+  const gw = 70, gh = 130, taper = 7;
+  const gx = (W - gw) / 2, gy = (H - gh) / 2;
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(gx + taper, gy);
+  ctx.lineTo(gx - 2, gy + gh);
+  ctx.lineTo(gx + gw + 2, gy + gh);
+  ctx.lineTo(gx + gw - taper, gy);
+  ctx.closePath();
+  ctx.clip();
+  if(fillFrac > 0){
+    const fillTop = gy + gh * (1 - fillFrac);
+    const beerGrad = ctx.createLinearGradient(gx, fillTop, gx+gw, fillTop);
+    beerGrad.addColorStop(0, '#b86c18');
+    beerGrad.addColorStop(0.3, '#e8a030');
+    beerGrad.addColorStop(0.7, '#d08828');
+    beerGrad.addColorStop(1, '#9a5810');
+    ctx.fillStyle = beerGrad;
+    ctx.fillRect(gx-4, fillTop, gw+8, gh);
+    if(!foamSettled){
+      const t = Date.now() / 350;
+      for(let i=0; i<12; i++){
+        const bx = gx + 5 + (i * 5.8) % (gw - 10);
+        const totalH = gh * fillFrac;
+        const by = fillTop + (totalH - ((t * 22 + i * 11) % totalH));
+        ctx.globalAlpha = 0.3 + 0.25*Math.sin(i*2.1);
+        ctx.fillStyle = '#ffe090';
+        ctx.beginPath(); ctx.arc(bx, by, 2, 0, Math.PI*2); ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
+    const foamH = foamSettled ? 10 : 16;
+    const foamTop = fillTop - foamH;
+    ctx.fillStyle = '#f4eeda';
+    ctx.beginPath();
+    ctx.moveTo(gx-4, fillTop);
+    for(let i=0; i<=12; i++){
+      const fx = gx - 4 + (gw+8)*i/12;
+      const wobble = foamSettled ? Math.sin(i*1.2)*2.5 : Math.sin(i*1.6 + Date.now()/180)*5;
+      ctx.lineTo(fx, foamTop + wobble);
+    }
+    ctx.lineTo(gx+gw+4, fillTop);
+    ctx.closePath(); ctx.fill();
+  }
+  ctx.restore();
+  ctx.strokeStyle = 'rgba(200,230,255,0.75)';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.moveTo(gx + taper, gy); ctx.lineTo(gx - 2, gy + gh);
+  ctx.lineTo(gx + gw + 2, gy + gh); ctx.lineTo(gx + gw - taper, gy);
+  ctx.closePath(); ctx.stroke();
+  ctx.strokeStyle = 'rgba(200,230,255,0.6)';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.arc(gx + gw + 16, gy + gh*0.4, 14, -Math.PI*0.5, Math.PI*0.5);
+  ctx.stroke();
+  ctx.save();
+  ctx.globalAlpha = 0.2; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 3; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(gx + taper + 8, gy + 8); ctx.lineTo(gx + 6, gy + gh - 10); ctx.stroke();
+  ctx.restore();
+}
+
+function fillZone(f){
+  if(f < 0.15) return { label:'BARELY A SIP',   mult:0.5  };
+  if(f < 0.45) return { label:'DECENT PULL',    mult:0.85 };
+  if(f < 0.75) return { label:'SOLID POUR',     mult:1.1  };
+  if(f < 0.92) return { label:'PERFECT PINT ✓', mult:1.5  };
+  return             { label:'OVERFLOWING! 🍺',  mult:1.8  };
+}
+
+function startFill(e){
+  if(e) e.preventDefault();
+  if(S._pendingWin || S._tankPendingWin) return;
+  if(_pintHolding || _pintFill >= 1) return;
+  _pintHolding = true;
+  runFillLoop();
+}
+
+function stopFill(e){
+  if(e) e.preventDefault();
+  if(!_pintHolding) return;
+  _pintHolding = false;
+  if(_pintFill > 0.04) resolvePint();
+}
+
+function runFillLoop(){
+  if(!_pintHolding){ _pintAnimFrame = null; return; }
+  _pintFill = Math.min(1, _pintFill + 0.007);
+  const zone = fillZone(_pintFill);
+  const lbl = document.getElementById('pintResultLabel');
+  if(lbl) lbl.textContent = _pintFill >= 1
+    ? (Math.floor(Date.now()/300)%2===0 ? 'OVERFLOWING! 🍺' : 'RELEASE NOW!')
+    : zone.label;
+  paintPint(_pintFill, false, true);
+  _pintAnimFrame = requestAnimationFrame(runFillLoop);
+}
+
+let _pendingFillMult = 1;
+
+function resolvePint(){
+  _pintAnimFrame = null; _pintHolding = false;
+  const fill = _pintFill;
+  const zone = fillZone(fill);
+  const tapBtn = document.getElementById('tapBtn');
+  if(tapBtn) tapBtn.disabled = true;
+  let settleT = 0;
+  function settle(){
+    settleT += 0.06;
+    paintPint(fill, settleT > 0.5, false);
+    if(settleT < 1){ requestAnimationFrame(settle); return; }
+    const outcome = spinOutcome();
+    _pendingFillMult = zone.mult;
+    const lbl = document.getElementById('pintResultLabel');
+    if(lbl) lbl.textContent = zone.label;
+    setTimeout(()=>previewPintResult(outcome, zone), 350);
+  }
+  settle();
+}
+
+function previewPintResult(tile, zone){
+  window._pendingSlotTile = tile;
+  if(tile.t===T.CHAOS){ S.currentTile = tile; S.resolved = false; save(); openWheel(); return; }
+  const canReroll = S.skips>0;
+  const xpNote = zone.mult >= 1.5 ? ' ✨ BONUS XP' : zone.mult <= 0.5 ? ' (low pour)' : '';
+  showCard({
+    cls: tile.t===T.BADLUCK ? 'curse' : zone.mult >= 1.5 ? 'good' : '',
+    tag: tile.t===T.BADLUCK ? '💀 THE TAP HAS CURSED YOU' : `🍺 ${zone.label}`,
+    title:`${tile.icon} ${tile.n}`, venue: tile.venue, body:'',
+    chips:[`+${Math.round(tile.xp * zone.mult)} XP${xpNote}`, tile.drink?'🍺 DRINK':'', tile.gamble?'🎲 FORFEIT IF LOST':'', tile.heal?'💧 MERCY':'', tile.t===T.BADLUCK?'💀 BAD LUCK':''].filter(Boolean),
+    extra:`<p class="small dim">Accept it, or spend a reroll to pour again.</p>`,
+    buttons:`<button class="btn green" onclick="acceptPintResult()">✅ ACCEPT</button>
+             ${canReroll ? `<button class="btn ghost sm" onclick="useRerollPint()">🔁 REROLL (${S.skips} left)</button>` : ''}`
+  });
+}
+
+function acceptPintResult(){
+  const tile = window._pendingSlotTile; if(!tile) return;
+  closeCard();
+  _pintFill = 0;
+  const tapBtn = document.getElementById('tapBtn'); if(tapBtn) tapBtn.disabled = false;
+  const lbl = document.getElementById('pintResultLabel'); if(lbl) lbl.textContent = '';
+  paintPint(0, false, false);
+  const origXP = tile.xp;
+  tile.xp = Math.round(origXP * _pendingFillMult);
+  S.currentTile = tile; S.resolved = false;
+  S.pulls = (S.pulls||0) + 1;
+  if(tile.t===T.KARAOKE) S.karaokeDone = true;
+  if(S.pulls % 3 === 0){
+    S.laps++; S.hatUsedThisLap = false; S.shopPending = true;
+    grantXP(25,'lap'); grantCoins(30);
+    toast('🏁 LAP BONUS — +30🪙');
+    toast('ANOTHER LAP OF THE TOWN — SQUAD TOAST!'); addLog('Another lap of the town — squad toast');
+  }
+  tile.xp = origXP;
+  save(); showChallengeInline();
+}
+
+function useRerollPint(){
+  if(S.skips<=0) return;
+  S.skips--; addLog('Used a reroll on the tap'); save(); syncHUD(); closeCard();
+  _pintFill = 0; _pintHolding = false;
+  const tapBtn = document.getElementById('tapBtn'); if(tapBtn) tapBtn.disabled = false;
+  const lbl = document.getElementById('pintResultLabel'); if(lbl) lbl.textContent = '';
+  paintPint(0, false, false);
 }
 
 /* ---------- tile cards ---------- */
