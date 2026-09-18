@@ -368,29 +368,7 @@ body[data-char="gambler"] {
   --purple:#7a3a8a;
 }
 
-/* Candlelit stone tavern background — brick texture tinted ruby/gold */
-body[data-char="gambler"] {
-  background-color: #0e0806;
-  background-image:
-    radial-gradient(ellipse 100% 50% at 50% 0%,   rgba(140,60,10,.35)  0%, transparent 60%),
-    radial-gradient(ellipse  60% 40% at 15% 100%,  rgba(80,20,10,.4)    0%, transparent 55%),
-    radial-gradient(ellipse  60% 40% at 85% 100%,  rgba(80,20,10,.4)    0%, transparent 55%),
-    linear-gradient(335deg, #3a1408 23px, transparent 23px),
-    linear-gradient(155deg, #3a1408 23px, transparent 23px),
-    linear-gradient(335deg, #4a1c0c 23px, transparent 23px),
-    linear-gradient(155deg, #4a1c0c 23px, transparent 23px),
-    linear-gradient(180deg, #0e0806 0%, #120a06 55%, #0e0806 100%);
-  background-size:
-    auto, auto, auto,
-    58px 58px, 58px 58px, 58px 58px, 58px 58px,
-    auto;
-  background-position:
-    center, center, center,
-    0px 2px, 4px 35px, 29px 31px, 34px 6px,
-    center;
-  background-repeat: no-repeat, no-repeat, no-repeat, repeat, repeat, repeat, repeat, no-repeat;
-  background-attachment: fixed;
-}
+/* Background — inherits the same brick-pattern base as every other character */
 
 /* Warm candlelight film grain — amber instead of blue */
 body[data-char="gambler"]::after {
@@ -680,27 +658,7 @@ body[data-char="tank"] {
   --bg:   #120408;
 }
 
-/* Page background — dried-blood dark, low torchlight, brick texture tinted rust/red */
-body[data-char="tank"] {
-  background-color: #120408;
-  background-image:
-    radial-gradient(ellipse at 50% 20%, rgba(80,20,20,.4) 0%, transparent 65%),
-    linear-gradient(335deg, #2e0a0e 23px, transparent 23px),
-    linear-gradient(155deg, #2e0a0e 23px, transparent 23px),
-    linear-gradient(335deg, #3e1014 23px, transparent 23px),
-    linear-gradient(155deg, #3e1014 23px, transparent 23px),
-    radial-gradient(ellipse at 50% 20%, #2a080e 0%, #120408 65%, #0a0204 100%);
-  background-size:
-    auto,
-    58px 58px, 58px 58px, 58px 58px, 58px 58px,
-    auto;
-  background-position:
-    center,
-    0px 2px, 4px 35px, 29px 31px, 34px 6px,
-    center;
-  background-repeat: no-repeat, repeat, repeat, repeat, repeat, no-repeat;
-  background-attachment: fixed;
-}
+/* Background — inherits the same brick-pattern base as every other character */
 
 /* Atmospheric overlay — ember glow from bottom, blood mist at top */
 body[data-char="tank"]::after {
