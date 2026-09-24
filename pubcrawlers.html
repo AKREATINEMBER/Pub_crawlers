@@ -180,10 +180,10 @@ input[type=text]::placeholder{color:#fff;opacity:.9;}
 /* ---------- arena ---------- */
 #arenaWrap{position:relative;border:3px solid #6b4a26;box-shadow:0 0 0 3px #170f08, inset 0 0 30px rgba(217,126,43,.18);background:#0f0904;overflow:hidden;}
 #arena{width:100%;height:auto;}
+#arenaWrap{position:relative;margin-bottom:0;}
+#brewRateLabel{position:absolute;bottom:6px;right:8px;font-size:12px;color:#e8b23a;text-shadow:0 2px 0 #3a1e00,0 0 10px rgba(232,178,58,.5);letter-spacing:1px;font-weight:bold;font-family:'Courier New',monospace;}
 #arenaLabel{position:absolute;top:4px;left:6px;font-size:7px;color:var(--dim);}
 
-#brewRateLabel{position:absolute;bottom:6px;right:8px;font-size:13px;color:#e8b23a;text-shadow:0 2px 0 #3a1e00, 0 0 10px rgba(232,178,58,.5);letter-spacing:1px;}
-.brewDash{margin-top:4px;margin-bottom:4px;border-color:#5a4a1e;}
 .crawlHeader{margin-top:14px;border-color:#3d2f6e;}
 
 /* ---------- HUD ---------- */
@@ -290,6 +290,15 @@ input[type=text]::placeholder{color:#fff;opacity:.9;}
   box-shadow:0 0 20px rgba(79,179,163,.4);animation:toastIn .25s ease-out;max-width:90%;text-align:center;
 }
 @keyframes toastIn{from{transform:translate(-50%,16px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
+.epic-toast{
+  font-size:10px;letter-spacing:1px;
+  border-color:var(--gold);color:var(--gold);
+  background:#1a0f00;
+  box-shadow:0 0 30px rgba(200,160,48,.5), 0 0 60px rgba(200,160,48,.2);
+  padding:12px 18px;max-width:94%;
+  animation:epicToastIn .35s cubic-bezier(.2,1.4,.4,1);
+}
+@keyframes epicToastIn{from{transform:translate(-50%,20px) scale(.9);opacity:0}to{transform:translate(-50%,0) scale(1);opacity:1}}
 
 textarea{
   width:100%;height:70px;background:#07060f;border:3px solid #6b4a26;color:var(--cyan);
@@ -897,6 +906,7 @@ body[data-char="tank"] .card.curse {
 /* ── SHOP SCREEN ──────────────────────────────────────────────────────── */
 #screen-shop{
   padding:0 0 calc(80px + env(safe-area-inset-bottom)) 0;
+  background:#170f08;
 }
 .shop-header{
   padding:28px 16px 18px;
@@ -931,13 +941,13 @@ body[data-char="tank"] .card.curse {
   padding:0 14px 4px;
 }
 .shop-section__label{
-  font-size:7px;letter-spacing:4px;opacity:0.35;
+  font-size:7px;letter-spacing:4px;opacity:0.6;
   padding:12px 0 10px;border-bottom:1px solid rgba(255,255,255,0.07);
   margin-bottom:10px;
 }
 .shop-item{
   display:flex;align-items:flex-start;gap:12px;
-  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);
+  background:#241608;border:1px solid rgba(255,255,255,0.14);
   border-radius:10px;padding:12px 12px 10px;margin-bottom:8px;
 }
 .shop-item--owned{opacity:0.48;border-color:rgba(255,255,255,0.05);}
@@ -945,7 +955,7 @@ body[data-char="tank"] .card.curse {
 .shop-item__icon{width:40px;height:40px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
 .shop-item__body{flex:1;min-width:0;}
 .shop-item__name{font-size:10px;letter-spacing:1px;font-weight:bold;margin-bottom:5px;line-height:1.3;}
-.shop-item__desc{font-size:8px;letter-spacing:0.4px;opacity:0.5;line-height:1.6;margin-bottom:9px;}
+.shop-item__desc{font-size:8px;letter-spacing:0.4px;opacity:0.75;line-height:1.6;margin-bottom:9px;}
 .shop-item__action{display:flex;align-items:center;justify-content:flex-end;gap:8px;}
 
 /* Gambler shop theme */
@@ -965,6 +975,57 @@ body[data-char="tank"] .shop-exclusive-wrap{
 }
 body[data-char="tank"] .shop-exclusive-label{color:#d4841a;border-left-color:#d4841a;}
 body[data-char="tank"] .shop-item--exclusive{border-color:rgba(212,132,26,0.28);}
+
+/* ══ BLACKJACK PIXEL TABLE ══════════════════════════════════════ */
+#bjTable{padding:0}
+.bj-section{padding:6px 0 2px;text-align:center}
+.bj-label{font-size:8px;letter-spacing:2px;color:#8a6a44;margin-bottom:4px;font-family:'Courier New',monospace}
+.bj-hand{display:flex;justify-content:center;flex-wrap:wrap;gap:5px;min-height:68px;align-items:center;padding:4px 2px}
+.bj-card{
+  width:42px;height:62px;
+  background:#120c06;
+  border:2px solid #c8980a;
+  border-radius:3px;
+  display:flex;flex-direction:column;align-items:center;justify-content:space-between;
+  font-family:'Courier New',monospace;
+  image-rendering:pixelated;
+  position:relative;
+  box-shadow:3px 3px 0 #000,0 0 8px rgba(200,152,10,.25);
+  padding:4px 3px;
+  cursor:default;
+  transition:transform .12s;
+  /* animation only fires when .bj-new is present */
+}
+@keyframes cardFlip{
+  0%  {transform:perspective(300px) rotateY(90deg) translateY(-4px);opacity:0}
+  60% {transform:perspective(300px) rotateY(-8deg) translateY(1px);opacity:1}
+  100%{transform:perspective(300px) rotateY(0deg)  translateY(0);opacity:1}
+}
+.bj-card.bj-new{animation:cardFlip .28s cubic-bezier(.2,.8,.4,1) both}
+.bj-card.red{color:#e03030;border-color:#c03030;box-shadow:3px 3px 0 #000,0 0 8px rgba(192,48,48,.3)}
+.bj-card.back{
+  background:repeating-linear-gradient(
+    45deg,
+    #1e1008 0px, #1e1008 3px,
+    #2c1a0c 3px, #2c1a0c 6px
+  );
+  border-color:#5a3a10;
+  color:#5a3a10;
+  justify-content:center;
+  font-size:18px;
+  box-shadow:3px 3px 0 #000;
+}
+.bj-rank-top{font-size:13px;font-weight:bold;line-height:1;align-self:flex-start}
+.bj-suit-mid{font-size:18px;line-height:1;margin:0 auto}
+.bj-rank-bot{font-size:13px;font-weight:bold;line-height:1;align-self:flex-end;transform:rotate(180deg)}
+.bj-divider{height:1px;background:linear-gradient(90deg,transparent,#c8980a44,transparent);margin:3px 0}
+.bj-score-row{display:flex;justify-content:space-between;align-items:center;font-size:9px;letter-spacing:1px;font-family:'Courier New',monospace;padding:0 2px}
+.bj-score-row .gold{font-size:12px;font-weight:bold}
+.bj-result-banner{text-align:center;font-size:15px;font-weight:bold;letter-spacing:2px;margin:4px 0 6px;min-height:22px;font-family:'Courier New',monospace}
+.bj-action-row{display:flex;gap:5px;margin-top:4px}
+.bj-action-row .btn{flex:1;font-size:10px;letter-spacing:1px;padding:8px 4px}
+.bj-bet-badge{display:inline-block;font-size:10px;letter-spacing:1px;color:#d4a820;font-family:'Courier New',monospace;margin-bottom:4px}
+.bj-bet-row{display:flex;align-items:center;gap:6px;padding:0 2px}
 </style>
 </head>
 <body>
@@ -995,58 +1056,21 @@ body[data-char="tank"] .shop-item--exclusive{border-color:rgba(212,132,26,0.28);
   <!-- ============ GAME ============ -->
   <section id="screen-game" class="hide">
     <div id="arenaWrap">
-      <canvas id="arena" width="360" height="150"></canvas>
+      <canvas id="arena" width="360" height="110"></canvas>
       <div id="brewRateLabel">🍺 0.0/min</div>
-
     </div>
-    <div class="panel tight brewDash">
-      <div class="hudRow" style="align-items:center;">
-        <span style="font-size:11px;color:var(--gold)">Every challenge you take feeds the brewery.</span>
-        <span class="gold" id="brewLifetime" style="font-size:11px;">🍺 0 BREWED</span>
-      </div>
-    </div>
-
-    <div class="panel tight crawlHeader">
-      <h2 style="margin:0">🍻 HIT THE TOWN</h2>
-      <p class="small dim" style="margin:4px 0 0">Pull the lever — every outcome is more coin and XP for the brewery above. No dice, no board, just the reels.</p>
-    </div>
-
-    <div class="panel tight" style="margin-top:10px">
+    <div class="panel tight" style="margin-top:0;border-top:none;border-radius:0 0 8px 8px;">
       <div class="hudRow">
         <span style="font-size:15px;color:var(--gold);letter-spacing:1px;"><span id="hudName">—</span> <span id="hudCharName" class="dim" style="font-size:12px;"></span></span>
         <span id="hudLevel" style="font-size:15px;color:#4ab0e8;text-shadow:0 2px 0 #0a2a4a,0 0 10px rgba(74,176,232,.4);letter-spacing:1px;">LV 1</span>
       </div>
       <div class="bar xp"><i id="xpFill"></i><span id="xpTxt">0 / 30 XP</span></div>
       <div class="statPills">
-        <div class="pill">🍺 <span id="stDrinks" class="gold">0</span></div>
-        <div class="pill">💀 <span id="stFails" class="red">0</span></div>
-        <div class="pill">🏆 <span id="stWins" class="green">0</span></div>
-        <div class="pill">🔁 <span id="stSkips" class="cyan">2</span></div>
-        <div class="pill">🪙 <span id="stCoins" class="gold">0</span></div>
+        <div class="pill">🪙 <span id="stCoins" class="gold">0</span> COINS</div>
+        <div class="pill">🍺 <span id="stBrewed" class="gold">0</span> BREWED</div>
       </div>
     </div>
 
-
-    <div id="slotWrap">
-      <div id="slotReels">
-        <div class="reel" id="reel0"><span class="reelIcon">🍺</span></div>
-        <div class="reel" id="reel1"><span class="reelIcon">🍺</span></div>
-        <div class="reel" id="reel2"><span class="reelIcon">🍺</span></div>
-      </div>
-      <div id="slotResultLabel">PULL THE LEVER</div>
-    </div>
-
-    <button class="btn primary" id="btnSpin" onclick="handleRoll()">🎰 PULL THE LEVER</button>
-
-    <div id="diceWrap" class="hide" style="background:linear-gradient(180deg,#2a1a0a,#170f08);border:3px solid #6b4a26;box-shadow:0 0 0 3px #170f08,inset 0 0 20px rgba(0,0,0,.4);padding:10px;margin-top:10px;">
-      <canvas id="pintCanvas" width="340" height="160" style="display:block;margin:0 auto;"></canvas>
-      <div id="pintResultLabel" style="text-align:center;margin-top:6px;font-size:9px;color:#ffd24a;letter-spacing:1px;min-height:14px;"></div>
-      <button id="tapBtn" class="btn gold big"
-        style="margin-top:8px;font-size:14px;width:100px;height:100px;border-radius:50%;margin-left:auto;margin-right:auto;display:block;padding:0;box-shadow:0 6px 0 #170f08,inset 0 2px 0 rgba(255,220,160,.3),inset 0 0 0 3px rgba(200,150,30,.4);"
-        onmousedown="startFill()" ontouchstart="startFill(event)"
-        onmouseup="stopFill()" ontouchend="stopFill(event)"
-        onmouseleave="stopFill()">🍺<br>HOLD<br>THE TAP</button>
-    </div>
 
     <div id="challengeInline" class="hide" onclick="toggleChallengeExpand()">
       <div class="ci-header">
@@ -1058,6 +1082,28 @@ body[data-char="tank"] .shop-item--exclusive{border-color:rgba(212,132,26,0.28);
         <div id="ciButtons" class="ci-buttons" onclick="event.stopPropagation()"></div>
       </div>
     </div>
+    <div id="slotWrap">
+      <div id="slotReels">
+        <div class="reel" id="reel0"><span class="reelIcon">🍺</span></div>
+        <div class="reel" id="reel1"><span class="reelIcon">🍺</span></div>
+        <div class="reel" id="reel2"><span class="reelIcon">🍺</span></div>
+      </div>
+      <div id="slotResultLabel">PULL THE LEVER</div>
+    </div>
+
+    <button class="btn primary" id="btnSpin" onclick="handleRoll()">🎰 PULL THE LEVER</button>
+
+
+    <div id="diceWrap" class="hide" style="background:linear-gradient(180deg,#2a1a0a,#170f08);border:3px solid #6b4a26;box-shadow:0 0 0 3px #170f08,inset 0 0 20px rgba(0,0,0,.4);padding:10px;margin-top:10px;">
+      <canvas id="pintCanvas" width="340" height="160" style="display:block;margin:0 auto;"></canvas>
+      <div id="pintResultLabel" style="text-align:center;margin-top:6px;font-size:9px;color:#ffd24a;letter-spacing:1px;min-height:14px;"></div>
+      <button id="tapBtn" class="btn gold big"
+        style="margin-top:8px;font-size:14px;width:100px;height:100px;border-radius:50%;margin-left:auto;margin-right:auto;display:block;padding:0;box-shadow:0 6px 0 #170f08,inset 0 2px 0 rgba(255,220,160,.3),inset 0 0 0 3px rgba(200,150,30,.4);"
+        onmousedown="startFill()" ontouchstart="startFill(event)"
+        onmouseup="stopFill()" ontouchend="stopFill(event)"
+        onmouseleave="stopFill()">🍺<br>HOLD<br>THE TAP</button>
+    </div>
+
 
     <button class="btn green sm" style="margin-top:8px" onclick="logBeer()">🍺 LOG A BEER</button>
 
@@ -1161,22 +1207,63 @@ body[data-char="tank"] .shop-item--exclusive{border-color:rgba(212,132,26,0.28);
           <button id="denSafeBtn" class="btn ghost hide" onclick="denTakeSafe()" style="border:1px solid rgba(200,152,10,.4);color:#c8980a;font-size:10px;letter-spacing:1px;padding:8px">🛡 TAKE SAFE XP</button>
         </div>
         <div id="denGames" style="display:flex;gap:4px;margin-top:8px;justify-content:center;flex-wrap:wrap"></div>
+        <!-- ── BLACKJACK TABLE ── -->
+        <div id="bjTable" style="display:none;margin-top:6px"></div>
       </div>
     </div>
   </section>
 
   <!-- ============ SAVE / BACKUP ============ -->
   <section id="screen-squad" class="hide">
-    <h1>MY SAVE</h1>
+    <h1>HOW TO PLAY</h1>
+
+    <div class="panel">
+      <h2>🎰 THE BASICS</h2>
+      <p class="small">Pull the lever to spin the reels. Every spin lands you on a <b class="gold">challenge tile</b> — a dare, a social task, a drink, or a gamble. Complete it to earn <b class="gold">XP and coins</b>. Keep crawling, level up, and grow your brewery.</p>
+    </div>
+
+    <div class="panel">
+      <h2>🪙 HOW YOU MAKE MONEY</h2>
+      <p class="small">Two streams: <b class="gold">coins from completed tiles</b> (paid out win or lose) and <b class="gold">the brewery</b>, which drips beer coins passively every minute. Level up and buy relics to increase your brew rate — the animated brewery at the top shows your current output.</p>
+    </div>
+
+    <div id="guideCharSection"></div>
+
+    <div class="panel">
+      <h2>💎 RELICS &amp; ITEMS</h2>
+      <p class="small"><b class="gold">Relics</b> are permanent buffs from the shop — they last the whole crawl and boost brewery rate. <b class="cyan">Items</b> are one-use consumables — tap USE in the bag when ready. Some are hidden until you trigger them naturally.</p>
+    </div>
+
+    <div class="panel">
+      <h2>🔁 REROLLS</h2>
+      <p class="small">Not happy with a tile? Spend a reroll to skip it and spin again. Your reroll count is in the BAG tab.</p>
+    </div>
+
+    <div class="panel">
+      <h2>🏆 BOSS TILES</h2>
+      <p class="small">High-stakes challenges with big XP. Lose one and it marks you for <b class="red">revenge</b> — beat it later for +50% XP. Winning a boss also opens the shop.</p>
+    </div>
+
+    <div class="panel">
+      <h2>💾 YOUR PROGRESS</h2>
+      <p class="small">Saves automatically every action. To back up your run against browser storage wipes, copy the code below.</p>
+      <button class="btn ghost sm" onclick="go('backup')" style="margin-top:4px">📋 BACKUP / RESTORE</button>
+    </div>
+
+  </section>
+
+  <!-- ============ SAVE / BACKUP ============ -->
+  <section id="screen-backup" class="hide">
+    <h1>BACKUP</h1>
     <div class="panel">
       <h2>💾 BACKUP MY RUN</h2>
-      <p class="small">This saves automatically on this phone, but browsers (especially iPhone) can wipe that if the file gets re-saved or re-opened. Copy this backup code somewhere safe — Notes, a message to yourself — so you can restore your <b class="gold">exact</b> run (level, XP, log, achievements, everything) if that happens.</p>
+      <p class="small">Copy this code somewhere safe — Notes, a message to yourself — so you can restore your exact run if storage gets wiped.</p>
       <textarea id="myBackup" readonly></textarea>
       <button class="btn green sm" onclick="copyBackup()">📋 COPY BACKUP CODE</button>
     </div>
     <div class="panel">
       <h2>♻ RESTORE FROM BACKUP</h2>
-      <p class="small">Paste a backup code you saved earlier to restore that exact run on this phone. <b class="red">This overwrites your current run.</b></p>
+      <p class="small">Paste a backup code to restore that run. <b class="red">This overwrites your current run.</b></p>
       <textarea id="restoreCode" placeholder="PASTE YOUR BACKUP CODE"></textarea>
       <button class="btn red sm" onclick="restoreBackup()">⬆ RESTORE</button>
     </div>
@@ -1205,7 +1292,7 @@ body[data-char="tank"] .shop-item--exclusive{border-color:rgba(212,132,26,0.28);
   <section id="screen-bag" class="hide">
     <h1>MY BAG</h1>
     <div class="panel tight center">
-      <p class="small" style="font-size:14px;margin:0">🪙 <span id="bagCoins" class="gold">0</span> SKÅL COINS</p>
+      <p class="small" style="font-size:14px;margin:0">🪙 <span id="bagCoins" class="gold">0</span> SKÅL COINS &nbsp;·&nbsp; 🔁 <span id="bagSkips" class="cyan">0</span> REROLLS LEFT</p>
     </div>
     <div class="panel">
       <h2>🍺 BREWERY UPGRADES</h2>
@@ -1220,11 +1307,6 @@ body[data-char="tank"] .shop-item--exclusive{border-color:rgba(212,132,26,0.28);
     <div class="panel">
       <h2>🎒 ITEMS</h2>
       <div id="itemList" class="small dim">Empty.</div>
-    </div>
-    <div class="panel">
-      <h2>🎁 SOUVENIRS</h2>
-      <div id="souvenirGrid" class="grid3"></div>
-      <p class="small dim" id="souvenirProgress" style="margin-top:8px"></p>
     </div>
     <div class="panel">
       <h2>🤫 SECRET MISSION</h2>
@@ -1245,7 +1327,7 @@ body[data-char="tank"] .shop-item--exclusive{border-color:rgba(212,132,26,0.28);
   <button id="navGame" class="on" onclick="go('game')">GAME</button>
   <button id="navBag" onclick="go('bag')">BAG</button>
   <button id="navShop" onclick="go('shop')">SHOP</button>
-  <button id="navSquad" onclick="go('squad')">SAVE</button>
+  <button id="navSquad" onclick="go('squad')">INFO</button>
   <button id="navLog" onclick="go('log')">LOG</button>
 </div>
 
@@ -1501,15 +1583,17 @@ const RELICS = [
   { id:'vikinghorn',  n:"THE VIKING DRINKING HORN", icon:'📯', char:'tank', d:"Passed down through generations of people who definitely didn't need it. Unlocks the Horn Chug — massive sweet spot, bonus coins on a perfect. Also +0.4 beer/min.", price:75, brewBonus:0.4 },
   { id:'meadaltar',   n:"THE MEAD ALTAR",           icon:'⚗️', char:'tank', d:"Built from reclaimed pub stools and sheer disregard for consequences. Unlocks Legend Mode — nail the perfect zone for 3× XP and a glory toast. Also +0.5 beer/min.", price:100, brewBonus:0.5 },
   { id:'jokerscap', n:"THE JOKER'S CAP", icon:'🃏', char:'jester', d:'Bells that only you can hear, apparently. An extra +25% XP on party games and the Wheel. Also +0.3 beer/min — permanently.', price:60, brewBonus:0.3 },
-  { id:'ironknuckles', n:'IRON KNUCKLES', icon:'👊', char:'machine', d:'Not technically legal in darts. An extra +25% XP on physical challenges, stacking on Raw Power. Also +0.3 beer/min — permanently.', price:60, brewBonus:0.3 }
+  { id:'ironknuckles', n:'IRON KNUCKLES', icon:'👊', char:'machine', d:'Not technically legal in darts. An extra +25% XP on physical challenges, stacking on Raw Power. Also +0.3 beer/min — permanently.', price:60, brewBonus:0.3 },
+  { id:'loanshark', n:"THE LOAN SHARK'S HANDSHAKE", icon:'🦈', char:'gambler', d:"A favour from someone you really shouldn't owe a favour to. Lets you bet up to 50 coins even when you're in the red. The debt is yours. The winnings are yours. The consequences — entirely yours.", price:60, brewBonus:0.2, discoverable:true }
 ];
 
 const CONSUMABLES = [
   { id:'fakeid',    n:"THE WORLD'S MOST CONVINCING FAKE ID", icon:'🪪', char:'tank', d:'The Tank\'s go-to for doors, dealers, and one very specific ex. Auto-wins your next challenge tile, no questions asked.', price:25 },
   { id:'anotherround', n:"ONE MORE IN THE TANK", icon:'🥃', char:'tank', d:"The Tank doesn't quit. +1 chug attempt right now — because sometimes the bar needs a second opinion.", price:25 },
-  { id:'icebucket',   n:"ONE MORE SPIN, I SWEAR",   icon:'🔁', d:'Instantly refills a reroll — spin the lever again for free. Famous last words.', price:15 },
-  { id:'haggle',      n:"THE GIFT OF THE GAB",      icon:'🤝', d:"Smooth talk your way to one deal. Use it in the shop to pay for any item in XP instead of coins. Works once, burns after.", price:5 },
-  { id:'debtpardon',  n:"THE DEBT COLLECTOR'S NIGHTMARE", icon:'📜', d:"A sealed letter from someone high up. All outstanding debts: forgiven. Balances restored to zero. Nobody asks questions.", price:80 }
+  { id:'icebucket',   n:"ONE MORE SPIN, I SWEAR",   icon:'🔁', d:'Instantly refills a reroll — spin the lever again for free. Famous last words.', price:15, discoverable:true },
+  { id:'haggle',      n:"THE GIFT OF THE GAB",      icon:'🤝', d:"Smooth talk your way to one deal. Use it in the shop to pay for any item in XP instead of coins. Works once, burns after.", price:5, discoverable:true },
+  { id:'debtpardon',  n:"THE DEBT COLLECTOR\'S NIGHTMARE", icon:'📜', d:"A sealed letter from someone high up. All outstanding debts: forgiven. Balances restored to zero. Nobody asks questions.", price:80, discoverable:true },
+  { id:'xpchip', n:"THE INSIDE MAN'S CHIP", icon:'🪙', char:'gambler', d:"A back-channel favour from someone who owes you. Convert up to 100 XP into coins — one time, no questions, gone after. Only the Gambler knows who to call.", price:5, oneTime:true, discoverable:true }
 ];
 
 /* ---------- secret missions (one assigned privately per run) ---------- */
@@ -1560,9 +1644,9 @@ function freshState(){
     doubleNext:false, startTime:Date.now(), log:[], ach:[],
     flags:{}, resolved:false, secret:null, secretDone:false, secretBlown:false,
     secret2:null, secret2Available:false, secret2Declined:false, secret2Done:false, secret2Blown:false, karaokeDone:false, beerLogCount:0, bossMarks:{}, bossesAvenged:0,
-    coins:0, souvenirs:{}, relics:[], items:{}, hatUsedThisLap:false, denSpinsLeft:3, chugAttemptsLeft:2,
+    coins:10000, souvenirs:{}, relics:[], items:{}, hatUsedThisLap:false, denSpinsLeft:3, chugAttemptsLeft:1, chugRoundLeft:0,
     rage:0, bloodied:false, chugMisses:0, perfectChugs:0, rageActivations:0, haggleActive:false,
-    autoWinNext:false, shopPending:false,
+    autoWinNext:false, shopPending:false, discovered:[], itemsUsed:{},
     breweryUpgrades:[], coinAccum:0, lastProdTs:null, beerCoinsTotal:0, pendingLevelUps:0
   };
 }
@@ -2154,10 +2238,12 @@ function tickBreweryProduction(){
     save();
   }
   const liveTotal = (S.beerCoinsTotal||0) + (S.coinAccum||0);
-  const lifeEl = document.getElementById('brewLifetime');
-  if(lifeEl) lifeEl.textContent = '🍺 '+liveTotal.toFixed(1)+' BREWED';
-  const rateEl = document.getElementById('brewRateLabel');
-  if(rateEl) rateEl.textContent = '🍺 '+rate.toFixed(1)+'/min';
+  const brewedEl = document.getElementById('stBrewed');
+  if(brewedEl) brewedEl.textContent = Math.floor(liveTotal);
+  const rateEl = document.getElementById('stBrewRate');
+  if(rateEl) rateEl.textContent = rate.toFixed(1)+'/min';
+  const rateLbl = document.getElementById('brewRateLabel');
+  if(rateLbl) rateLbl.textContent = '🍺 '+rate.toFixed(1)+'/min';
 }
 function offerBreweryUpgrade(){
   showCard({
@@ -2206,6 +2292,27 @@ function closeBreweryChestResult(){
     setTimeout(()=>offerBreweryUpgrade(), 450);
   }
 }
+function discoverItem(id){
+  // Find in relics or consumables
+  const relic = RELICS.find(r=>r.id===id);
+  const item  = CONSUMABLES.find(c=>c.id===id);
+  const r = relic || item;
+  if(!r) return;
+  const type = relic ? 'relic' : 'item';
+  showCard({
+    cls:'forfeit',
+    tag:'🔍 YOU FOUND SOMETHING',
+    title: r.icon+' '+r.n,
+    body: r.d,
+    chips: [r.price+'🪙 IN THE SHOP'],
+    buttons:`<button class="btn primary" onclick="claimDiscovery('${id}','${type}')">TAKE IT TO THE SHOP</button>`
+  });
+}
+function claimDiscovery(id, type){
+  closeCard();
+  go('shop');
+}
+
 let breweryTierCache = null, breweryBanners = [], brewerySmoke = [], breweryStars = null, breweryName = '';
 let breweryBat = { x:-30, y:20, active:false, speed:1.1 };
 function ensureBreweryEntities(tier){
@@ -2631,18 +2738,18 @@ function loop(){
 function go(screen){
   // clear character theme when leaving the game
   if(screen==='boot' || screen==='char') document.body.setAttribute('data-char','');
-  ['boot','char','game','squad','log','bag','shop'].forEach(s=>{
-    document.getElementById('screen-'+s).classList.toggle('hide', s!==screen);
+  ['boot','char','game','squad','backup','log','bag','shop'].forEach(s=>{
+    const _sc=document.getElementById('screen-'+s); if(_sc) _sc.classList.toggle('hide', s!==screen);
   });
   const nav = document.getElementById('nav');
   nav.classList.toggle('hide', screen==='boot' || screen==='char');
   document.getElementById('navGame').classList.toggle('on', screen==='game');
   document.getElementById('navBag').classList.toggle('on', screen==='bag');
-  document.getElementById('navSquad').classList.toggle('on', screen==='squad');
+  document.getElementById('navSquad').classList.toggle('on', screen==='squad'||screen==='backup');
   document.getElementById('navLog').classList.toggle('on', screen==='log');
   document.getElementById('navShop').classList.toggle('on', screen==='shop');
   if(screen==='char') buildCharGrid();
-  if(screen==='squad'){ renderBackup(); }
+  if(screen==='squad'||screen==='backup'){ renderBackup(); } if(screen==='squad'){ renderGuide(); }
   if(screen==='log') renderLog();
   if(screen==='game'){
     if(S.currentTile && !S.resolved) showChallengeInline();
@@ -2739,10 +2846,12 @@ function syncHUD(){
     xpTxtEl.textContent = rageReady ? '🔥 RAGE READY' : cur+' / '+need+' XP';
     xpTxtEl.style.color  = rageReady ? '#d4841a' : '';
   }
-  document.getElementById('stDrinks').textContent = S.drinks;
-  document.getElementById('stFails').textContent = S.fails;
-  document.getElementById('stWins').textContent = S.wins;
-  document.getElementById('stSkips').textContent = S.skips;
+  const _el = (id) => document.getElementById(id);
+  if(_el('stDrinks')) _el('stDrinks').textContent = S.drinks;
+  if(_el('stFails'))  _el('stFails').textContent  = S.fails;
+  if(_el('stWins'))   _el('stWins').textContent   = S.wins;
+  if(_el('stSkips'))  _el('stSkips').textContent  = S.skips;
+  if(_el('bagSkips')) _el('bagSkips').textContent = S.skips;
   const charNameEl = document.getElementById('hudCharName');
   if(charNameEl){
     const ch = CHARS.find(c=>c.id===S.charId);
@@ -2765,17 +2874,14 @@ function syncHUD(){
     if(_gamblerDenEl) _gamblerDenEl.classList.add('hide');
   }
   const leverBtn = document.getElementById('btnSpin');
-  if(leverBtn && S.charId==='gambler'){
-    const locked = !!S._pendingWin;
-    leverBtn.disabled = locked;
-    leverBtn.style.opacity = locked ? '0.35' : '';
-    leverBtn.title = locked ? 'Resolve your Den bet first' : '';
-  }
-  if(leverBtn && S.charId==='tank'){
-    const locked = !!S._tankPendingWin;
-    leverBtn.disabled = locked;
-    leverBtn.style.opacity = locked ? '0.35' : '';
-    leverBtn.title = locked ? 'Finish your chug first' : '';
+  if(leverBtn){
+    const challengeActive = !!(S.currentTile && !S.resolved);
+    const gamblerLocked = challengeActive || !!S._pendingWin;
+    const tankLocked = challengeActive || !!S._tankPendingWin;
+    const isLocked = S.charId==='gambler' ? gamblerLocked : S.charId==='tank' ? tankLocked : challengeActive;
+    leverBtn.disabled = isLocked;
+    leverBtn.style.opacity = isLocked ? '0.35' : '';
+    leverBtn.title = challengeActive ? 'Finish your challenge first' : S._pendingWin ? 'Resolve your Den bet first' : S._tankPendingWin ? 'Finish your chug first' : '';
   }
   // debt indicator — red when negative
   const coinsEl = document.getElementById('stCoins');
@@ -2852,39 +2958,79 @@ function addPace(n){
 }
 
 /* ---------- just log a beer, no challenge attached ---------- */
+const PERFECT_CHUG_LINES = [
+  '⚡ YOUR ANCESTORS SMILE DOWN FROM THE HEAVENS — THIS IS WHY THEY DRANK',
+  '⚡ THE VALHALLA GATES CREAK OPEN JUST A LITTLE — THEY ARE WATCHING',
+  '⚡ ODIN HIMSELF RAISES THE GREAT HORN AND BELLOWS YOUR NAME INTO THE VOID',
+  '⚡ THE VIKINGS OF OLD WEEP TEARS THEY NEVER KNEW THEY COULD WEEP',
+  '⚡ YOUR BLOODLINE TREMBLES — EVERY ANCESTOR FEELS THIS THROUGH THE AGES',
+  '⚡ THE MEAD RUNS UPHILL IN YOUR HONOR — NATURE YIELDS TO YOUR WILL',
+  '⚡ THOR SETS DOWN HIS HAMMER. WHAT YOU JUST DID REQUIRES NO AID.',
+  '⚡ THE GREAT SERPENT JÖRMUNGANDR PAUSES AND BOWS ITS ANCIENT HEAD',
+  '⚡ RAVENS CIRCLE THE BAR — THEY CARRY WORD OF THIS TO THE ALLFATHER',
+  '⚡ THE NORNS REWRITE YOUR FATE IN INK THAT WILL NOT FADE FOR CENTURIES',
+  '⚡ FREYA RIDES ACROSS THE SKY AND SCATTERS GOLDEN TEARS OF JOY',
+  '⚡ VALHALLA ERUPTS. THE EINHERJAR SLAM THEIR SHIELDS. THE WALLS SHAKE.',
+  '⚡ FROM MIDGARD TO ASGARD THEY SPEAK OF THIS — YOUR NAME CARRIED ON THE WIND',
+  '⚡ THE WORLD TREE SHUDDERS. YGGDRASIL KNOWS WHAT JUST HAPPENED.',
+  '⚡ EVERY WARRIOR WHO EVER LIVED FEELS A WARMTH THEY CANNOT EXPLAIN',
+  '⚡ THE SEA STILLS ITSELF — EVEN POSEIDON HOLDS HIS BREATH IN AWE',
+  '⚡ THE FATES SEAL THIS MOMENT IN AMBER — IT WILL OUTLAST THE GODS THEMSELVES',
+  '⚡ A CONSTELLATION IS BORN TONIGHT AND IT BEARS YOUR EXACT SHAPE',
+  '⚡ THE DEAD IN HADES PAUSE THEIR WANDERING — THIS STORY REACHES EVEN THERE',
+  '⚡ DIONYSUS WEEPS AND LAUGHS AT ONCE — HE HAS NEVER FELT SUCH PRIDE',
+  '⚡ YOUR NAME WILL BE SPOKEN IN THE DRINKING HALLS OF GODS LONG AFTER THE STARS DIE',
+  '⚡ THE OLD ONES STIR IN THEIR ETERNAL SLEEP — EVEN THEY FEEL IT',
+  '⚡ ZEUS HURLS HIS THUNDERBOLT NOT IN ANGER — BUT IN CELEBRATION',
+  '⚡ THE AURORA BOREALIS BLOOMS IN COLORS NEVER BEFORE SEEN',
+  '⚡ THE LAST OF THE GREAT VIKINGS EXHALES IN PEACE — THEIR LINEAGE IS SECURE',
+  '⚡ MOUNTAINS SHIFT IMPERCEPTIBLY. OCEANS DEEPEN IN RESPECT.',
+  '⚡ YOUR FOREBEARS DID NOT DIE IN VAIN — THEY DIED THAT THIS CHUG MIGHT LIVE',
+  '⚡ THE HORN OF GJALLARHORN SOUNDS ONCE — NOT AS WARNING, BUT AS SALUTE',
+  '⚡ HEROES OF LEGEND COVER THEIR EYES — THEY CANNOT BEAR THE BRIGHTNESS OF YOUR GLORY',
+  '⚡ THE NIGHT SKY BENDS SLIGHTLY TOWARD YOU — EVEN GRAVITY PAYS RESPECTS'
+];
 const BEER_LOG_LINES = [
-  '🍺 ZEUS HIMSELF RAISES A GLASS',
+  '🍺 ZEUS HIMSELF RAISES A GLASS TO YOU',
   'THE OLYMPIANS DESCEND FROM MOUNT OLYMPUS TO WITNESS THIS',
-  'POSEIDON WEEPS TEARS OF FOAM',
-  'A LEGEND IS FORGED ON MOUNT OLYMPUS TONIGHT',
-  'DIONYSUS NAMES YOU HIS FAVORITE MORTAL',
-  'THE FATES WRITE THIS ONE INTO THE SCROLLS',
-  'ARES DROPS HIS SWORD TO APPLAUD',
-  'THE ORACLE FORETOLD THIS EXACT MOMENT',
-  'HERMES DELIVERS THE NEWS TO ALL OF GREECE',
-  'A GOLDEN LAUREL DESCENDS FROM THE HEAVENS',
-  'THE GODS ARGUE OVER WHO GETS CREDIT FOR THIS ONE',
-  'ATLAS SHRUGS, IMPRESSED DESPITE HIMSELF',
-  'THIS DEED ECHOES THROUGH THE HALLS OF OLYMPUS',
-  'HERACLES CONSIDERS THIS HIS 13TH LABOR',
-  'THE MUSES BEGIN COMPOSING AN EPIC ABOUT THIS',
-  'ZEUS THROWS A CELEBRATORY THUNDERBOLT (a light one)',
-  'APOLLO PAUSES THE SUN TO WATCH',
-  'A TEMPLE IS BEING BUILT IN YOUR HONOR AS WE SPEAK',
-  'HADES HIMSELF ALLOWS A BRIEF FURLOUGH TO CELEBRATE',
-  'THE THREE FATES PUT DOWN THEIR THREAD TO CLAP',
-  'ATHENA WRITES THIS DOWN FOR HER OWN RECORDS',
-  'A CONSTELLATION IS QUIETLY RENAMED AFTER YOU',
-  'PROMETHEUS SAYS THIS WAS WORTH STEALING FIRE FOR',
-  'THE ORACLE OF DELPHI CANCELS ALL OTHER APPOINTMENTS',
-  'ICARUS WOULD HAVE FLOWN LOWER JUST TO SEE THIS',
-  'MOUNT OLYMPUS ISSUES A PRESS RELEASE',
-  'A MINOR GOD IS PROMOTED JUST FOR WITNESSING THIS',
+  'POSEIDON WEEPS TEARS OF FOAM — MOVED BEYOND WORDS',
+  'A LEGEND IS FORGED THIS NIGHT, AND THE NIGHT REMEMBERS',
+  'DIONYSUS NAMES YOU HIS FAVORITE MORTAL — UNOFFICIALLY',
+  'THE FATES WRITE THIS ONE INTO THE GREAT SCROLLS',
+  'ARES DROPS HIS SWORD TO APPLAUD. SLOWLY. REVERENTLY.',
+  'THE ORACLE FORETOLD THIS EXACT MOMENT AND WEPT',
+  'HERMES CARRIES THE NEWS ACROSS ALL OF CREATION',
+  'A GOLDEN LAUREL DESCENDS GENTLY FROM THE HEAVENS',
+  'THE GODS ARGUE OVER WHO GETS CREDIT. NONE ARE WORTHY.',
+  'ATLAS SHRUGS, IMPRESSED DESPITE HIS MANY BURDENS',
+  'THIS DEED ECHOES THROUGH THE MARBLE HALLS OF OLYMPUS',
+  'HERACLES CONSIDERS THIS HIS THIRTEENTH AND GREATEST LABOR',
+  'THE MUSES ABANDON ALL OTHER WORK AND BEGIN AN EPIC ABOUT THIS',
+  'ZEUS THROWS A CELEBRATORY THUNDERBOLT — FULL OF LOVE',
+  'APOLLO PAUSES THE SUN IN ITS ARC JUST TO WATCH',
+  'A TEMPLE RISES IN YOUR HONOR EVEN AS YOU DRINK',
+  'HADES ALLOWS A BRIEF FURLOUGH TO ALL SOULS — IN YOUR HONOR',
+  'THE THREE FATES PUT DOWN THEIR THREAD AND CLAP',
+  'ATHENA WRITES THIS DOWN IN HER PERSONAL JOURNAL',
+  'A NEW CONSTELLATION TAKES YOUR SHAPE IN THE NIGHT SKY',
+  'PROMETHEUS SAYS THE FIRE WAS STOLEN FOR THIS VERY MOMENT',
+  'THE ORACLE OF DELPHI CANCELS ALL OTHER PROPHECIES TODAY',
+  'MOUNT OLYMPUS TREMBLES NOT WITH ANGER — BUT WITH PRIDE',
+  'A MINOR GOD IS PROMOTED JUST FOR HAVING WITNESSED THIS',
   'THE UNDERWORLD PAUSES ITS ETERNAL PUNISHMENTS OUT OF RESPECT',
-  'ODYSSEUS TAKES NOTES FOR HIS NEXT JOURNEY',
-  'THE THUNDER ITSELF APPLAUDS, DISTANT BUT SINCERE',
-  'A LAUREL WREATH IS BEING WOVEN AS YOU READ THIS',
-  'SPARTA HEARS ABOUT THIS AND APPROVES'
+  'ODYSSEUS TAKES NOTES. HE HAS NEVER SEEN SUCH BRAVERY.',
+  'THE THUNDER ITSELF APPLAUDS — DISTANT, SINCERE, EMOTIONAL',
+  'A LAUREL WREATH IS WOVEN AT IMPOSSIBLE SPEED IN YOUR HONOR',
+  'SPARTA HEARS ABOUT THIS AND APPROVES WITHOUT CONDITIONS',
+  'THE STARS THEMSELVES REARRANGE TO SPELL YOUR NAME TONIGHT',
+  'EVERY ANCESTOR YOU HAVE EVER HAD RAISES THEIR GLASS AS ONE',
+  'THE RIVERS RUN A LITTLE COLDER WITH RESPECT',
+  'ODIN LOOKS DOWN FROM VALHALLA AND NODS. JUST ONCE. IT IS ENOUGH.',
+  'EVEN THE MEAD-HALLS OF THE DEAD GROW QUIET TO HEAR TELL OF THIS',
+  'THE POETS OF A THOUSAND GENERATIONS WILL BORROW FROM THIS NIGHT',
+  'YOUR BLOODLINE IS BLESSED SEVEN GENERATIONS FORWARD',
+  'THE GREAT HORN IS SOUNDED AND THE HEAVENS ANSWER IN KIND',
+  'WHOEVER COMES AFTER YOU WILL LIVE IN YOUR GOLDEN SHADOW'
 ];
 // escalating reward — beer #1 is a courtesy, beer #5+ is a decent chunk of XP. Caps out at the 8th log so it never runs away.
 const BEER_LOG_XP = [8, 11, 15, 20, 27, 37, 50, 67];
@@ -2900,7 +3046,7 @@ function logBeer(){
   // skip the epic toast if this log just triggered a level-up — the level flash + chest sequence
   // takes over the screen right after, and stacking a toast on top of that reads as clutter
   if(S.level===levelBefore){
-    toast(BEER_LOG_LINES[Math.floor(Math.random()*BEER_LOG_LINES.length)]);
+    epicToast(BEER_LOG_LINES[Math.floor(Math.random()*BEER_LOG_LINES.length)]);
   }
   checkAchievements(); save(); syncHUD();
 }
@@ -2913,8 +3059,10 @@ function grantCoins(n){
 function grantSouvenir(type){
   const sv = SOUVENIRS[type];
   if(!sv) return;
-  S.souvenirs[type] = (S.souvenirs[type]||0) + 1;
-  addLog(`Picked up a ${sv.n} ${sv.icon}`);
+  const prev = S.souvenirs[type]||0;
+  S.souvenirs[type] = prev + 1;
+  const total = S.souvenirs[type];
+  addLog(`${sv.icon} ${sv.n} — souvenir #${total} collected`);
 }
 function maybeOpenShop(){
   if(S.shopPending){ S.shopPending = false; setTimeout(()=>openShop(), 650); }
@@ -3011,6 +3159,10 @@ const DEN_GAMES = {
       { label:'LOSE',  mult:0, c:'#6a1008', textCol:'#f5c0b0', pct:0.40 },
       { label:'WIN x2',mult:2, c:'#c8a010', textCol:'#0e0806', pct:0.60 },
     ]
+  },
+  blackjack: {
+    id:'blackjack', icon:'🃏', name:'BLACKJACK', maxSpins:99, noRelic:true
+    // No segs — blackjack uses its own card engine
   }
 };
 
@@ -3024,10 +3176,10 @@ const DEN_GAMES = {
 // Tolerances: perfect = tight window for bonus XP, ok = 1.8s window for base XP
 // No middle "clean" tier — just nail it or settle for ok.
 const CHUG_MODES = {
-  basic:  { id:'basic',  name:'BASIC CHUG',  attempts:1, minT:3, maxT:9,  perfect:0.3,  ok:0.9, perfectBonus:false },
-  iron:   { id:'iron',   name:'IRON CHUG',   attempts:2, minT:4, maxT:11, perfect:0.45, ok:1.1, perfectBonus:false, relic:'ironthroat' },
-  horn:   { id:'horn',   name:'HORN CHUG',   attempts:3, minT:5, maxT:13, perfect:0.6,  ok:1.4, perfectBonus:true,  relic:'vikinghorn' },
-  legend: { id:'legend', name:'LEGEND MODE', attempts:4, minT:6, maxT:15, perfect:0.75, ok:1.7, perfectBonus:true,  relic:'meadaltar', tripleXP:true },
+  basic:  { id:'basic',  name:'BASIC CHUG',  attempts:1, minT:3, maxT:9,  perfect:0.4,  ok:1.0, perfectBonus:false },
+  iron:   { id:'iron',   name:'IRON CHUG',   attempts:2, minT:4, maxT:11, perfect:0.55, ok:1.2, perfectBonus:false, relic:'ironthroat' },
+  horn:   { id:'horn',   name:'HORN CHUG',   attempts:3, minT:5, maxT:13, perfect:0.7,  ok:1.5, perfectBonus:true,  relic:'vikinghorn' },
+  legend: { id:'legend', name:'LEGEND MODE', attempts:4, minT:6, maxT:15, perfect:0.85, ok:1.8, perfectBonus:true,  relic:'meadaltar', tripleXP:true },
 };
 
 // Pick a target — range depends on current chug mode
@@ -3262,6 +3414,7 @@ function chugResolve(elapsed){
         addLog('🍺 CHUG: '+label+' +'+bonus+'🪙');
         toast(label+' +'+bonus+'🪙');
         floatText('+'+bonus+'🪙', '#ffd24a');
+        setTimeout(()=>epicToast(PERFECT_CHUG_LINES[Math.floor(Math.random()*PERFECT_CHUG_LINES.length)]), 600);
       } else if(mult === 1){
         grantCoins(3);
         addLog('🍺 CHUG: '+label+' +3🪙');
@@ -3286,42 +3439,90 @@ function _chugFinishApplyWin(xpMult, isSafe){
   if(!pw){ save(); syncHUD(); return; }
   S._tankPendingWin = null;
   const { t, xpAmount, isRevenge } = pw;
-  let g = 0;
   if(xpMult > 0){
-    // Rage payout only fires when you actually chug (not safe take) — you must earn it
+    // Apply rage/bloodied modifiers upfront so card shows real numbers
     if(!isSafe && (S.rage||0) >= 100){
-      const _oldRk = tankRankLabel();
       xpMult *= 3;
       S.rage = 0;
       S.rageActivations = (S.rageActivations||0) + 1;
-      const _newRk = tankRankLabel();
       floatText('🔥 BERSERKER RAGE!', '#d4841a');
-      toast('🔥 BERSERKER RAGE — 3× XP BONUS!');
-      if(_newRk !== _oldRk){ setTimeout(()=>{ floatText('⚔ '+_newRk, '#d4841a'); toast('⚔ RANK UP: '+_newRk+'!'); }, 1200); }
     } else if(isSafe && (S.rage||0) >= 100){
       toast('🔥 RAGE HELD — land a real chug to unleash it');
     }
-    if(S.bloodied){
-      xpMult *= 0.7;
-      floatText('🩸 WAR WOUNDS', '#c03028');
+    if(S.bloodied){ xpMult *= 0.7; }
+    const finalXP = Math.round(xpAmount * xpMult);
+    if(xpMult >= 2){
+      // Perfect or legendary — show a celebration card before granting XP
+      const isLegendary = xpMult >= 3;
+      const epicLine = PERFECT_CHUG_LINES[Math.floor(Math.random()*PERFECT_CHUG_LINES.length)];
+      const coinsGained = Math.max(5, Math.round(t.xp/2));
+      window._pendingChugXP = { finalXP, xpMult, tileName:t.n, isRevenge, coinsGained, t, isSafe };
+      save(); syncHUD();
+      showCard({
+        cls:'good',
+        tag: isLegendary ? '🏆 LEGENDARY CHUG' : '⚡ PERFECT CHUG',
+        title: isLegendary ? 'LEGENDARY!' : 'PERFECT!',
+        body: epicLine,
+        chips: ['+'+finalXP+' XP', '×'+xpMult.toFixed(1)+' MULTIPLIER', coinsGained+'🪙'].filter(Boolean),
+        buttons:`<button class="btn green" onclick="chugClaimXP()">✓ CLAIM IT</button>`
+      });
+      return;
     }
-    g = grantXP(Math.round(xpAmount * xpMult), t.n);
-    if(xpMult >= 3)      { addLog('🏆 LEGENDARY — '+t.n+' ×'+xpMult+' = +'+g+' XP'); toast('🏆 LEGENDARY! +'+g+' XP'); floatText('LEGENDARY', '#ffd24a'); }
-    else if(xpMult >= 2) { addLog('⚡ PERFECT CHUG — '+t.n+' ×'+xpMult+' = +'+g+' XP'); toast('⚡ ×'+xpMult+'! +'+g+' XP'); }
-    else if(xpMult > 1)  { addLog('✅ CHUG — '+t.n+' ×'+xpMult+' = +'+g+' XP'); toast('✅ +'+g+' XP'); }
-    else                 { addLog('✓ '+t.n+' — +'+g+' XP (safe)'); toast('+'+g+' XP'); }
-    if(isRevenge){ addLog('⚔ REVENGE served via chug.'); toast('⚔ REVENGE SERVED!'); }
+    // Ok or safe — show card before granting XP
+    const coinsGained = Math.max(5, Math.round(t.xp/2));
+    const isSafeLabel = isSafe ? 'SAFE TAKE' : '— COUNTS. BARELY.';
+    window._pendingChugXP = { finalXP, xpMult, tileName:t.n, isRevenge, coinsGained, t, isSafe };
+    save(); syncHUD();
+    showCard({
+      cls:'',
+      tag: isSafe ? '🛡 SAFE TAKE' : '— OK CHUG',
+      title: isSafe ? 'XP SECURED' : 'COUNTS. BARELY.',
+      body: isSafe ? 'You played it safe. The XP is yours — no glory, no shame.' : 'Got it down. Not the stuff of legend, but it is in the log.',
+      chips: ['+'+finalXP+' XP', coinsGained+'🪙'],
+      buttons:`<button class="btn green" onclick="chugClaimXP()">✓ TAKE IT</button>`
+    });
+    return;
   } else {
+    // Miss — show card, no XP
+    const coinsGained = Math.max(5, Math.round(t.xp/2));
+    window._pendingChugXP = { finalXP:0, xpMult:0, tileName:t.n, isRevenge:false, coinsGained, t, isSafe:false };
     floatText('SPILLED', '#5a9aff');
     addLog('💧 '+t.n+' — spilled the chug. No XP lost.');
-    toast('💧 SPILLED — but forfeit is skipped. Drink your beer.');
+    save(); syncHUD();
+    showCard({
+      cls:'forfeit',
+      tag:'💧 SPILLED',
+      title:'MISSED',
+      body:'Too fast. Too slow. Either way it ended on the floor. Forfeit skipped — drink your beer and try again.',
+      chips:['0 XP', coinsGained+'🪙 ANYWAY'],
+      buttons:`<button class="btn ghost" onclick="chugClaimXP()">WALK IT OFF</button>`
+    });
+    return;
   }
+  _chugCleanup(t);
+}
+function chugClaimXP(){
+  const p = window._pendingChugXP;
+  if(!p) return;
+  window._pendingChugXP = null;
+  closeCard();
+  if(p.finalXP > 0){
+    const g = grantXP(p.finalXP, p.tileName);
+    if(p.xpMult >= 3)      { addLog('🏆 LEGENDARY — '+p.tileName+' ×'+p.xpMult.toFixed(1)+' = +'+g+' XP'); floatText('LEGENDARY', '#ffd24a'); }
+    else if(p.xpMult >= 2) { addLog('⚡ PERFECT CHUG — '+p.tileName+' ×'+p.xpMult.toFixed(1)+' = +'+g+' XP'); floatText('⚡ PERFECT', '#d4841a'); }
+    else                   { addLog((p.isSafe?'✓ SAFE':'✅ CHUG')+' — '+p.tileName+' ×'+p.xpMult.toFixed(1)+' = +'+g+' XP'); }
+  } else {
+    addLog('💧 '+p.tileName+' — spilled. No XP.');
+  }
+  if(p.isRevenge){ addLog('⚔ REVENGE served via chug.'); toast('⚔ REVENGE SERVED!'); }
+  _chugCleanup(p.t, p.coinsGained);
+}
+function _chugCleanup(t, coinsGained){
   if(t.drink){ S.drinks++; addPace(t.t===T.SHOT?16:12); }
   if(t.heal) { S.waters++; addPace(-t.heal); }
   S.badLuckHeat = Math.max(0, (S.badLuckHeat||0)-1);
   grantSouvenir(t.t);
-  const coinsGained = Math.max(5, Math.round(t.xp/2));
-  grantCoins(coinsGained);
+  grantCoins(coinsGained !== undefined ? coinsGained : Math.max(5, Math.round(t.xp/2)));
   chugResetAttempts();
   save(); syncHUD(); checkAchievements();
   refreshChug();
@@ -3330,7 +3531,7 @@ function _chugFinishApplyWin(xpMult, isSafe){
 }
 
 function denGetMaxSpins(){
-  // return spin allowance for the currently selected game
+  if(_denGame === 'blackjack') return 99;
   return DEN_GAMES[_denGame].maxSpins;
 }
 function denResetSpins(){
@@ -3344,6 +3545,7 @@ let _denSpinning = false;
 
 function denIsUnlocked(gameId){
   const g = DEN_GAMES[gameId];
+  if(g.noRelic) return true;
   return !g.relic || (S.relics && S.relics.includes(g.relic));
 }
 
@@ -3351,13 +3553,14 @@ function denSetGame(id){
   if(!denIsUnlocked(id)){ toast('🔒 BUY IT IN THE SHOP FIRST'); return; }
   _denGame = id;
   // Reset spins for the new game (idle mode only; during a wager keep current session)
-  if(!S._pendingWin){ S.denSpinsLeft = denGetMaxSpins(); save(); }
+  // Don't reset spin count on game switch — only reset when entering fresh coin mode
   refreshDen();
 }
 
 function denAdjustBet(delta){
   const coins = S.coins||0;
-  const maxBet = coins > 0 ? coins : 0;
+  const hasShark = (S.relics||[]).includes('loanshark');
+  const maxBet = hasShark ? 50 : (coins > 0 ? coins : 0);
   _denBet = Math.max(1, Math.min(maxBet, _denBet + delta));
   const el = document.getElementById('denBetAmt');
   if(el) el.textContent = _denBet;
@@ -3392,11 +3595,10 @@ function refreshDen(){
       if(safeBtn) safeBtn.classList.remove('hide');
       const safeRow = document.getElementById('denSafeRow');
       if(safeRow) safeRow.style.display = 'flex';
-      const inDebt = (S.coins||0) < 0;
       if(spinBtn){
-        spinBtn.textContent = inDebt ? '🚫 IN DEBT — NO GAMBLING' : game.icon+' SPIN FOR XP';
-        spinBtn.disabled = inDebt;
-        spinBtn.style.opacity = inDebt ? '0.4' : '';
+        spinBtn.textContent = game.icon+' SPIN FOR XP';
+        spinBtn.disabled = false;
+        spinBtn.style.opacity = '';
       }
     } else {
       xpRow.classList.add('hide'); coinRow.classList.remove('hide');
@@ -3404,17 +3606,21 @@ function refreshDen(){
       const safeRow2 = document.getElementById('denSafeRow');
       if(safeRow2) safeRow2.style.display = 'none';
       const coins = S.coins||0;
-      // always clamp bet to what the player actually has
-      _denBet = Math.max(1, Math.min(_denBet, Math.max(1, coins)));
+      const hasShark = (S.relics||[]).includes('loanshark');
+      // with loan shark: bet up to 50 regardless of balance; otherwise clamp to what they have
+      const maxBet = hasShark ? 50 : Math.max(1, coins);
+      _denBet = Math.max(1, Math.min(_denBet, maxBet));
       const noSpins = (S.denSpinsLeft ?? denGetMaxSpins()) <= 0;
       const inDebt  = coins < 0;
-      const broke   = coins === 0;
+      const broke   = coins === 0 && !hasShark;
+      const sharkInDebt = hasShark && inDebt;
       if(spinBtn){
-        if(inDebt)  spinBtn.textContent = '🚫 IN DEBT — NO GAMBLING';
-        else if(broke) spinBtn.textContent = '🪙 NO COINS TO BET';
-        else        spinBtn.textContent = game.icon+' SPIN ('+_denBet+'🪙)';
-        spinBtn.disabled = noSpins || inDebt || broke;
-        spinBtn.style.opacity = (noSpins || inDebt || broke) ? '0.4' : '';
+        if(inDebt && !hasShark) spinBtn.textContent = '🚫 IN DEBT — NO GAMBLING';
+        else if(broke)          spinBtn.textContent = '🪙 NO COINS TO BET';
+        else if(sharkInDebt)    spinBtn.textContent = game.icon+' SPIN IN DEBT ('+_denBet+'🪙)';
+        else                    spinBtn.textContent = game.icon+' SPIN ('+_denBet+'🪙)';
+        spinBtn.disabled = noSpins || (inDebt && !hasShark) || broke;
+        spinBtn.style.opacity = (noSpins || (inDebt && !hasShark) || broke) ? '0.4' : '';
       }
       // clamp bet to current coins
       const betEl = document.getElementById('denBetAmt');
@@ -3441,9 +3647,297 @@ function refreshDen(){
     }).join('');
   }
 
-  // draw idle wheel
-  if(!_denSpinning) denPaintWheel(_denGame, 0);
+  // Blackjack mode: toggle wheel canvas vs bj table
+  const bjTableEl  = document.getElementById('bjTable');
+  const canvasWrap = document.querySelector('#gamblerDen .bj-canvas-wrap');
+  const arrowPip   = document.querySelector('#gamblerDen [style*="border-top:14px"]');
+  const isBJ = _denGame === 'blackjack';
+
+  // The canvas container (arrow + canvas)
+  const canvasEl = document.getElementById('denCanvas');
+  const canvasParent = canvasEl ? canvasEl.parentElement : null;
+  if(canvasParent){
+    canvasParent.style.display = isBJ ? 'none' : '';
+    // also hide the arrow pip
+    const pip = canvasParent.previousElementSibling;
+    if(pip) pip.style.display = isBJ ? 'none' : '';
+  }
+  // hide result + wheel bet rows when bj active
+  const denResEl = document.getElementById('denResult');
+  if(denResEl) denResEl.style.display = isBJ ? 'none' : '';
+  const denXPEl  = document.getElementById('denXPRow');
+  if(denXPEl && isBJ) denXPEl.classList.add('hide');
+  const denCoinEl = document.getElementById('denCoinRow');
+  if(denCoinEl) denCoinEl.style.display = isBJ ? 'none' : '';
+  const denActEl = document.getElementById('denActions');
+  if(denActEl) denActEl.style.display = isBJ ? 'none' : '';
+  // show/hide bj table
+  if(bjTableEl){ bjTableEl.style.display = isBJ ? '' : 'none'; if(isBJ && !_bj) bjRender(); }
+  // mode label
+  if(modeLbl && isBJ) modeLbl.textContent = 'BLACKJACK';
+
+  // draw idle wheel (only when not in blackjack mode)
+  if(!_denSpinning && !isBJ) denPaintWheel(_denGame, 0);
 }
+
+/* ══════════════════════════════════════════════════════
+   BLACKJACK — pixel-art card engine for the Gambler's Den
+   ══════════════════════════════════════════════════════ */
+let _bj = null; // active blackjack hand state
+
+function bjNewDeck(){
+  const suits = ['♠','♥','♦','♣'];
+  const ranks = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+  const deck = [];
+  suits.forEach(s => ranks.forEach(r => deck.push({r,s})));
+  for(let i=deck.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [deck[i],deck[j]]=[deck[j],deck[i]];
+  }
+  return deck;
+}
+
+function bjVal(hand){
+  let v=0, aces=0;
+  hand.forEach(c=>{
+    if(c.r==='A'){aces++;v+=11;}
+    else if(['J','Q','K'].includes(c.r)) v+=10;
+    else v+=parseInt(c.r);
+  });
+  while(v>21&&aces>0){v-=10;aces--;}
+  return v;
+}
+
+function bjCardHTML(c, faceDown, isNew){
+  const nc = isNew ? ' bj-new' : '';
+  if(faceDown) return `<div class="bj-card back${nc}">🂠</div>`;
+  const red = c.s==='♥'||c.s==='♦';
+  return `<div class="bj-card${red?' red':''}${nc}">
+    <span class="bj-rank-top">${c.r}</span>
+    <span class="bj-suit-mid">${c.s}</span>
+    <span class="bj-rank-bot">${c.r}</span>
+  </div>`;
+}
+
+function bjStart(){
+  if(!S||S.charId!=='gambler') return;
+  const bet = Math.min(_denBet, S.coins||0);
+  if((S.coins||0)<1){
+    const el=document.getElementById('bjTable');
+    if(el) el.innerHTML='<div class="bj-result-banner" style="color:#c84040">NO COINS 💸</div>';
+    return;
+  }
+  const deck = bjNewDeck();
+  _bj = { deck, bet, player:[], dealer:[], phase:'dealing', result:null, _newHand:'', _newIdx:-1 };
+  S.coins -= bet;
+  syncHUD(); save();
+  bjRender();
+
+  const D = 360; // ms between each card
+  // Deal order: player, dealer, player, dealer(face-down)
+  const steps = [
+    ()=>{ _bj._newHand='player'; _bj.player.push(_bj.deck.pop()); bjRender(); },
+    ()=>{ _bj._newHand='dealer'; _bj.dealer.push(_bj.deck.pop()); bjRender(); },
+    ()=>{ _bj._newHand='player'; _bj.player.push(_bj.deck.pop()); bjRender(); },
+    ()=>{ _bj._newHand='dealer'; _bj.dealer.push(_bj.deck.pop()); bjRender();
+          // After last card, check blackjack then open player turn
+          setTimeout(()=>{
+            _bj._newHand=''; _bj._newIdx=-1;
+            if(bjVal(_bj.player)===21){
+              _bj.phase='done'; _bj.result='blackjack';
+              const gain=Math.floor(_bj.bet*2.5);
+              S.coins+=gain;
+              addLog(`🃏 BLACKJACK! Natural 21 — +${gain} 🪙`);
+              syncHUD(); save();
+            } else {
+              _bj.phase='player';
+            }
+            bjRender();
+          }, 300);
+        }
+  ];
+  steps.forEach((fn,i)=>setTimeout(fn, D*(i+1)));
+}
+
+function bjHit(){
+  if(!_bj||_bj.phase!=='player') return;
+  _bj._newHand='player';
+  _bj.player.push(_bj.deck.pop());
+  if(bjVal(_bj.player)>21){
+    _bj.phase='done'; _bj.result='bust';
+    addLog(`🃏 Blackjack — BUST. Lost ${_bj.bet} 🪙`);
+    syncHUD(); save();
+  }
+  bjRender();
+  _bj._newHand='';
+}
+
+function bjStand(){
+  if(!_bj||_bj.phase!=='player') return;
+  // Lock player actions immediately
+  _bj.phase='dealer';
+  // Snapshot dealer hand length before drawing extras
+  _bj._dealerRevealed = _bj.dealer.length; // typically 2 (hole card flip is index 1)
+  _bj._newHand='dealer'; // mark hole card as "new" so it gets the flip animation
+  bjRender(); // first render: flip hole card, show actions disabled
+  _bj._newHand='';
+
+  // Draw extra dealer cards one by one with delay, then settle
+  function dealerStep(){
+    if(bjVal(_bj.dealer)<17){
+      setTimeout(()=>{ _bj._newHand='dealer'; _bj.dealer.push(_bj.deck.pop()); bjRender(); _bj._newHand=''; dealerStep(); }, 420);
+    } else {
+      // Settle after a short pause so the last card is visible
+      setTimeout(()=>{
+        const pv=bjVal(_bj.player), dv=bjVal(_bj.dealer);
+        if(dv>21||pv>dv){
+          _bj.result='win';
+          const gain=_bj.bet*2;
+          S.coins+=gain;
+          addLog(`🃏 Blackjack — WIN! +${gain} 🪙`);
+        } else if(pv===dv){
+          _bj.result='push';
+          S.coins+=_bj.bet;
+          addLog(`🃏 Blackjack — PUSH. Bet returned.`);
+        } else {
+          _bj.result='lose';
+          addLog(`🃏 Blackjack — DEALER WINS. Lost ${_bj.bet} 🪙`);
+        }
+        _bj.phase='done';
+        syncHUD(); save(); bjRender();
+      }, 320);
+    }
+  }
+  // Give the hole-card flip animation time to play before drawing more
+  setTimeout(dealerStep, 340);
+}
+
+function bjDouble(){
+  if(!_bj||_bj.phase!=='player') return;
+  const canDouble = (S.coins||0)>=_bj.bet;
+  if(canDouble){ S.coins-=_bj.bet; _bj.bet*=2; syncHUD(); }
+  _bj._newHand='player'; _bj.player.push(_bj.deck.pop()); _bj._newHand='';
+  if(bjVal(_bj.player)>21){
+    _bj.phase='done'; _bj.result='bust';
+    addLog(`🃏 Blackjack — BUST (doubled). Lost ${_bj.bet} 🪙`);
+    syncHUD(); save(); bjRender();
+  } else {
+    bjStand();
+  }
+}
+
+function bjAdjBet(delta){
+  const coins = S ? (S.coins||0) : 0;
+  const hasShark = (S&&S.relics||[]).includes('loanshark');
+  const max = hasShark ? 50 : Math.max(1, coins);
+  _denBet = Math.max(1, Math.min(max, _denBet + delta));
+  // Update the den bet display too
+  const denBetEl = document.getElementById('denBetAmt');
+  if(denBetEl) denBetEl.textContent = _denBet;
+  // Re-render idle table
+  if(!_bj) bjRender();
+}
+
+function bjRender(){
+  const el=document.getElementById('bjTable');
+  if(!el) return;
+  if(!_bj){
+    const coins=S?S.coins||0:0;
+    el.innerHTML=`
+      <div class="bj-section">
+        <div class="bj-label">DEALER</div>
+        <div class="bj-hand" style="opacity:.25">
+          <div class="bj-card back">🂠</div>
+          <div class="bj-card back">🂠</div>
+        </div>
+      </div>
+      <div class="bj-divider"></div>
+      <div class="bj-section">
+        <div class="bj-hand" style="opacity:.25">
+          <div class="bj-card back">🂠</div>
+          <div class="bj-card back">🂠</div>
+        </div>
+        <div class="bj-label">PLAYER</div>
+      </div>
+      <div class="bj-divider" style="margin:6px 0"></div>
+      <div class="bj-bet-row">
+        <button class="btn ghost sm" onclick="bjAdjBet(-5)" style="padding:2px 10px;font-size:13px">−</button>
+        <div style="text-align:center;flex:1">
+          <div class="bj-label" style="margin-bottom:1px">BET</div>
+          <div class="bj-bet-badge" id="bjBetDisplay" style="font-size:14px">${_denBet} 🪙</div>
+          <div style="font-size:8px;color:#5a4030;letter-spacing:1px;margin-top:1px">${coins} avail</div>
+        </div>
+        <button class="btn ghost sm" onclick="bjAdjBet(5)" style="padding:2px 10px;font-size:13px">+</button>
+      </div>
+      <div class="bj-action-row" style="margin-top:6px">
+        <button class="btn primary" onclick="bjStart()" style="letter-spacing:2px;flex:1">🃏 DEAL</button>
+      </div>`;
+    return;
+  }
+
+  const pv=bjVal(_bj.player);
+  const dv=bjVal(_bj.dealer);
+  const showDealer = _bj.phase!=='player' && _bj.phase!=='dealing';
+  // Only the most recently dealt card gets the flip animation
+  const newHand = _bj._newHand || '';
+  const dealerLastIdx = _bj.dealer.length - 1;
+  const playerLastIdx = _bj.player.length - 1;
+  const dealerCards=_bj.dealer.map((c,i)=>{
+    const faceDown = i===1 && !showDealer;
+    // During dealing: new = last card in this hand. During stand: hole card (i===1) is "new"
+    const isNew = newHand==='dealer'
+      ? (i===dealerLastIdx)                          // freshly dealt/drawn
+      : (_bj.phase==='dealer' && i===1 && showDealer && _bj.dealer.length===2); // hole-card reveal (caught above via _newHand but fallback)
+    return bjCardHTML(c, faceDown, isNew);
+  }).join('');
+  const playerCards=_bj.player.map((c,i)=>{
+    const isNew = newHand==='player' && i===playerLastIdx;
+    return bjCardHTML(c,false,isNew);
+  }).join('');
+  const visibleDV=showDealer?dv:(_bj.dealer.length?bjVal([_bj.dealer[0]]):0);
+
+  let banner='', actions='';
+  const rmap={win:'🏆 YOU WIN!',blackjack:'🎉 BLACKJACK!',bust:'💥 BUST!',lose:'☠ DEALER WINS',push:'🤝 PUSH'};
+  const rcol={win:'#d4a820',blackjack:'#ffd700',bust:'#c84040',lose:'#c84040',push:'#8a8a8a'};
+
+  if(_bj.phase==='dealing'){
+    actions=`<div style="text-align:center;color:#8a6a44;font-size:10px;letter-spacing:2px;padding:8px">DEALING…</div>`;
+  } else if(_bj.phase==='player'){
+    if(pv>21){
+      banner=`<span style="color:#c84040">💥 BUST!</span>`;
+    } else if(pv===21){
+      banner=`<span style="color:#ffd700">⭐ 21!</span>`;
+    }
+    const canDouble=(S&&(S.coins||0)>=_bj.bet)&&_bj.player.length===2;
+    actions=`
+      <button class="btn primary" onclick="bjHit()">HIT</button>
+      <button class="btn ghost" onclick="bjStand()">STAND</button>
+      ${canDouble?'<button class="btn ghost" onclick="bjDouble()" style="font-size:9px">2×</button>':''}
+    `;
+  } else if(_bj.phase==='dealer'){
+    // Dealer playing — show spinner, no player actions
+    actions=`<div style="text-align:center;color:#8a6a44;font-size:10px;letter-spacing:2px;padding:8px">DEALER DRAWING…</div>`;
+  } else {
+    const r=_bj.result;
+    banner=`<span style="color:${rcol[r]}">${rmap[r]||''}</span>`;
+    actions=`<button class="btn primary" onclick="_bj=null;bjRender();" style="width:100%">🃏 DEAL AGAIN</button>`;
+  }
+
+  el.innerHTML=`
+    <div class="bj-section">
+      <div class="bj-score-row"><span class="dim">DEALER</span><span class="gold">${visibleDV}</span></div>
+      <div class="bj-hand">${dealerCards}</div>
+    </div>
+    <div class="bj-divider"></div>
+    <div class="bj-section">
+      <div class="bj-hand">${playerCards}</div>
+      <div class="bj-score-row"><span class="dim">YOU</span><span class="gold">${pv}</span><span class="bj-bet-badge">BET ${_bj.bet}🪙</span></div>
+    </div>
+    ${banner?`<div class="bj-result-banner">${banner}</div>`:'<div style="height:8px"></div>'}
+    <div class="bj-action-row">${actions}</div>
+  `;
+}
+
 
 function denPaintWheel(gameId, rotation){
   const c = document.getElementById('denCanvas'); if(!c) return;
@@ -3482,22 +3976,17 @@ function denSpin(){
   const game = DEN_GAMES[_denGame];
   const hasPending = !!S._pendingWin;
   // block if broke or in debt (coin gambling only — XP wager is separate)
+  const _hasSharkSpin = (S.relics||[]).includes('loanshark');
   if(!hasPending){
-    if((S.coins||0) < 0){
+    if((S.coins||0) < 0 && !_hasSharkSpin){
       toast('YOU\'RE IN DEBT — EARN COINS BEFORE GAMBLING');
       return;
     }
-    if((S.coins||0) === 0){
+    if((S.coins||0) === 0 && !_hasSharkSpin){
       toast('NO COINS — WIN A CHALLENGE TO EARN SOME');
       return;
     }
-  } else {
-    // XP wager: block only if in debt
-    if((S.coins||0) < 0){
-      toast('YOU\'RE IN DEBT — EARN COINS BEFORE GAMBLING');
-      return;
-    }
-  }
+  } // XP wager has no coin requirement — debt doesn't block it
   if(!hasPending){
     // enforce spin cap for coin gambling
     if((S.denSpinsLeft||0) <= 0){
@@ -3505,6 +3994,11 @@ function denSpin(){
       return;
     }
     S.denSpinsLeft = (S.denSpinsLeft||1) - 1;
+    // Discover ONE MORE SPIN I SWEAR when spins run out
+    if((S.denSpinsLeft||0) <= 0 && !(S.discovered||[]).includes('icebucket')){
+      S.discovered = (S.discovered||[]).concat(['icebucket']); save();
+      setTimeout(()=>discoverItem('icebucket'), 800);
+    }
     // coin mode: deduct bet upfront (debt allowed)
     S.coins = (S.coins||0) - _denBet;
     save(); syncHUD();
@@ -3553,32 +4047,54 @@ function denSpin(){
       _finishApplyWin(seg.mult);
     } else {
       // coin mode — bet already deducted upfront
+      let _denCardTag, _denCardTitle, _denCardBody, _denCardChips, _denCardCls, _denCardBtn;
       if(seg.mult === 0){
-        // LOSE — bet is gone, show debt if negative
         addLog('💀 DEN '+game.name+': lost '+_denBet+'🪙. Balance: '+(S.coins||0));
-        toast('💀 LOST '+_denBet+'🪙'+(S.coins<0?' — IN DEBT 🟥':''));
         floatText('-'+_denBet, '#c03028');
+        const inDebt = (S.coins||0) < 0;
+        _denCardCls='forfeit'; _denCardTag='💀 BUST';
+        _denCardTitle='THE HOUSE WINS';
+        _denCardBody='Lost '+_denBet+'🪙. Balance: '+(S.coins||0)+'🪙'+(inDebt?' — you\'re in debt.':'.');
+        _denCardChips=['-'+_denBet+'🪙', inDebt?'IN DEBT 🟥':''];
+        _denCardBtn=`<button class="btn ghost" onclick="denDismissResult()">WALK AWAY</button>`;
+        // Discoveries
+        if(S.charId==='gambler' && (S.coins||0)<=0 && !(S.discovered||[]).includes('loanshark')){
+          S.discovered=(S.discovered||[]).concat(['loanshark']); save();
+          setTimeout(()=>discoverItem('loanshark'), 800);
+        }
+        if((S.coins||0) < -20 && !(S.discovered||[]).includes('debtpardon')){
+          S.discovered=(S.discovered||[]).concat(['debtpardon']); save();
+          setTimeout(()=>discoverItem('debtpardon'), 1200);
+        }
       } else if(seg.mult === 1){
-        // NOTHING — push, return bet
         S.coins = (S.coins||0) + _denBet;
         addLog('— DEN '+game.name+': nothing. Bet returned.');
-        toast('NOTHING HAPPENS');
+        _denCardCls=''; _denCardTag='— PUSH';
+        _denCardTitle='NOTHING HAPPENS';
+        _denCardBody='The wheel gave nothing. Your '+_denBet+'🪙 bet came back. Try again.';
+        _denCardChips=['BET RETURNED', _denBet+'🪙'];
+        _denCardBtn=`<button class="btn ghost" onclick="denDismissResult()">SPIN AGAIN</button>`;
       } else {
-        // WIN — return bet + profit
         const won = Math.round(_denBet * seg.mult);
         S.coins = (S.coins||0) + won;
         const net = won - _denBet;
         addLog('✅ DEN '+game.name+': bet '+_denBet+'🪙, won '+won+'🪙 (net +'+net+')');
-        toast('+'+net+' 🪙 NET WIN');
         floatText('+'+net, '#d4a820');
+        const isBig = net > 50;
+        _denCardCls='good'; _denCardTag=seg.mult>=3?'🏆 JACKPOT':'✅ WIN';
+        _denCardTitle='+'+net+' COINS';
+        _denCardBody='Bet '+_denBet+'🪙 · Won '+won+'🪙 · Net gain '+net+'🪙. The wheel was kind.';
+        _denCardChips=['+'+net+'🪙 NET', '×'+seg.mult+' MULTIPLIER'];
+        _denCardBtn=`<button class="btn green" onclick="denDismissResult()">COLLECT</button>`;
+        if(S.charId==='gambler' && net > 50 && !(S.discovered||[]).includes('xpchip') && !(S.itemsUsed||{})['xpchip']){
+          S.discovered=(S.discovered||[]).concat(['xpchip']); save();
+          setTimeout(()=>discoverItem('xpchip'), 800);
+        }
       }
       save(); syncHUD();
-      // re-enable spin button after short delay
-      setTimeout(()=>{
-        if(spinBtn){ spinBtn.disabled=false; spinBtn.textContent=game.icon+' SPIN ('+_denBet+'🪙)'; }
-        const res2 = document.getElementById('denResult');
-        if(res2) res2.textContent='';
-      }, 2200);
+      window._denSpinBtn = spinBtn;
+      window._denGameRef = game;
+      showCard({ cls:_denCardCls, tag:_denCardTag, title:_denCardTitle, body:_denCardBody, chips:(_denCardChips||[]).filter(Boolean), buttons:_denCardBtn });
     }
   })();
 }
@@ -3588,46 +4104,71 @@ function denTakeSafe(){
   _finishApplyWin(1);
 }
 
+function denDismissResult(){
+  closeCard();
+  const btn = window._denSpinBtn;
+  const g   = window._denGameRef;
+  if(btn && g){ btn.disabled=false; btn.textContent=g.icon+' SPIN ('+_denBet+'🪙)'; }
+  const res2 = document.getElementById('denResult');
+  if(res2) res2.textContent='';
+  window._denSpinBtn = null; window._denGameRef = null;
+}
+
 function _finishApplyWin(xpMult){
   const pw = S._pendingWin;
   if(!pw){ save(); syncHUD(); return; }
   S._pendingWin = null;
   const { t, xpAmount, isRevenge } = pw;
-  let g = 0;
-  if(xpMult > 0){
-    g = grantXP(Math.round(xpAmount * xpMult), t.n);
-    if(isRevenge){
-      addLog('⚔ REVENGE — beat '+t.n+' after it beat you. \xd7'+xpMult+' gamble = +'+g+' XP.');
-      toast('⚔ REVENGE SERVED. '+t.n+' AVENGED.');
-    } else if(xpMult >= 3){
-      addLog('🏆 JACKPOT — '+t.n+' \xd7'+xpMult+' = +'+g+' XP');
-      toast('🏆 JACKPOT! +'+g+' XP');
-    } else if(xpMult > 1){
-      addLog('🎲 WIN — '+t.n+' \xd7'+xpMult+' = +'+g+' XP');
-      toast('🎲 \xd7'+xpMult+'! +'+g+' XP');
-    } else {
-      addLog('✓ '+t.n+' — +'+g+' XP (safe)');
-      toast('+'+g+' XP · SAFE');
-    }
-  } else {
+  const finalXP = Math.round(xpAmount * xpMult);
+  const coinsGained = Math.max(5, Math.round(t.xp/2));
+  // Show result card before granting XP
+  let cardCls, cardTag, cardTitle, cardBody, cardChips, cardBtn;
+  if(xpMult === 0){
     floatText('BUST', '#c03028');
     addLog('💀 '+t.n+' — gambled and lost everything. 0 XP.');
-    toast('💀 BUST. THE HOUSE WINS.');
+    cardCls='forfeit'; cardTag='💀 BUST'; cardTitle='THE HOUSE WINS';
+    cardBody='You put it all on the line and the wheel took it. No XP. Drink your beer.';
+    cardChips=['0 XP', coinsGained+'🪙 ANYWAY'];
+    cardBtn=`<button class="btn ghost" onclick="gamblerClaimXP()">WALK AWAY</button>`;
+  } else if(xpMult >= 3){
+    addLog('🏆 JACKPOT — '+t.n+' ×'+xpMult+' = +'+finalXP+' XP');
+    floatText('JACKPOT', '#d4a820');
+    cardCls='good'; cardTag='🏆 JACKPOT'; cardTitle='JACKPOT!';
+    cardBody='×'+xpMult+' multiplier on '+t.n+'. The wheel was very, very kind.';
+    cardChips=['+'+finalXP+' XP', '×'+xpMult+' MULTIPLIER', coinsGained+'🪙'];
+    cardBtn=`<button class="btn green" onclick="gamblerClaimXP()">COLLECT</button>`;
+  } else if(xpMult > 1){
+    addLog('🎲 WIN — '+t.n+' ×'+xpMult+' = +'+finalXP+' XP');
+    cardCls='good'; cardTag='🎲 WIN'; cardTitle='WIN!';
+    cardBody='×'+xpMult+' on '+t.n+'. The house didn\'t get you this time.';
+    cardChips=['+'+finalXP+' XP', '×'+xpMult+' MULTIPLIER', coinsGained+'🪙'];
+    cardBtn=`<button class="btn green" onclick="gamblerClaimXP()">COLLECT</button>`;
+  } else {
+    addLog('✓ '+t.n+' — +'+finalXP+' XP (safe)');
+    cardCls=''; cardTag='🛡 SAFE'; cardTitle='SAFE TAKE';
+    cardBody='Played it safe. 1× XP — no spin, no risk, no glory.';
+    cardChips=['+'+finalXP+' XP', coinsGained+'🪙'];
+    cardBtn=`<button class="btn ghost" onclick="gamblerClaimXP()">TAKE IT</button>`;
   }
-  if(t.drink){
-    S.drinks++;
-    let paceAdd = (t.t===T.SHOT?16:12);
-    if(S.relics.includes('shades')) paceAdd = Math.round(paceAdd*0.8);
-    addPace(paceAdd);
-  }
+  if(isRevenge) addLog('⚔ REVENGE — beat '+t.n+' after it beat you.');
+  window._pendingGamblerXP = { finalXP, xpMult, t, coinsGained, isRevenge };
+  save(); syncHUD();
+  showCard({ cls:cardCls, tag:cardTag, title:cardTitle, body:cardBody, chips:(cardChips||[]).filter(Boolean), buttons:cardBtn });
+}
+function gamblerClaimXP(){
+  const p = window._pendingGamblerXP;
+  if(!p) return;
+  window._pendingGamblerXP = null;
+  closeCard();
+  if(p.finalXP > 0) grantXP(p.finalXP, p.t.n);
+  if(p.isRevenge){ toast('⚔ REVENGE SERVED. '+p.t.n+' AVENGED.'); }
+  const { t, coinsGained } = p;
+  if(t.drink){ S.drinks++; let pa=(t.t===T.SHOT?16:12); if(S.relics.includes('shades')) pa=Math.round(pa*0.8); addPace(pa); }
   if(t.heal){ S.waters++; addPace(-t.heal); }
   S.badLuckHeat = Math.max(0, (S.badLuckHeat||0)-1);
   grantSouvenir(t.t);
-  const coinsGained = Math.max(5, Math.round(t.xp/2));
   grantCoins(coinsGained);
   denResetSpins();
-  // Nudge bet to at least 10% of current coins after challenge resolves
-  // so a broke player who just won coins isn't stuck betting 1 forever
   const _coinsNow = S.coins || 0;
   if(_coinsNow > 0) _denBet = Math.max(_denBet, Math.min(Math.round(_coinsNow * 0.1), _coinsNow));
   _denBet = Math.max(1, Math.min(_denBet, Math.max(1, _coinsNow)));
@@ -3675,11 +4216,23 @@ function toast(msg){
   clearTimeout(toastTimer);
   toastTimer=setTimeout(()=>d.remove(), 2300);
 }
+function epicToast(msg){
+  document.querySelectorAll('.toast').forEach(t=>t.remove());
+  const d=document.createElement('div'); d.className='toast epic-toast'; d.textContent=msg;
+  document.body.appendChild(d);
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>d.remove(), 5000);
+}
 
 /* ---------- slot machine ---------- */
 let slotSpinning = false;
 function spinSlot(){
   if(slotSpinning) return;
+  if(S.currentTile && !S.resolved){
+    toast('FINISH YOUR CHALLENGE FIRST');
+    showChallengeInline();
+    return;
+  }
   if(S._pendingWin){
     toast('⚔ SETTLE YOUR BET FIRST — SPIN THE DEN OR TAKE SAFE XP');
     const den = document.getElementById('gamblerDen');
@@ -3690,8 +4243,6 @@ function spinSlot(){
     toast('🍺 FINISH YOUR CHUG FIRST');
     const tc = document.getElementById('tankChug');
     if(tc) tc.scrollIntoView({ behavior:'smooth', block:'center' });
-    const den = document.getElementById('gamblerDen');
-    if(den) den.scrollIntoView({ behavior:'smooth', block:'center' });
     return;
   }
   slotSpinning = true;
@@ -3754,14 +4305,15 @@ function acceptSlotResult(){
   if(S.pulls % 3 === 0){
     S.laps++; S.hatUsedThisLap = false; S.shopPending = true;
     grantXP(25,'lap'); grantCoins(30);
-    toast('🏁 LAP BONUS — +30🪙');
-    toast('ANOTHER LAP OF THE TOWN — SQUAD TOAST!'); addLog('Another lap of the town — squad toast');
+    toast('🏁 ANOTHER LAP — SQUAD TOAST! +30🪙'); addLog('Another lap of the town — squad toast');
   }
   save();
   showChallengeInline();
 }
 
 function handleRoll(){
+  // If gambler was in blackjack mode, snap den back to wheel before rolling
+  if(_denGame === 'blackjack'){ _denGame = 'wheel'; _bj = null; refreshDen(); }
   if(S && S.charId === 'machine') startFill();
   else spinSlot();
 }
@@ -3938,8 +4490,7 @@ function acceptPintResult(){
   if(S.pulls % 3 === 0){
     S.laps++; S.hatUsedThisLap = false; S.shopPending = true;
     grantXP(25,'lap'); grantCoins(30);
-    toast('🏁 LAP BONUS — +30🪙');
-    toast('ANOTHER LAP OF THE TOWN — SQUAD TOAST!'); addLog('Another lap of the town — squad toast');
+    toast('🏁 ANOTHER LAP — SQUAD TOAST! +30🪙'); addLog('Another lap of the town — squad toast');
   }
   tile.xp = origXP;
   save(); showChallengeInline();
@@ -4020,6 +4571,7 @@ function resolveTile(won){
   hideChallengeInline(); closeCard();
   if(won){
     applyWin(t);
+    syncHUD(); // immediately re-lock lever if Tank/Gambler set pending state
   } else {
     S.fails++;
     S.badLuckHeat = Math.min(10, (S.badLuckHeat||0)+1);
@@ -4085,7 +4637,7 @@ function openWheel(){
     raw:`<div id="wheelWrap"><div class="pointer"></div><canvas id="wheel" width="300" height="300"></canvas></div>
          <div id="wheelResult"></div>
          <button class="btn primary" id="btnWheelSpin" onclick="spinWheel()">🎡 SPIN</button>
-         <button class="btn ghost sm" onclick="closeCard()">LATER</button>`
+         `
   });
   wheelAngle = 0;
   paintWheel(0);
@@ -4154,8 +4706,7 @@ function showWheelResult(w){
   const ch = CHARS.find(c=>c.id===S.charId);
   const bonus = ch.id==='jester' ? 1.5 : 1;
   const gained = Math.round(w.xp*bonus);
-  S.xp += gained;
-  while(S.xp >= xpNeeded(S.level)){ S.xp -= xpNeeded(S.level); S.level++; showLevelUp(); }
+  grantXP(gained, 'wheel'); // use grantXP so level-ups trigger brewery chest correctly
   if(w.drink){ S.drinks++; addPace(12); }
   if(w.heal){ S.waters++; addPace(-w.heal); }
   if(w.doubleNext) S.doubleNext = true;
@@ -4409,13 +4960,17 @@ function renderShop(){
   const theme = shopThemes[S.charId] || { tag:'PIT STOP', title:'THE SHOP', tagline:'Spend it or lose it.' };
 
   function itemCard(r, type, isExclusive){
+    if(r.discoverable && !(S.discovered||[]).includes(r.id)) return ''; // hidden until found
     const owned   = type==='relic' ? S.relics.includes(r.id) : false;
     const qty     = type==='item'  ? (S.items[r.id]||0) : 0;
     const afford  = S.coins >= r.price;
     const nameCol = type==='relic' ? 'gold' : 'cyan';
     let actionHtml;
+    const oneTimeUsed = r.oneTime && ((S.items[r.id]||0) === 0) && (S.itemsUsed||{})[r.id];
     if(type==='relic' && owned){
       actionHtml = `<span style="font-size:8px;letter-spacing:1px;color:#5a8a5a">✓ OWNED</span>`;
+    } else if(type==='item' && oneTimeUsed){
+      actionHtml = `<span style="font-size:8px;letter-spacing:1px;color:#5a4a4a">✗ SPENT</span>`;
     } else if(type==='item' && qty > 0){
       actionHtml = `<span style="font-size:8px;letter-spacing:1px;color:#5a8a80">×${qty} IN BAG</span>
         <button class="btn cyan sm" style="width:auto;margin:0;padding:6px 10px" onclick="buyConsumable('${r.id}')" ${afford?'':'disabled'}>${r.price} <span style="opacity:0.6;font-size:7px">COINS</span></button>`;
@@ -4470,7 +5025,13 @@ function buyRelic(id){
   const r = RELICS.find(x=>x.id===id); if(!r) return;
   if(r.char && r.char!==S.charId) return; // exclusive to another character
   if(S.relics.includes(id)){ toast('ALREADY OWNED'); return; }
-  if(S.coins<r.price){ toast('NOT ENOUGH COINS'); return; }
+  if(S.coins<r.price){
+    if((S.xp||0) >= r.price && !(S.discovered||[]).includes('haggle')){
+      S.discovered = (S.discovered||[]).concat(['haggle']); save();
+      setTimeout(()=>discoverItem('haggle'), 400);
+    }
+    toast('NOT ENOUGH COINS'); return;
+  }
   S.coins -= r.price; S.relics.push(id);
   addLog(`Bought relic: ${r.n} (+${r.brewBonus||0} beer/min, permanently)`);
   toast(r.icon+' '+r.n+' — EQUIPPED, +'+(r.brewBonus||0)+' BEER/MIN');
@@ -4479,7 +5040,16 @@ function buyRelic(id){
 function buyConsumable(id){
   const c = CONSUMABLES.find(x=>x.id===id); if(!c) return;
   if(c.char && c.char!==S.charId) return; // exclusive to another character
-  if(S.coins<c.price){ toast('NOT ENOUGH COINS'); return; }
+  if(c.oneTime && (S.itemsUsed||{})[id]){ toast('ALREADY SPENT — ONE PER RUN'); return; }
+  if(c.oneTime && (S.items[id]||0) > 0){ toast('YOU ALREADY HAVE ONE'); return; }
+  if(S.coins<c.price){
+    // Discover GIFT OF THE GAB if they can afford it in XP but not coins
+    if((S.xp||0) >= c.price && !(S.discovered||[]).includes('haggle') && id!=='haggle'){
+      S.discovered = (S.discovered||[]).concat(['haggle']); save();
+      setTimeout(()=>discoverItem('haggle'), 400);
+    }
+    toast('NOT ENOUGH COINS'); return;
+  }
   S.coins -= c.price; S.items[id] = (S.items[id]||0)+1;
   addLog(`Bought item: ${c.n}`);
   toast(c.n+' ADDED TO YOUR BAG');
@@ -4544,15 +5114,68 @@ function useItem(id){
     toast('🥃 ONE MORE IN THE TANK — CHUG ATTEMPT RESTORED');
     floatText('+1 CHUG', '#ffd24a');
     refreshChug();
+  } else if(id==='xpchip'){
+    const xpToConvert = Math.min(100, S.xp||0);
+    if(xpToConvert <= 0){ toast('NO XP TO CONVERT — EARN SOME FIRST'); S.items[id]++; return; }
+    S.xp -= xpToConvert;
+    S.coins += xpToConvert;
+    addLog('🪙 Inside Man — converted '+xpToConvert+' XP → '+xpToConvert+' coins');
+    toast('🪙 '+xpToConvert+' XP LAUNDERED INTO COINS');
+    floatText('+'+xpToConvert+'🪙', '#ffd24a');
+    floatText('-'+xpToConvert+' XP', '#38f2e0');
+    S.itemsUsed = S.itemsUsed||{}; S.itemsUsed['xpchip'] = true;
+    save(); syncHUD(); renderBag(); return;
   } else if(c){
     addLog('Used item: '+c.n);
   }
   save(); syncHUD(); renderBag();
 }
+
+function renderGuide(){
+  const charId = S ? S.charId : null;
+  const el = document.getElementById('guideCharSection');
+  if(!el) return;
+  
+  const sections = {
+    tank: `<div class="panel">
+      <h2>🍺 YOUR MECHANIC — CHUG TIMER</h2>
+      <p class="small">Win a challenge and your XP goes into a chug wager.</p>
+      <p class="small">1. The screen shows a <b>target time</b> (e.g. 6.2s). Hand the phone face-down to a friend.</p>
+      <p class="small">2. They hit <b>START</b>, chug blind — no peeking — then hit <b>STOP</b>.</p>
+      <p class="small">3. The closer to the target, the more XP. <b class="gold">Perfect</b> = bonus. <b class="cyan">OK</b> = base XP. <b class="red">Miss</b> = nothing.</p>
+      <p class="small">Unlock harder chug modes (Iron, Horn, Legend) with relics for bigger multipliers.</p>
+    </div>`,
+    gambler: `<div class="panel">
+      <h2>🎲 YOUR MECHANIC — XP WAGER</h2>
+      <p class="small">Win a challenge and your XP goes into the den. Spin to multiply it — or lose it all.</p>
+      <p class="small">You choose when to cash out. Safe = take what you have. Greedy = keep spinning for bigger multipliers.</p>
+      <p class="small">The den also runs in coin mode between challenges for extra income.</p>
+    </div>`,
+    jester: `<div class="panel">
+      <h2>🃏 YOUR MECHANIC — CHAOS TILES</h2>
+      <p class="small">As the Jester, chaos tiles spin the wheel of fortune for you — wild outcomes, big swings.</p>
+      <p class="small">Your perk makes party game and social tiles come up more often. Lean into them.</p>
+    </div>`,
+    machine: `<div class="panel">
+      <h2>⚙️ YOUR MECHANIC — CONSISTENCY</h2>
+      <p class="small">The Machine gets steady bonuses across all tile types. No wild swings — just reliable XP and a higher brew rate.</p>
+      <p class="small">Your liquid courage relic, when unlocked, keeps pace debuffs off you.</p>
+    </div>`,
+    wizard: `<div class="panel">
+      <h2>🧙 YOUR MECHANIC — MYSTERY</h2>
+      <p class="small">The Wizard's perks are hidden — part of the magic is figuring out what you can actually do.</p>
+      <p class="small">Pay attention to the log and the tile outcomes. Things may not work as you expect.</p>
+    </div>`
+  };
+  
+  el.innerHTML = charId && sections[charId] ? sections[charId] : '';
+}
 function renderBag(){
   if(!S) return;
   const coinsEl = document.getElementById('bagCoins');
   if(coinsEl) coinsEl.textContent = S.coins;
+  const bagSkipsEl = document.getElementById('bagSkips');
+  if(bagSkipsEl) bagSkipsEl.textContent = S.skips;
   const secretLabel = document.getElementById('secretBtnLabel');
   if(secretLabel) secretLabel.textContent = S.secretBlown ? 'MY MISSION — BLOWN ✗' : (S.secretDone ? 'MY MISSION — COMPLETE ✓' : 'VIEW MY MISSION');
   const secret2Btn = document.getElementById('secret2Btn');
@@ -4561,46 +5184,66 @@ function renderBag(){
     secret2Btn.classList.toggle('hide', !S.secret2Available);
     if(secret2Label) secret2Label.textContent = S.secret2Blown ? 'HIGH RISK — BLOWN ✗' : (S.secret2Done ? 'HIGH RISK — COMPLETE ✓' : 'HIGH RISK MISSION');
   }
+  // Brewery upgrades — show each with rate contribution and description
   const upgEl = document.getElementById('bagUpgradeList');
   if(upgEl){
     const ups = S.breweryUpgrades||[];
-    upgEl.innerHTML = ups.length
-      ? `<p class="small" style="margin:0 0 6px">🍺 ${computeBreweryRate().toFixed(1)} beer/min · ${((S.beerCoinsTotal||0)+(S.coinAccum||0)).toFixed(1)} brewed lifetime</p>` +
-        ups.map(u=>`<div class="logItem gold">${u.icon} ${u.n}</div>`).join('')
-      : 'None yet. Level up to pick your first one.';
-  }
-  const grid = document.getElementById('souvenirGrid');
-  if(grid){
-    const types = Object.keys(SOUVENIRS);
-    grid.innerHTML = types.map(t=>{
-      const sv = SOUVENIRS[t]; const n = S.souvenirs[t]||0;
-      return `<div class="pill" style="text-align:center;display:flex;flex-direction:column;gap:2px;padding:8px 4px;">
-        <span style="font-size:16px">${sv.icon}</span>
-        <span style="font-size:7px" class="${n>0?'gold':'dim'}">${sv.n}</span>
-        <span style="font-size:8px">${n>0?'x'+n:'—'}</span>
-      </div>`;
-    }).join('');
-    const collected = types.filter(t=>(S.souvenirs[t]||0)>0).length;
-    const prog = document.getElementById('souvenirProgress');
-    if(prog){
-      prog.innerHTML = (collected>=types.length)
-        ? '🏅 <span class="gold">FULL SET COLLECTED — PUBCRAWL COMPLETIONIST.</span> You have officially seen it all.'
-        : collected+' / '+types.length+' souvenir types collected.';
+    const totalRate = computeBreweryRate();
+    const totalBrewed = ((S.beerCoinsTotal||0)+(S.coinAccum||0)).toFixed(1);
+    if(ups.length){
+      upgEl.innerHTML =
+        `<div class="pill" style="margin-bottom:10px;display:block;padding:8px 10px;">` +
+        `<span class="gold" style="font-size:13px;">🍺 ${totalRate.toFixed(1)} beer/min</span>` +
+        `<span class="dim" style="font-size:10px;margin-left:8px;">${totalBrewed} brewed lifetime</span></div>` +
+        ups.map(u=>{
+          const baseRate = u.rate ? `+${u.rate.toFixed(2)}/min` : '';
+          return `<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;">
+            <span style="font-size:20px;flex-shrink:0;">${u.icon}</span>
+            <span>
+              <span class="gold" style="font-size:13px;font-weight:bold;">${u.n}</span>
+              ${baseRate ? `<span class="dim" style="font-size:10px;margin-left:6px;">${baseRate}</span>` : ''}
+              <br><span class="dim" style="font-size:11px;line-height:1.5;">${u.d}</span>
+            </span>
+          </div>`;
+        }).join('');
+    } else {
+      upgEl.innerHTML = '<span class="dim">None yet. Level up to pick your first one.</span>';
     }
   }
+  // Relics — icon + name + full description
   const relicEl = document.getElementById('relicList');
   if(relicEl){
     relicEl.innerHTML = S.relics.length
-      ? S.relics.map(id=>{ const r=RELICS.find(x=>x.id===id); return r ? `<div class="logItem gold" style="display:flex;align-items:flex-start;gap:8px;">${ico(r.icon,20,'#c8a030')}<span><b>${r.n}</b><br><span class="dim">${r.d}</span></span></div>` : ''; }).join('')
-      : 'None yet. Visit the shop.';
+      ? S.relics.map(id=>{
+          const r=RELICS.find(x=>x.id===id);
+          if(!r) return '';
+          const bonus = r.brewBonus ? `+${r.brewBonus.toFixed(1)}/min` : '';
+          return `<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;">
+            <span style="font-size:20px;flex-shrink:0;">${r.icon}</span>
+            <span>
+              <span class="gold" style="font-size:13px;font-weight:bold;">${r.n}</span>
+              ${bonus ? `<span class="dim" style="font-size:10px;margin-left:6px;">${bonus}</span>` : ''}
+              <br><span class="dim" style="font-size:11px;line-height:1.5;">${r.d}</span>
+            </span>
+          </div>`;
+        }).join('')
+      : '<span class="dim">None yet. Visit the shop.</span>';
   }
+  // Items — icon + name + description + use button
   const itemEl = document.getElementById('itemList');
   if(itemEl){
     const owned = CONSUMABLES.filter(c=>(S.items[c.id]||0)>0);
     itemEl.innerHTML = owned.length
-      ? owned.map(c=>`<div class="logItem" style="display:flex;align-items:flex-start;gap:8px;">${ico(c.icon,20,'#4fb3a3')}<span><span class="cyan">${c.n}</span> <span class="dim"> x${S.items[c.id]}</span><br>
-          <button class="btn cyan sm" style="width:auto;margin:6px 0 0;padding:6px 10px" onclick="useItem('${c.id}')">USE</button></span></div>`).join('')
-      : 'Empty. Buy something from the shop.';
+      ? owned.map(c=>`<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;">
+          <span style="font-size:20px;flex-shrink:0;">${c.icon}</span>
+          <span>
+            <span class="cyan" style="font-size:13px;font-weight:bold;">${c.n}</span>
+            <span class="dim" style="font-size:10px;margin-left:6px;">x${S.items[c.id]}</span>
+            <br><span class="dim" style="font-size:11px;line-height:1.5;">${c.d}</span>
+            <br><button class="btn cyan sm" style="width:auto;margin:6px 0 0;padding:6px 10px" onclick="useItem('${c.id}')">USE</button>
+          </span>
+        </div>`).join('')
+      : '<span class="dim">Empty. Buy something from the shop.</span>';
   }
 }
 
