@@ -18,72 +18,42 @@
   <!-- ============ BOOT ============ -->
   <section id="screen-boot">
     <div class="logo">AARHUS<br>SURVIVORS</div>
-    <div class="sub">A ROGUELIKE PUB CRAWL</div>
-    <div style="margin:18px auto;width:78px;"><canvas id="bootSprite" width="78" height="78"></canvas></div>
-    <div class="panel tight">
-
+    <div style="margin:22px auto;width:110px;">
+      <canvas id="bootSprite" width="110" height="136" style="display:block;"></canvas>
     </div>
-    <button class="btn primary blink" onclick="go('char')">▶ PRESS START</button>
-    <button class="btn ghost sm" onclick="openRules()">HOW TO PLAY</button>
-    <p class="small center" style="margin-top:14px">v1.2 · one file · no wifi needed<br>everyone plays their own run on their own phone</p>
+    <button class="btn bootstart" onclick="go('char')">PRESS START</button>
+    <button class="btn ghost" style="font-size:12px;padding:13px 10px;color:var(--ink);letter-spacing:1.5px;margin-top:18px;background:linear-gradient(180deg,#4a3318 0%,#2e1e0c 50%,#1a0e06 100%);box-shadow:0 7px 0 #080502,0 8px 0 #040200,inset 0 1px 0 rgba(255,200,120,.3),inset 0 2px 6px rgba(200,140,60,.12),inset 0 -2px 4px rgba(0,0,0,.5),inset 0 0 0 2px rgba(120,80,30,.3);" onclick="openRules()">HOW TO PLAY</button>
   </section>
 
   <!-- ============ CHARACTER SELECT ============ -->
   <section id="screen-char" class="hide">
-    <h1>CHOOSE YOUR<br>SURVIVOR</h1>
+    <h1 class="nowrap center" style="font-size:20px">CHOOSE YOUR SURVIVOR</h1>
     <div class="charGrid" id="charGrid"></div>
     <div class="panel tight" style="margin-top:10px">
-      <p class="small">ENTER YOUR NAME</p>
-      <input type="text" id="playerName" maxlength="10" placeholder="TYPE HERE" autocomplete="off">
+      <input type="text" id="playerName" maxlength="10" placeholder="YOUR NAME" autocomplete="off">
     </div>
-    <button class="btn gold" onclick="startRun()">▶ ENTER AARHUS</button>
-    <button class="btn ghost sm" onclick="go('boot')">◀ BACK</button>
+    <button class="btn gold big" onclick="startRun()"><span class="btnArrow">▶</span> ENTER AARHUS</button>
+    <button class="btn ghost big" onclick="go('boot')"><span class="btnArrow">◀</span> BACK</button>
   </section>
 
   <!-- ============ GAME ============ -->
   <section id="screen-game" class="hide">
     <div id="arenaWrap">
-      <canvas id="arena" width="360" height="150"></canvas>
-      <div id="arenaLabel">AARHUS · NIGHT 1</div>
-
+      <canvas id="arena" width="360" height="110"></canvas>
+      <div id="brewRateLabel">🍺 0.0/min</div>
     </div>
-    <div class="panel tight brewDash">
-      <div class="hudRow" style="margin-bottom:4px">
-        <span class="gold" id="brewTierName">THE SHACK</span>
-        <span class="dim" style="font-size:9px"><span id="brewLifetime">0</span> 🍺 brewed</span>
-      </div>
-      <div class="hudRow" style="margin-bottom:3px">
-        <span id="hudLevel" class="cyan" style="font-size:9px;letter-spacing:1px">LV 1</span>
-        <span id="xpTxt" class="dim" style="font-size:8px">0 / 17 XP</span>
-      </div>
-      <div class="bar xp" style="margin:0"><i id="xpFill"></i></div>
-    </div>
-
-    <div class="panel tight" style="margin-top:10px">
+    <div class="panel tight" style="margin-top:0;border-top:none;border-radius:0 0 8px 8px;">
       <div class="hudRow">
-        <span id="hudName" class="gold">—</span>
+        <span style="font-size:15px;color:var(--gold);letter-spacing:1px;"><span id="hudName">—</span> <span id="hudCharName" class="dim" style="font-size:12px;"></span></span>
+        <span id="hudLevel" style="font-size:15px;color:#4ab0e8;text-shadow:0 2px 0 #0a2a4a,0 0 10px rgba(74,176,232,.4);letter-spacing:1px;">LV 1</span>
       </div>
-      <p id="hudTitle" class="small dim" style="margin:0 0 6px;line-height:1.7"></p>
+      <div class="bar xp"><i id="xpFill"></i><span id="xpTxt">0 / 30 XP</span></div>
       <div class="statPills">
-        <div class="pill">🍺 <span id="stDrinks" class="gold">0</span></div>
-        <div class="pill">💀 <span id="stFails" class="red">0</span></div>
-        <div class="pill">🏆 <span id="stWins" class="green">0</span></div>
-        <div class="pill">🔁 <span id="stSkips" class="cyan">2</span></div>
-        <div class="pill">🪙 <span id="stCoins" class="gold">0</span></div>
+        <div class="pill">🪙 <span id="stCoins" class="gold">0</span> COINS</div>
+        <div class="pill">🍺 <span id="stBrewed" class="gold">0</span> BREWED</div>
       </div>
     </div>
 
-
-    <div id="slotWrap">
-      <div id="slotReels">
-        <div class="reel" id="reel0"><span class="reelIcon">🍺</span></div>
-        <div class="reel" id="reel1"><span class="reelIcon">🍺</span></div>
-        <div class="reel" id="reel2"><span class="reelIcon">🍺</span></div>
-      </div>
-      <div id="slotResultLabel">PULL THE LEVER</div>
-    </div>
-
-    <button class="btn primary" id="btnSpin" onclick="spinSlot()">🎰 PULL THE LEVER</button>
 
     <div id="challengeInline" class="hide" onclick="toggleChallengeExpand()">
       <div class="ci-header">
@@ -95,125 +65,225 @@
         <div id="ciButtons" class="ci-buttons" onclick="event.stopPropagation()"></div>
       </div>
     </div>
+    <div id="slotWrap">
+      <div id="slotReels">
+        <div class="reel" id="reel0"><span class="reelIcon">🍺</span></div>
+        <div class="reel" id="reel1"><span class="reelIcon">🍺</span></div>
+        <div class="reel" id="reel2"><span class="reelIcon">🍺</span></div>
+      </div>
+      <div id="slotResultLabel">PULL THE LEVER</div>
+    </div>
 
-    <button class="btn green sm" style="margin-top:8px" onclick="logBeer()">🍺 LOG A BEER</button>
-
-    <!-- ── TANK CHUG TIMER — phone-to-friend mechanic ── -->
-    <div id="tankChug" class="hide">
-      <div class="panel tight" style="margin-top:6px">
-        <div class="hudRow" style="margin-bottom:6px">
-          <span class="gold" style="font-size:9px;letter-spacing:2px">🛡 THE LONGHOUSE</span>
-          <span id="chugModeLbl" class="dim" style="font-size:8px">CHUG READY</span>
-        </div>
-
-        <!-- XP at stake row (pending challenge only) -->
-        <div id="chugXPRow" class="hide hudRow" style="margin-bottom:6px;justify-content:center;gap:8px">
-          <span class="dim" style="font-size:9px">XP AT STAKE:</span>
-          <span id="chugXPAmt" style="font-size:16px;color:#ffd24a;font-weight:bold">0</span>
-        </div>
-
-        <!-- Target time — big and prominent -->
-        <div style="text-align:center;margin:8px 0 2px">
-          <div class="dim" style="font-size:8px;letter-spacing:2px;margin-bottom:4px">CHUG YOUR BEER FOR</div>
-          <div id="chugTarget" style="font-size:52px;font-weight:900;letter-spacing:-2px;color:#ffd24a;line-height:1;text-shadow:0 0 24px rgba(255,210,74,.5)">5s</div>
-          <div id="chugToler" class="dim" style="font-size:7px;letter-spacing:1px;margin-top:6px">±0.5s PERFECT · ±1.2s CLEAN · ±2.2s OK</div>
-        </div>
+    <button class="btn primary" id="btnSpin" onclick="handleRoll()">🎰 PULL THE LEVER</button>
 
 
-        <!-- Result -->
-        <div id="chugResult" style="min-height:44px;text-align:center;margin:4px 0 8px"></div>
-
-        <!-- Actions -->
-        <div id="chugActions" style="display:flex;flex-direction:column;gap:6px">
-          <button id="chugBtn" class="btn primary" onclick="chugGo()">🍺 START CHUGGING</button>
-          <div id="chugSafeRow" class="hide" style="display:flex;align-items:center;gap:6px;margin-top:2px">
-            <div style="flex:1;height:1px;background:rgba(46,107,214,.2)"></div>
-            <span class="dim" style="font-size:8px;letter-spacing:1px">OR</span>
-            <div style="flex:1;height:1px;background:rgba(46,107,214,.2)"></div>
+    <div id="diceWrap" class="hide">
+      <div class="cw cw-machine">
+        <div class="cw-trim"></div>
+        <div class="cw-head">
+          <canvas class="cw-portrait" data-char="machine" width="60" height="70"></canvas>
+          <div class="cw-headtxt">
+            <div class="cw-title">⚔ THE KNIGHT'S TAP</div>
+            <div class="cw-rankrow"><span class="cw-rank" id="pintStatLbl">🍺 <b>0</b> POURS · ✓ <b>0</b> PERFECT</span></div>
+            <div class="cw-substat">HOLD THE TAP · LET GO IN THE GREEN BAND FOR ×1.5</div>
           </div>
-          <button id="chugSafeBtn" class="btn ghost hide" onclick="chugTakeSafe()" style="border:1px solid rgba(46,107,214,.4);color:#5a9aff;font-size:10px;letter-spacing:1px;padding:8px">🛡 TAKE SAFE XP</button>
         </div>
-
-        <!-- Attempts row -->
-        <div id="chugAttemptsRow" class="hudRow" style="justify-content:center;margin-top:8px">
-          <span class="dim" style="font-size:9px;letter-spacing:1px">CHUGS LEFT: </span>
-          <span id="chugLeft" style="font-size:11px;color:#ffd24a;font-weight:bold;margin-left:4px">2</span>
+        <div class="cw-stage kt-stage">
+          <canvas id="pintCanvas" width="340" height="170"></canvas>
         </div>
-
-        <!-- Rank progress stats -->
-        <div id="chugRankStats" style="text-align:center;font-size:8px;color:#a06830;letter-spacing:1px;margin-top:8px">⚡ 0 perfects · 🔥 0 rage activations</div>
-
-        <!-- Rage meter -->
-        <div style="margin-top:10px">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
-            <span style="font-size:7px;letter-spacing:2px;color:#d4841a;font-weight:bold">🔥 BERSERKER RAGE</span>
-            <span id="chugRagePct" style="font-size:8px;color:#d4841a;font-weight:bold">0%</span>
-          </div>
-          <div style="background:rgba(100,30,10,.7);border-radius:5px;height:18px;overflow:hidden;border:1px solid rgba(220,80,30,.5)">
-            <div id="chugRageFill" style="height:100%;width:0%;background:linear-gradient(90deg,#8a1008,#d03520,#ff6030);border-radius:5px;transition:width 0.4s ease;box-shadow:inset 0 1px 0 rgba(255,150,100,.25)"></div>
-          </div>
-          <div style="font-size:7px;color:#a06020;letter-spacing:1px;margin-top:2px;text-align:right">FULL = 3× XP BONUS ON NEXT CHALLENGE</div>
-        </div>
-        <!-- War wounds badge -->
-        <div id="chugBloodied" style="display:none;margin-top:6px;padding:6px 10px;background:rgba(150,10,10,.55);border:1px solid rgba(220,40,30,.7);border-radius:4px;text-align:center;box-shadow:0 0 10px rgba(200,20,10,.4)">
-          <span style="font-size:10px;color:#ff5555;font-weight:bold;letter-spacing:1px">🩸 WAR WOUNDS — -30% XP</span>
-          <div style="font-size:7px;color:#c06060;margin-top:2px;letter-spacing:1px">NAIL A PERFECT CHUG TO RECOVER</div>
-        </div>
-        <div id="chugUpgrades" style="display:flex;gap:4px;margin-top:8px;justify-content:center;flex-wrap:wrap"></div>
+        <div id="pintResultLabel" class="kt-label"></div>
+        <button id="tapBtn" class="kt-tap"
+          onmousedown="startFill()" ontouchstart="startFill(event)"
+          onmouseup="stopFill()" ontouchend="stopFill(event)"
+          onmouseleave="stopFill()">🍺<br>HOLD<br>THE TAP</button>
       </div>
     </div>
 
-    <!-- ── GAMBLER DEN — permanent gambling widget, gambler only ── -->
-    <div id="gamblerDen" class="hide">
-      <div class="panel tight" style="margin-top:6px">
-        <div class="hudRow" style="margin-bottom:4px">
-          <span class="gold" style="font-size:9px;letter-spacing:2px">⚔ THE DEN</span>
-          <span id="denModeLbl" class="dim" style="font-size:8px">COIN GAMBLE</span>
-        </div>
-        <div style="position:relative;text-align:center;margin:4px 0 2px">
-          <div style="position:absolute;top:-6px;left:50%;transform:translateX(-50%);
-               width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;
-               border-top:14px solid #c8980a;z-index:5;filter:drop-shadow(0 0 3px rgba(200,152,10,.5))"></div>
-          <canvas id="denCanvas" width="180" height="180" style="border-radius:50%;display:block;margin:0 auto"></canvas>
-        </div>
-        <div id="denResult" style="min-height:22px;font-size:14px;font-weight:bold;letter-spacing:1px;text-align:center;margin:4px 0"></div>
-        <!-- XP stake row (shown when challenge just completed) -->
-        <div id="denXPRow" class="hide hudRow" style="margin-bottom:6px;justify-content:center;gap:8px">
-          <span class="dim" style="font-size:9px">XP AT STAKE:</span>
-          <span id="denXPAmt" style="font-size:16px;color:#d4a820;font-weight:bold">0</span>
-        </div>
-        <!-- Coin bet row (shown in idle mode) -->
-        <div id="denCoinRow" class="hudRow" style="justify-content:center;gap:8px;margin-bottom:6px">
-          <button class="btn ghost sm" onclick="denAdjustBet(-5)" style="padding:2px 8px;font-size:12px">−</button>
-          <span style="font-size:12px;color:#d4a820"><span id="denBetAmt">10</span> 🪙</span>
-          <button class="btn ghost sm" onclick="denAdjustBet(5)" style="padding:2px 8px;font-size:12px">+</button>
-        </div>
-        <div id="denActions" style="display:flex;flex-direction:column;gap:6px">
-          <button id="denSpinBtn" class="btn primary" onclick="denSpin()">🎲 SPIN THE WHEEL</button>
-          <div id="denSafeRow" class="hide" style="display:flex;align-items:center;gap:6px;margin-top:2px">
-            <div style="flex:1;height:1px;background:rgba(200,152,10,.2)"></div>
-            <span class="dim" style="font-size:8px;letter-spacing:1px">OR</span>
-            <div style="flex:1;height:1px;background:rgba(200,152,10,.2)"></div>
+
+    <button class="btn green sm" style="margin-top:8px" onclick="logBeer()">🍺 LOG A BEER</button>
+
+    <!-- ── TANK · THE LONGHOUSE — chug-timer widget (ids are driven by refreshChug) ── -->
+    <div id="tankChug" class="hide">
+      <div class="cw cw-tank">
+        <div class="cw-trim"></div>
+        <div class="cw-head">
+          <canvas class="cw-portrait" data-char="tank" width="60" height="70"></canvas>
+          <div class="cw-headtxt">
+            <div class="cw-title">🛡 THE LONGHOUSE</div>
+            <div class="cw-rankrow">
+              <span class="cw-rank" id="chugRankLbl">RANK · <b>THE DRUNKARD</b></span>
+              <span class="cw-tag" id="chugModeLbl">CHUG READY</span>
+            </div>
+            <div class="cw-meter-lbl"><span>🔥 BERSERKER RAGE</span><span id="chugRagePct">0%</span></div>
+            <div class="cw-meter lh-rage"><i id="chugRageFill" style="width:0%"></i></div>
+            <div class="cw-meter-lbl" style="color:#e8c070"><span>📜 SAGA <span class="lh-stones" id="sagaStones"></span></span><span id="sagaNum">0 / 3</span></div>
+            <div class="cw-meter lh-saga"><i id="sagaFill" style="width:0%"></i></div>
+            <div class="cw-substat" id="sagaPerk">NEXT PERK</div>
+            <div class="cw-substat" id="chugRankStats">⚡ 0 perfects · 🔥 0 rage activations</div>
           </div>
-          <button id="denSafeBtn" class="btn ghost hide" onclick="denTakeSafe()" style="border:1px solid rgba(200,152,10,.4);color:#c8980a;font-size:10px;letter-spacing:1px;padding:8px">🛡 TAKE SAFE XP</button>
         </div>
-        <div id="denGames" style="display:flex;gap:4px;margin-top:8px;justify-content:center;flex-wrap:wrap"></div>
+        <div id="chugBloodied" class="lh-wounds" style="display:none">🩸 WAR WOUNDS — -30% XP<small>NAIL A PERFECT CHUG TO RECOVER</small></div>
+        <div class="cw-stage lh-stage">
+          <div class="lh-hint">CHUG YOUR BEER FOR</div>
+          <div class="lh-shield"><div id="chugTarget" class="lh-target">5s</div></div>
+          <div id="chugToler" class="lh-toler">±0.5s PERFECT · ±1.2s OK</div>
+        </div>
+        <div id="chugResult" class="lh-result"></div>
+        <div id="chugXPRow" class="hide cw-stake">XP AT STAKE<b id="chugXPAmt">0</b></div>
+        <div id="chugActions" class="cw-actions">
+          <button id="chugBtn" class="btn primary" onclick="chugGo()">🍺 START CHUGGING</button>
+          <div id="chugSafeRow" class="cw-or" style="display:none"><span>OR</span></div>
+          <button id="chugSafeBtn" class="btn ghost sm hide" onclick="chugTakeSafe()">🛡 TAKE SAFE XP</button>
+        </div>
+        <div id="chugAttemptsRow" class="cw-tagrow">
+          <span class="cw-tag">🍺 CHUGS LEFT · <b id="chugLeft">1</b></span>
+          <span class="cw-tag">FULL RAGE = <b>3× XP</b> NEXT CHALLENGE</span>
+        </div>
+        <div class="cw-sect">⚔ THE CHUG-OFF</div>
+        <div id="duelBox" class="lh-duel"></div>
+        <div class="cw-sect">CHUG MODES</div>
+        <div id="chugUpgrades" class="lh-modes"></div>
+      </div>
+    </div>
+
+    <!-- ── GAMBLER · THE DEN — ids are driven by refreshDen / denSpin / bjRender ── -->
+    <div id="gamblerDen" class="hide">
+      <div class="cw cw-gambler">
+        <div class="cw-trim den-rail">♠ <i>♥</i> ♣ <i>♦</i> ♠ <i>♥</i> ♣ <i>♦</i> ♠ <i>♥</i> ♣ <i>♦</i> ♠ <i>♥</i> ♣ <i>♦</i> ♠ <i>♥</i> ♣ <i>♦</i> ♠ <i>♥</i> ♣ <i>♦</i></div>
+        <div class="cw-head">
+          <canvas class="cw-portrait" data-char="gambler" width="60" height="70"></canvas>
+          <div class="cw-headtxt">
+            <div class="cw-title">♠ THE DEN</div>
+            <div class="cw-rankrow">
+              <span class="cw-rank" id="denStatLbl">🎲 <b>0</b> GAMBLES WON</span>
+              <span class="cw-tag" id="denModeLbl">COIN GAMBLE</span>
+            </div>
+            <div class="cw-meter-lbl"><span>🎡 SPINS THIS ROUND</span><span class="cw-pips" id="denSpinPips"></span></div>
+          </div>
+        </div>
+        <div class="gb-ledger" id="gbLedger">
+          <div class="gb-ledger-lbl"><span>📜 HIGH ROLLER'S LEDGER</span><span id="gbLedgerNum">0 / 40 → RARE</span></div>
+          <div class="gb-bar"><i id="gbLedgerFill"></i></div>
+          <div class="gb-tiers" id="gbTiers"></div>
+          <button class="btn gold sm hide" id="gbClaimBtn" onclick="gbOfferReward()">🎁 CLAIM YOUR ARTIFACT</button>
+        </div>
+        <div id="denGames" class="den-tabs"></div>
+        <div class="cw-stage den-felt">
+          <div class="den-wheelwrap">
+            <div class="den-pointer"></div>
+            <canvas id="denCanvas" width="180" height="180"></canvas>
+          </div>
+          <div id="bjTable" style="display:none"></div>
+        </div>
+        <div id="denResult" class="den-result"></div>
+        <div id="denXPRow" class="hide cw-stake">XP AT STAKE<b id="denXPAmt">0</b></div>
+        <div id="denCoinRow" class="den-bet">
+          <button class="den-chipbtn" onclick="denAdjustBet(-5)">−</button>
+          <span class="den-chip"><b id="denBetAmt">10</b><small>🪙 BET</small></span>
+          <button class="den-chipbtn" onclick="denAdjustBet(5)">+</button>
+        </div>
+        <div id="denActions" class="cw-actions">
+          <button id="denSpinBtn" class="btn primary" onclick="denSpin()">🎲 SPIN THE WHEEL</button>
+          <div id="denSafeRow" class="cw-or" style="display:none"><span>OR</span></div>
+          <button id="denSafeBtn" class="btn ghost sm hide" onclick="denTakeSafe()">🛡 TAKE SAFE XP</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── THE DECK OF MANY FOOLS — jester widget ── -->
+    <div id="jesterDeck" class="hide">
+      <div class="jk-panel" id="jkPanel">
+        <div class="jk-bunting"></div>
+        <div class="jk-head">
+          <canvas id="jkPortrait" class="jk-portrait" width="60" height="70"></canvas>
+          <div class="jk-headtxt">
+            <div class="jk-title">⚜ THE DECK OF MANY FOOLS</div>
+            <div class="jk-rankrow">
+              <span class="jk-rank" id="jkRank">RANK · <b>THE FOOL</b></span>
+              <button class="jk-info" onclick="jkOpenCodex()">📜 DECK</button>
+            </div>
+            <div class="jk-mirth-lbl"><span>🔔 MIRTH</span><span id="jkMirthPct">0%</span></div>
+            <div class="jk-mirth" id="jkMirthBar"><i id="jkMirthFill" style="width:0%"></i></div>
+            <div class="jk-tricks"><span class="lbl">🎭 TRICKS</span><span id="jkTrickPips"></span></div>
+          </div>
+        </div>
+        <div id="jkArea"></div>
+      </div>
+    </div>
+
+    <!-- ── BREW-ZARD · THE CAULDRON — body rendered by wizRender ── -->
+    <div id="wizardCauldron" class="hide">
+      <div class="cw cw-wizard" id="wizPanel">
+        <div class="cw-trim"></div>
+        <div class="cw-head">
+          <canvas class="cw-portrait" data-char="wizard" width="60" height="70"></canvas>
+          <div class="cw-headtxt">
+            <div class="cw-title" id="wizTitle">🧪 THE CAULDRON</div>
+            <div class="cw-rankrow">
+              <span class="cw-rank" id="wizStatLbl">⚗ <b>0</b> BREWS · ✨ <b>0</b> ELIXIRS</span>
+              <span class="cw-tag" id="wizModeLbl">WIN A TILE TO BREW</span>
+            </div>
+            <div class="cw-meter-lbl" style="color:#b890ff"><span>🌀 ARCANE SURGE</span><span id="wzSurgeNum">0%</span></div>
+            <div class="cw-meter wz-surge" id="wzSurgeBar"><i id="wzSurgeFill" style="width:0%"></i></div>
+            <div class="cw-substat">FULL SURGE = YOUR NEXT WIN POLYMORPHS YOU</div>
+          </div>
+        </div>
+        <div id="wizArea"></div>
       </div>
     </div>
   </section>
 
   <!-- ============ SAVE / BACKUP ============ -->
   <section id="screen-squad" class="hide">
-    <h1>MY SAVE</h1>
+    <h1>HOW TO PLAY</h1>
+
+    <div class="panel">
+      <h2>🎰 THE BASICS</h2>
+      <p class="small">Pull the lever to spin the reels. Every spin lands you on a <b class="gold">challenge tile</b> — a dare, a social task, a drink, or a gamble. Complete it to earn <b class="gold">XP and coins</b>. Keep crawling, level up, and grow your brewery.</p>
+    </div>
+
+    <div class="panel">
+      <h2>🪙 HOW YOU MAKE MONEY</h2>
+      <p class="small">Two streams: <b class="gold">coins from completed tiles</b> (paid out win or lose) and <b class="gold">the brewery</b>, which drips beer coins passively every minute. Level up and buy relics to increase your brew rate — the animated brewery at the top shows your current output.</p>
+    </div>
+
+    <div id="guideCharSection"></div>
+
+    <div class="panel">
+      <h2>💎 RELICS &amp; ITEMS</h2>
+      <p class="small"><b class="gold">Relics</b> are permanent buffs from the shop — they last the whole crawl and boost brewery rate. <b class="cyan">Items</b> are one-use consumables — tap USE in the bag when ready. Some are hidden until you trigger them naturally.</p>
+    </div>
+
+    <div class="panel">
+      <h2>🔁 REROLLS</h2>
+      <p class="small">Not happy with a tile? Spend a reroll to skip it and spin again. Your reroll count is in the BAG tab.</p>
+    </div>
+
+    <div class="panel">
+      <h2>🏆 BOSS TILES</h2>
+      <p class="small">High-stakes challenges with big XP. Lose one and it marks you for <b class="red">revenge</b> — beat it later for +50% XP. Winning a boss also opens the shop.</p>
+    </div>
+
+    <div class="panel">
+      <h2>💾 YOUR PROGRESS</h2>
+      <p class="small">Saves automatically every action. To back up your run against browser storage wipes, copy the code below.</p>
+      <button class="btn ghost sm" onclick="go('backup')" style="margin-top:4px">📋 BACKUP / RESTORE</button>
+    </div>
+
+  </section>
+
+  <!-- ============ SAVE / BACKUP ============ -->
+  <section id="screen-backup" class="hide">
+    <h1>BACKUP</h1>
     <div class="panel">
       <h2>💾 BACKUP MY RUN</h2>
-      <p class="small">This saves automatically on this phone, but browsers (especially iPhone) can wipe that if the file gets re-saved or re-opened. Copy this backup code somewhere safe — Notes, a message to yourself — so you can restore your <b class="gold">exact</b> run (level, XP, log, achievements, everything) if that happens.</p>
+      <p class="small">Copy this code somewhere safe — Notes, a message to yourself — so you can restore your exact run if storage gets wiped.</p>
       <textarea id="myBackup" readonly></textarea>
       <button class="btn green sm" onclick="copyBackup()">📋 COPY BACKUP CODE</button>
     </div>
     <div class="panel">
       <h2>♻ RESTORE FROM BACKUP</h2>
-      <p class="small">Paste a backup code you saved earlier to restore that exact run on this phone. <b class="red">This overwrites your current run.</b></p>
+      <p class="small">Paste a backup code to restore that run. <b class="red">This overwrites your current run.</b></p>
       <textarea id="restoreCode" placeholder="PASTE YOUR BACKUP CODE"></textarea>
       <button class="btn red sm" onclick="restoreBackup()">⬆ RESTORE</button>
     </div>
@@ -242,13 +312,14 @@
   <section id="screen-bag" class="hide">
     <h1>MY BAG</h1>
     <div class="panel tight center">
-      <p class="small" style="font-size:14px;margin:0">🪙 <span id="bagCoins" class="gold">0</span> SKÅL COINS</p>
+      <p class="small" style="font-size:14px;margin:0">🪙 <span id="bagCoins" class="gold">0</span> SKÅL COINS &nbsp;·&nbsp; 🔁 <span id="bagSkips" class="cyan">0</span> REROLLS LEFT</p>
     </div>
     <div class="panel">
       <h2>🍺 BREWERY UPGRADES</h2>
       <p class="small dim">Chosen at every level-up — each one permanently boosts production and changes how your brewery looks.</p>
       <div id="bagUpgradeList" class="small dim">None yet. Level up to pick your first one.</div>
     </div>
+    <div class="panel hide" id="bagJesterKit"></div>
     <div class="panel">
       <h2>💎 RELICS</h2>
       <p class="small dim">Personal buffs for the crawl that also permanently boost your brewery's beer output.</p>
@@ -257,11 +328,6 @@
     <div class="panel">
       <h2>🎒 ITEMS</h2>
       <div id="itemList" class="small dim">Empty.</div>
-    </div>
-    <div class="panel">
-      <h2>🎁 SOUVENIRS</h2>
-      <div id="souvenirGrid" class="grid3"></div>
-      <p class="small dim" id="souvenirProgress" style="margin-top:8px"></p>
     </div>
     <div class="panel">
       <h2>🤫 SECRET MISSION</h2>
@@ -282,7 +348,7 @@
   <button id="navGame" class="on" onclick="go('game')">GAME</button>
   <button id="navBag" onclick="go('bag')">BAG</button>
   <button id="navShop" onclick="go('shop')">SHOP</button>
-  <button id="navSquad" onclick="go('squad')">SAVE</button>
+  <button id="navSquad" onclick="go('squad')">INFO</button>
   <button id="navLog" onclick="go('log')">LOG</button>
 </div>
 
