@@ -1931,6 +1931,15 @@ body[data-char="gambler"]{--dim:#b8956a;--cyan:#e0605a}
 .bty-chip.on{background:linear-gradient(180deg,#ffd24a,#c88a10);border-color:#ffe8a0;color:#2a1a00}
 .gate-off{display:none !important}
 .tut-note{margin:10px 0 4px;padding:9px 11px;border:2px solid rgba(79,179,163,.6);background:rgba(20,60,55,.35);font-size:12px;line-height:1.5;color:#d8f2ec;font-weight:normal;text-align:left}
+.tut-pips{display:inline-flex;gap:4px;margin-left:8px;vertical-align:middle}
+.tut-pips i{width:14px;height:6px;background:rgba(255,255,255,.15);border:1px solid rgba(0,0,0,.4)}
+.tut-pips i.on{background:var(--cyan)}
+.tut-pips i.cur{box-shadow:0 0 6px var(--cyan)}
+.spot-pips{margin:8px 0 0}
+.spot-pips .tut-pips{margin:0}
+.spot-pips .tut-pips i.on{background:var(--gold)}
+.spot-pips .tut-pips i.cur{box-shadow:0 0 8px var(--gold)}
+.spot-pips .tut-pips i{width:22px;height:7px}
 .tut-note b{display:block;font-size:10px;letter-spacing:1.6px;color:var(--cyan);margin-bottom:3px}
 .lock-row{margin:12px 0 4px;padding:8px 8px 10px;border:2px dashed rgba(232,163,61,.35);background:rgba(0,0,0,.28)}
 .lr-h{font-size:10px;letter-spacing:2px;color:var(--gold);text-align:center;margin-bottom:8px}
@@ -2054,7 +2063,7 @@ html.spot-lock{overflow:hidden;overscroll-behavior:none} /* only the viewport: c
     <div class="panel tight" style="margin-top:10px">
       <input type="text" id="playerName" maxlength="10" placeholder="YOUR NAME" autocomplete="off" oninput="sqRefreshCode()">
     </div>
-    <div class="panel tight sq-panel">
+    <div class="panel tight sq-panel" id="sqPanel" style="display:none">
       <div class="sq-h">👥 THE SQUAD <span>optional · type the same names in the same seat order on every phone</span></div>
       <div class="sq-grid">
         <input type="text" id="sq0" maxlength="10" placeholder="SEAT 1" autocomplete="off" oninput="sqRefreshCode()">
@@ -2064,7 +2073,6 @@ html.spot-lock{overflow:hidden;overscroll-behavior:none} /* only the viewport: c
       </div>
       <div class="sq-code" id="sqCode">Seats go clockwise round the table. Your own name goes in your seat.</div>
     </div>
-    <label class="panel tight vet-toggle"><input type="checkbox" id="vetMode" onchange="try{localStorage.setItem('pc_veteran', this.checked ? '1' : '0')}catch(e){}"><span><b>🍻 VETERAN MODE</b>Everything unlocked from the first pull. For crawlers who already know the game: new players start simple and unlock the rest as they level up.</span></label>
     <button class="btn gold big" onclick="startRun()"><span class="btnArrow">▶</span> START</button>
     <button class="btn ghost big" onclick="go('boot')"><span class="btnArrow">◀</span> BACK</button>
   </section>
@@ -2332,7 +2340,7 @@ html.spot-lock{overflow:hidden;overscroll-behavior:none} /* only the viewport: c
       <p class="small">Not happy with a tile? Spend a reroll to skip it and spin again. Your reroll count is in the BAG tab.</p>
     </div>
 
-    <div class="panel">
+    <div class="panel" style="display:none"><!-- locked with GROUP_BOUNTY -->
       <h2>🎯 BOUNTIES &amp; UNDERDOGS</h2>
       <p class="small">From the third bar, every <b class="gold">NEW BAR</b> starts with phones up. The highest level gets a <b class="red">price on their head</b>: challenge them head-to-head (a duel tile, a Chug-Off, or best-of-3 rock paper scissors). You get one shot per bar: win and tap <b>I WON</b> for a chunk of XP; lose and tap <b>I LOST</b>, pay 20 coins and take a forfeit. Every hunter the bounty beats pays them coins and grows their prize. If nobody gets them before the next bar, the bounty pockets XP and coins, and the price grows if they're still on top. The lowest level becomes the <b class="green">Underdog</b>: +30% XP on every tile they win that bar, plus a free reroll.</p>
     </div>
@@ -3111,7 +3119,9 @@ function migrate(p){
   if(p.currentTile != null && !okTile(p.currentTile)){ p.currentTile = null; p.resolved = true; }
   if(p.bounty != null && !isObj(p.bounty)) p.bounty = null;
   // saves from before the Crawler's Path belong to people who already know the whole game
-  if(!Array.isArray(p.unlocksSeen)){ p.veteran = true; p.unlocksSeen = UNLOCKS.map(u => u.id); }
+  // older saves: count what their level/bar already reached as seen (no spotlight flood); no more veteran mode
+  if(!Array.isArray(p.unlocksSeen)) p.unlocksSeen = UNLOCKS.filter(u => u.bar ? (p.bar||1) >= u.bar : (p.level||1) >= u.lv).map(u => u.id);
+  p.veteran = false;
   if(p.underdog != null && !isObj(p.underdog)) p.underdog = null;
   ['_pendingWin','_tankPendingWin','_jesterPendingWin','_wizPendingWin'].forEach(k=>{
     if(p[k] != null && !(isObj(p[k]) && okTile(p[k].t) && typeof p[k].xpAmount === 'number')) p[k] = null;
@@ -3691,10 +3701,14 @@ function pickTileOfType(type, avoidId){
 const TUTORIAL_TILE = { n:'FINISH YOUR BEER!', t:T.BEER, icon:'🍺', venue:'', xp:20, tutorial:true, win:'your glass is empty',
   body:'Your first tile. Every pull lands on one: a dare, a game, a drink, a gamble. This one is easy: finish the drink in your hand, then tap DONE.' };
 function tutorialActive(){ return !!(S && !unlockAll() && !S.tutorialDone && (S.pulls||0) === 0); }
+const TUT_TOTAL = 5; // 1 pull the lever · 2 finish your beer · 3 level up & open the chest · 4 the goal · 5 your first upgrade
+function tutPips(n){ return `<span class="tut-pips">${Array.from({length:TUT_TOTAL}, (_, i) => `<i class="${i < n ? 'on' : ''}${i === n-1 ? ' cur' : ''}"></i>`).join('')}</span>`; }
+function tutStepLbl(n){ return n > TUT_TOTAL ? '📖 TUTORIAL COMPLETE' : `📖 TUTORIAL · STEP ${n} OF ${TUT_TOTAL}`; }
+function tutNoteHTML(n, text){ return `<div class="tut-note"><b>${tutStepLbl(n)}${tutPips(Math.min(n, TUT_TOTAL))}</b>${text}</div>`; }
 function tutorialNote(step){
   return step === 1
-    ? `<div class="tut-note"><b>📖 TUTORIAL · 1 OF 2</b>The reels picked a tile for you. Normally you can spend a reroll on a tile you don't fancy, but not this one. Tap ACCEPT.</div>`
-    : `<div class="tut-note"><b>📖 TUTORIAL · 2 OF 2</b>Do it for real, then tap DONE. Winning a tile pays XP, and this one pays enough to level you up.</div>`;
+    ? tutNoteHTML(1, "The reels picked a tile for you. Normally you can spend a reroll on a tile you don't fancy, but not this one. Tap ACCEPT.")
+    : tutNoteHTML(2, 'Do it for real, then tap DONE. Winning a tile pays XP, and this one pays enough to level you up.');
 }
 function spinOutcome(){
   if(tutorialActive()) return Object.assign({}, TUTORIAL_TILE);
@@ -3846,6 +3860,7 @@ function offerBreweryUpgrade(){
     tag: n > 1 ? '🍺 BREWERY LOOT · '+n+' CHESTS' : '🍺 BREWERY LOOT',
     title: n > 1 ? `${n} CHESTS — OPEN ALL` : `LEVEL ${S.level} — A CHEST APPEARS`,
     body: n > 1 ? `You climbed ${n} levels in one go. One tap cracks every chest.` : 'Open it to find out what your brewery gets this time.',
+    extra: S.tutStep ? tutNoteHTML(3, 'Every level-up gives you a chest with an upgrade for your brewery. Tap the chest to open it.') : '',
     raw:`${n > 1 ? `<div class="chestCount">×${n}</div>` : ''}<button class="chestBtn" onclick="openBreweryChest()" aria-label="${n > 1 ? 'Open all '+n+' chests' : 'Open chest'}">
            <svg viewBox="0 0 40 34" xmlns="http://www.w3.org/2000/svg">
              <path d="M4 15 Q4 4 20 4 Q36 4 36 15 L36 16 L4 16 Z" fill="#8a5a2b" stroke="#170f08" stroke-width="1.6"/>
@@ -5719,7 +5734,7 @@ function go(screen){
   // the title and character screens always keep the tavern brick; entering the run turns the class theme on
   if(screen==='boot' || screen==='char') document.body.setAttribute('data-char','');
   else if(S && S.charId) document.body.setAttribute('data-char', S.charId);
-  if(screen==='char') setTimeout(() => { sqPrefill(); const v = document.getElementById('vetMode'); if(v){ try{ v.checked = localStorage.getItem('pc_veteran') === '1'; }catch(e){} } }, 0); // last night's squad comes back pre-typed
+  if(screen==='char') setTimeout(() => { const sp = document.getElementById('sqPanel'); if(sp) sp.style.display = GROUP_SQUAD ? '' : 'none'; sqPrefill(); }, 0); // last night's squad comes back pre-typed
   ['boot','char','game','squad','backup','log','bag','shop'].forEach(s=>{
     const _sc=document.getElementById('screen-'+s); if(_sc) _sc.classList.toggle('hide', s!==screen);
   });
@@ -5748,7 +5763,10 @@ function go(screen){
 function sqHash(str){ let h = 2166136261; for(let i=0;i<str.length;i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
 function sqRng(seed){ return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 function sqShuffle(n, seed){ const r = sqRng(seed), a = Array.from({length:n}, (_,i)=>i); for(let i=n-1;i>0;i--){ const j = Math.floor(r()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; } return a; }
-function sqReadInputs(){ return [0,1,2,3].map(i => ((document.getElementById('sq'+i)||{}).value||'').trim().toUpperCase()).filter(Boolean); }
+/* GROUP FEATURES ARE LOCKED FOR NOW (focus on the solo game): the squad roster on the start screen and the
+   bounty/underdog nemesis system. Flip these to true to bring them back. */
+const GROUP_SQUAD = !!window.PC_GROUP_ON, GROUP_BOUNTY = !!window.PC_GROUP_ON; // PC_GROUP_ON: only the group-feature tests set it
+function sqReadInputs(){ if(!GROUP_SQUAD) return []; return [0,1,2,3].map(i => ((document.getElementById('sq'+i)||{}).value||'').trim().toUpperCase()).filter(Boolean); }
 function sqCodeFor(names){ return sqHash(names.join('|')).toString(36).toUpperCase().slice(-4).padStart(4,'0'); }
 function sqRefreshCode(){
   const el = document.getElementById('sqCode'); if(!el) return;
@@ -5765,7 +5783,7 @@ function sqPrefill(){
   saved.slice(0,4).forEach((n,i) => { const el = document.getElementById('sq'+i); if(el && !el.value) el.value = n; });
   sqRefreshCode();
 }
-function sqOn(){ return !!(S && S.squad && S.squad.names && S.squad.names.length >= 2); }
+function sqOn(){ return GROUP_SQUAD && !!(S && S.squad && S.squad.names && S.squad.names.length >= 2); }
 function sqOthers(){ return sqOn() ? S.squad.names.filter((_,i)=>i!==S.squad.seat) : []; }
 function sqName(key){
   if(!sqOn()) return ({ LEFT:'the person to your left', RIGHT:'the person to your right', RANDOM:'a squadmate', NEXT:'the next player' })[key] || '';
@@ -5822,7 +5840,7 @@ function startRun(){
   }
   S = freshState();
   S.name = nm; S.charId = selChar; S.startTime = Date.now();
-  { const v = document.getElementById('vetMode'); S.veteran = !!(v && v.checked); S.unlocksSeen = []; }
+  S.veteran = false; S.unlocksSeen = []; // everyone walks the Crawler's Path: features unlock with XP
   S.lastProdTs = Date.now();
   if(squad.length >= 2){
     S.squad = { names: squad, seat: squad.indexOf(nm), code: sqCodeFor(squad), seed: sqHash(squad.join('|')) };
@@ -5836,7 +5854,7 @@ function startRun(){
   addLog(`${nm} hit the town as ${CHARS.find(c=>c.id===selChar).name}`);
   save(); syncHUD(); go('game');
   if(unlockAll()) toast('⚡ THE GODS OF THE NIGHT AWAIT. GO.'); // new crawlers get the tutorial spotlight instead
-  if(!unlockAll()){ _unlockQueue.push({ id:'intro', intro:true, spot:'#btnSpin, #tapBtn', icon:'🎰', n:'YOUR FIRST PULL', d:(S.charId==='machine' ? 'Hold the tap and let go to pour your first tile.' : 'Pull the lever for your first tile.') + ' It is an easy one, and finishing it levels you up. After that, everything else unlocks as you level: the line under your XP bar shows what is next.' }); setTimeout(pumpUnlockPopup, 900); }
+  if(!unlockAll()){ _unlockQueue.push({ id:'intro', intro:true, tutN:1, spot:'#btnSpin, #tapBtn', icon:'🎰', n:'YOUR FIRST PULL', d:(S.charId==='machine' ? 'Hold the tap and let go to pour your first tile.' : 'Pull the lever for your first tile.') + ' It is an easy one, and finishing it levels you up. After that, everything else unlocks as you level: the line under your XP bar shows what is next.' }); setTimeout(pumpUnlockPopup, 900); }
 }
 
 /* ---------- HUD ---------- */
@@ -5918,11 +5936,11 @@ const UNLOCKS = [
 ];
 const UNLOCK_BY_ID = {}; UNLOCKS.forEach(u => { UNLOCK_BY_ID[u.id] = u; });
 const ITEM_GATES = { hornofrage:'tank_rage', polyscroll:'wz_shift', sparemask:'jk_tricks', housecredit:'gb_coin' };
-function unlockAll(){ return !!(window.PC_UNLOCK_ALL || (S && S.veteran)); }
+function unlockAll(){ return !!window.PC_UNLOCK_ALL; } // test harness only: every crawler unlocks with XP
 function unlockReached(u){ if(!S) return false; return u.bar ? (S.bar||1) >= u.bar : (S.level||1) >= u.lv; }
 function unlocked(id){ if(unlockAll()) return true; const u = UNLOCK_BY_ID[id]; return !u || unlockReached(u); }
 function itemGateOK(r){ return !r || !ITEM_GATES[r.id] || unlocked(ITEM_GATES[r.id]); }
-function myUnlocks(){ return UNLOCKS.filter(u => !u.cls || (S && u.cls === S.charId)); }
+function myUnlocks(){ return UNLOCKS.filter(u => (!u.cls || (S && u.cls === S.charId)) && (u.id !== 'bounty' || GROUP_BOUNTY)); }
 function unlockWhen(u){ return u.bar ? 'BAR ' + u.bar : 'LEVEL ' + u.lv; }
 function nextUnlock(){
   if(!S || unlockAll()) return null;
@@ -5968,13 +5986,13 @@ function pumpUnlockPopup(){
    then a guided first purchase (How To Train Your Flagon, +0.5 beer/min) and the proof that the brewery grew.
    S.tutStep survives a reload: goal → shop → buy → proof → done. "Skip the tutorial" ends it any time. ══ */
 const TUT_STEPS = {
-  goal:  { icon:'🍺', stepLbl:'THE GOAL', n:'BREW THE MOST BEER', spot:'#arenaWrap', screen:'game', okLbl:'HOW DO I GROW IT? ▶',
+  goal:  { icon:'🍺', tutN:4, n:'BREW THE MOST BEER', spot:'#arenaWrap', screen:'game', okLbl:'HOW DO I GROW IT? ▶',
            d:'This is your brewery. It brews beer every minute, even with your phone in your pocket. The point of the night: brew the most beer by closing time. Three things grow it: LEVEL UP (the brewery itself grows), buy RELICS in the shop (each adds beer per minute, for good), and open the CHEST you get at every level-up.' },
-  shop:  { icon:'🛒', stepLbl:'YOUR FIRST UPGRADE', n:'TAP THE SHOP', spot:'#navShop', click:'#navShop', action:true, hint:'TAP SHOP',
+  shop:  { icon:'🛒', tutN:5, n:'TAP THE SHOP', spot:'#navShop', click:'#navShop', action:true, hint:'TAP SHOP',
            d:'Let us spend your coins on the brewery. Coins come from finishing tiles; relics turn them into beer.' },
-  buy:   { icon:'🛢', stepLbl:'YOUR FIRST UPGRADE', n:'BUY HOW TO TRAIN YOUR FLAGON', spot:'.shop-item[data-item="firstkeg"]', click:'.shop-item[data-item="firstkeg"] .si-buy', screen:'shop', action:true, hint:'TAP ITS PRICE TO BUY IT',
+  buy:   { icon:'🛢', tutN:5, n:'BUY HOW TO TRAIN YOUR FLAGON', spot:'.shop-item[data-item="firstkeg"]', click:'.shop-item[data-item="firstkeg"] .si-buy', screen:'shop', action:true, hint:'TAP ITS PRICE TO BUY IT',
            d:'A starter barrel: 30 coins for +0.5 beer per minute, for the rest of the night. Every relic in this shop adds to your brewery the same way.' },
-  proof: { icon:'🍺', stepLbl:'DONE', n:'YOUR BREWERY GREW', spot:'#arenaWrap', screen:'game', okLbl:"LET'S CRAWL ▶" }
+  proof: { icon:'🍺', tutN:6, n:'YOUR BREWERY GREW', spot:'#arenaWrap', screen:'game', okLbl:"LET'S CRAWL ▶" }
 };
 function tutQueue(step){
   if(!S) return;
@@ -5999,13 +6017,6 @@ function tutAdvance(from, to){
   if(_spotClose) _spotClose(true);
   setTimeout(() => tutQueue(to), 260);
 }
-function tutorialSkip(){
-  if(!S) return;
-  S.tutStep = null; save();
-  _unlockQueue = _unlockQueue.filter(x => !x.tut);
-  if(_spotClose) _spotClose(true);
-  toast('TUTORIAL SKIPPED · HAVE A GREAT CRAWL');
-}
 function spotPreventScroll(e){ e.preventDefault(); }
 function showSpotlight(u){
   if(!S) return;
@@ -6020,15 +6031,17 @@ function showSpotlight(u){
   document.documentElement.classList.add('spot-lock');
   window.addEventListener('wheel', spotPreventScroll, { passive:false });
   window.addEventListener('touchmove', spotPreventScroll, { passive:false });
-  const lbl = u.intro ? '📖 TUTORIAL · WELCOME, CRAWLER' : u.tut ? '📖 TUTORIAL' + (u.stepLbl ? ' · ' + u.stepLbl : '') : '🔓 UNLOCKED' + (u.where ? ' · ' + u.where.toUpperCase() : '');
+  const tutN = u.tutN || (u.id === 'market' && S.tutStep ? 3 : 0); // the Market unlock is step 3 when it comes inside the tutorial
+  const lbl = tutN ? tutStepLbl(tutN) + (tutN === 3 ? ' · UNLOCKED' : '') : '🔓 UNLOCKED' + (u.where ? ' · ' + u.where.toUpperCase() : '');
   const ov = document.createElement('div'); ov.id = 'spotOverlay';
   if(u.action){ ov.classList.add('action'); ov.dataset.click = u.click || u.spot || ''; }
   ov.innerHTML = `<div class="spot-dim"></div><div class="spot-ring"></div>
     <div class="spot-card">
       <div class="spot-head"><div class="up-ico">${ico(u.icon, 30)}</div><div class="up-txt"><span>${lbl}</span><b>${escapeHtml(u.n)}</b></div></div>
+      ${tutN ? `<div class="spot-pips">${tutPips(Math.min(tutN, TUT_TOTAL))}</div>` : ''}
       <p>${escapeHtml(u.d)}</p>
       ${u.action
-        ? `<div class="spot-hint">👆 ${escapeHtml(u.hint || 'TAP THE GLOWING BUTTON')}</div><button class="spot-skip" id="spotSkip" onclick="event.stopPropagation(); tutorialSkip()">SKIP THE TUTORIAL</button>`
+        ? `<div class="spot-hint">👆 ${escapeHtml(u.hint || 'TAP THE GLOWING BUTTON')}</div>`
         : `<button class="btn gold sm" id="spotOk">${u.intro ? "LET'S GO ▶" : u.okLbl || 'GOT IT ▶'}</button>`}
     </div>`;
   document.body.appendChild(ov);
@@ -6143,13 +6156,6 @@ function applyGates(){
     nu.classList.toggle('hide', !u);
   }
 }
-function unlockEverything(){
-  if(!S) return;
-  S.veteran = true; S.unlocksSeen = UNLOCKS.map(u => u.id);
-  addLog('🍻 Veteran mode — everything unlocked');
-  save(); syncHUD(); renderGuide();
-  toast('🍻 VETERAN MODE — EVERYTHING IS UNLOCKED');
-}
 function unlockPathHTML(){
   if(!S) return '';
   const rows = [`<div class="upr on"><span class="i">${ico('🎰',18)}</span><b>THE LEVER, THE TILES &amp; YOUR CORE MOVE</b><em>FROM THE START</em></div>`]
@@ -6160,8 +6166,6 @@ function unlockPathHTML(){
   return `<div class="panel"><h2>🔓 THE CRAWLER'S PATH</h2>
     <p class="small dim">New crawlers start simple. Level up to unlock the rest. Shared features unlock for the whole table at the same bar.</p>
     <div class="up-path">${rows.join('')}</div>
-    ${unlockAll() ? '<p class="small gold" style="margin-top:8px">🍻 VETERAN MODE: everything is unlocked.</p>'
-      : '<button class="btn ghost sm" style="margin-top:8px" onclick="armConfirm(this, unlockEverything)">🍻 I KNOW THE GAME — UNLOCK EVERYTHING</button>'}
   </div>`;
 }
 function syncHUD(){
@@ -10149,7 +10153,7 @@ function barBannerHTML(){
 const BOUNTY_UNDERDOG_MULT = 1.3;
 function bountyHere(){ return !!(S && S.bounty && S.bounty.bar === S.bar); }
 function bountyMine(){ return bountyHere() && !!S.bounty.me; }
-function underdogOn(){ return !!(S && S.underdog && S.underdog.bar === S.bar && S.underdog.me); }
+function underdogOn(){ return GROUP_BOUNTY && !!(S && S.underdog && S.underdog.bar === S.bar && S.underdog.me); }
 function bountyStreak(){ return (S && S.bounty && S.bounty.streak) || 0; }
 function bountyHuntXP(){ return Math.max(15, Math.round(xpNeeded(S.level) * (0.4 + 0.1*bountyStreak()))); }
 function bountySurviveXP(){ return Math.max(10, Math.round(xpNeeded(S.level) * (0.25 + 0.05*bountyStreak() + 0.05*bountyDefends()))); }
@@ -10161,7 +10165,7 @@ function bountyWho(){ return S.bounty && S.bounty.who ? S.bounty.who : 'THE LEAD
 
 let _bountyPick = { wanted:null, under:null };
 function bountyCard(){
-  if(!S || !unlocked('bounty')) return;
+  if(!S || !GROUP_BOUNTY || !unlocked('bounty')) return;
   _bountyPick = { wanted:null, under:null };
   const sq = sqOn(), q = s => escapeHtml(String(s)).replace(/'/g,'&#39;');
   const opts = sq ? S.squad.names.map(n => ({ v:n, l:n })) : [{ v:'me', l:'👑 THAT’S ME' }, { v:'other', l:'SOMEONE ELSE' }];
@@ -10271,7 +10275,7 @@ function bountySettle(){ // called by NEW BAR before the bar number moves on
   setTimeout(() => toast('🎯 YOU SURVIVED THE BAR — +' + xp + ' XP · +' + coins + '🪙'), 900);
 }
 function bountyBannerHTML(){
-  if(!S || !unlocked('bounty')) return '';
+  if(!S || !GROUP_BOUNTY || !unlocked('bounty')) return '';
   if(!bountyHere()) return `<div class="bar-bounty"><span>🎯 BOUNTY · NOT SET</span>Phones up: set this bar’s bounty and underdog.<button class="btn ghost sm" onclick="bountyCard()">🎯 SET THE BOUNTY</button></div>`;
   const b = S.bounty, st = b.streak ? ` · ×${b.streak+1} STREAK` : '';
   let out = '';
