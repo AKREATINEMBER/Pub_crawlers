@@ -1,4 +1,4 @@
-STATUS: IN PROGRESS
+STATUS: DONE
 
 # 001 — Commit the Wizard v10–v11 work and set up the test tools
 
