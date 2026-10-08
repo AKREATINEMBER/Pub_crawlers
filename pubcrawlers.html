@@ -7017,6 +7017,12 @@ function loop(ts){
   const g = document.getElementById('screen-game');
   if(!g || g.classList.contains('hide')){ _lastArenaTs = 0; return; }
   if(_lastArenaTs && ts - _lastArenaTs < ARENA_FRAME_MS) return;
+  // scrolled past the brewery (a hammer match, the duel, the shop list): don't paint a world nobody can see
+  const ac = document.getElementById('arena');
+  if(ac){
+    const r = ac.getBoundingClientRect();
+    if(r.bottom < -40 || r.top > (window.innerHeight || 0) + 40){ _lastArenaTs = 0; if(floaters.length) floaters.length = 0; return; }
+  }
   const dt = _lastArenaTs ? ts - _lastArenaTs : 16.7;
   _lastArenaTs = ts;
   _arenaSteps = Math.max(1, Math.min(6, Math.round(dt / 16.67)));
@@ -8805,8 +8811,9 @@ function hmRefresh(){
 }
 function hmLoop(){
   if(_hmRaf) return;
+  // _hmRaf must stay set for the whole frame: hmDraw ends by restarting the loop if nothing is running,
+  // so clearing the handle here let every frame spawn a second chain. They compounded until the phone crawled.
   const step = ()=>{
-    _hmRaf = 0;
     const pane = document.getElementById('lhHammerPane');
     const visible = pane && !pane.classList.contains('hide') && pane.offsetParent;
     if(_hm && _hm.on && _hm.turn === 'you' && !_hm.busy){
@@ -8814,7 +8821,7 @@ function hmLoop(){
     }
     if(visible) hmDraw();
     const busyFx = _hmAnim || _hmSparks.length || _hmPops.length || _hmRings.length || (_hmShake && performance.now() - _hmShake.t0 < 400) || hmVisMoving();
-    if((_hm && _hm.on) || busyFx) _hmRaf = requestAnimationFrame(step);
+    _hmRaf = ((_hm && _hm.on) || busyFx) ? requestAnimationFrame(step) : 0;
   };
   _hmRaf = requestAnimationFrame(step);
 }
@@ -13410,7 +13417,7 @@ function dwPaint(){
 function dwBusyFx(){ const now = performance.now(); return _dwFx.proj.length || _dwFx.parts.length || _dwFx.pops.length || (_dwFx.shake && now - _dwFx.shake.t0 < 400) || (_dwVis && _dw && (Math.abs(_dwVis.me - _dw.B.me.hp) > .3 || Math.abs(_dwVis.foe - _dw.B.foe.hp) > .3)); }
 function dwLoop(){
   if(_dwRaf) return;
-  const step = () => { _dwRaf = 0; const p = document.getElementById('dwPane'); if(p && !p.classList.contains('hide') && p.offsetParent) dwPaint(); if(dwBusyFx() || (_dw && _dw.busy)) _dwRaf = requestAnimationFrame(step); };
+  const step = () => { const p = document.getElementById('dwPane'); if(p && !p.classList.contains('hide') && p.offsetParent) dwPaint(); _dwRaf = (dwBusyFx() || (_dw && _dw.busy)) ? requestAnimationFrame(step) : 0; };
   _dwRaf = requestAnimationFrame(step);
 }
 function dwIdleTick(){
