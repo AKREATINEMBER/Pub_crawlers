@@ -1,4 +1,4 @@
-STATUS: READY
+STATUS: IN PROGRESS
 
 # 002 — Wizard duel: declutter the screen, teach the game in the Info tab
 

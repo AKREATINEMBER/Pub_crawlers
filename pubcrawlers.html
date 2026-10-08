@@ -1383,6 +1383,30 @@ body[data-char="jester"] .shop-exclusive-label{color:#e8c34a;border-left-color:#
 .hm-show-sub{padding:6px 4px 7px;text-align:center;font-size:7px;letter-spacing:1.2px;color:#e0b880;text-shadow:0 1px 0 #000}
 .wz-tabs{margin-top:6px}
 .dw-stage{background:#0a0614}
+/* ── v12 declutter: header row, rival card, chip row, action row ── */
+.dw-head{display:flex;align-items:center;gap:6px;margin:0 0 6px;padding:4px 2px}
+.dw-h-loc{font-size:9px;letter-spacing:.5px;color:#e0c8a8;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dw-h-sp{flex:1}
+.dw-h-perks{display:flex;gap:2px;font-size:13px;background:none;border:0;padding:0;cursor:pointer;color:inherit}
+.dw-h-star{font-size:7px;letter-spacing:.5px;color:#ffd24a;padding:2px 5px;border:1px dashed rgba(255,210,74,.5);white-space:nowrap}
+.dw-h-star.ok{color:#7ae05a;border-color:#7ae05a}
+.dw-h-ico{width:22px;height:22px;line-height:20px;padding:0;font-size:11px;background:#1e1230;border:1px solid #4a2a60;color:#e0c8ff;flex:0 0 auto}
+.dw-rival{display:block;width:100%;text-align:left;font-family:inherit;color:#f2e2bd;background:linear-gradient(180deg,#2a1838,#140a1e);border:2px solid #4a2a60;padding:6px 8px;margin:0 0 6px;cursor:pointer}
+.dw-rival:active{transform:translateY(1px)}
+.dw-r1{display:block;font-size:9px;letter-spacing:.5px;color:#ffd24a;font-weight:bold}
+.dw-r2{display:block;font-size:7.5px;line-height:1.5;color:#d8c8e8;margin-top:2px}
+.dw-r3{display:block;font-size:7px;letter-spacing:.3px;color:#8a7aa8;margin-top:2px}
+.dw-chiprow{display:flex;flex-wrap:wrap;gap:4px;margin:6px 0 0}
+.dw-chiprow .cw-tag{font-size:7px}
+.dw-actrow{display:flex;align-items:center;gap:6px;margin:6px 0 0}
+.dw-counts{font-size:7px;letter-spacing:.3px;color:#8a7aa8;flex:0 0 auto}
+.dw-actrow .btn{margin:0;width:auto;flex:1}
+.dw-pass{display:block;margin-top:2px;font-size:7px;letter-spacing:.5px;color:#ff6a8a;font-weight:bold}
+.dw-buzz .bar i.prev{background:repeating-linear-gradient(45deg,#4a3a10 0 3px,#2a1a08 3px 6px)}
+.dw-buzz .bar.over i.prev{background:repeating-linear-gradient(45deg,#6a1a1a 0 3px,#2a0808 3px 6px)}
+.dw-card.sel{transform:translateY(-4px);box-shadow:0 7px 0 #080208,0 0 14px rgba(255,210,74,.55),inset 0 0 12px rgba(0,0,0,.5);border-color:#ffd24a!important}
+.dw-card .dc-cost.potion{background:radial-gradient(circle at 35% 35%,#d0fff4,#38c2a0 60%,#0a5a46);font-size:8px;letter-spacing:.3px;width:auto;min-width:20px;padding:0 3px;border-radius:9px}
+.dw-card.potion{background:linear-gradient(180deg,#0e2a28,#06161a);box-shadow:0 3px 0 #080208,0 0 12px rgba(56,194,160,.4),inset 0 0 12px rgba(0,0,0,.5);border-color:rgba(56,194,160,.5)!important}
 #dwCanvas{display:block;width:100%;height:auto}
 .dw-tags{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin:5px 0 0}
 .dw-tags span{font-size:7px;letter-spacing:.5px;padding:2px 5px;background:#1a0a20;border:1px solid #4a2a60;color:#e0c8ff}
@@ -2572,13 +2596,15 @@ html.spot-lock{overflow:hidden;overscroll-behavior:none} /* only the viewport: c
         <div id="wizArea"></div>
         <!-- ── HAPPY HEX HOUR — the Brew-zard's wizarding duel (driven by dw* functions) ── -->
         <div id="dwPane" class="hide">
+          <div class="dw-head" id="dwHead"></div>
           <div class="hm-ladder" id="dwLadder"></div>
-          <div class="hm-foeinfo" id="dwFoeInfo"></div>
-          <div class="cw-stage hm-stage dw-stage"><canvas id="dwCanvas" width="600" height="340" onclick="dwCanvasTap(event)"></canvas></div>
+          <div class="dw-rival" id="dwRival" onclick="dwOpenRivalFile()"></div>
+          <div class="cw-stage hm-stage dw-stage"><canvas id="dwCanvas" width="600" height="340"
+            onmousedown="dwHoldStart(event)" ontouchstart="dwHoldStart(event)"
+            onmouseup="dwHoldEnd(event)" ontouchend="dwHoldEnd(event)"
+            onmouseleave="dwHoldCancel()" oncontextmenu="return false"></canvas></div>
           <div id="dwStatus" class="hm-status"></div>
           <div id="dwCtl"></div>
-          <div class="hm-gear"><span id="dwGear"></span><button class="btn ghost sm" onclick="dwOpenBench()">🔮 RUNES</button></div>
-          <details class="dw-howto"><summary>📖 HOW THE DUEL WORKS</summary><p class="hm-rules">A wizarding duel, free to play. Free play is a <b>DUNGEON RUN</b> down through the castle. Every floor has <b>rooms of minions</b> (tap one to aim at it) — two up top, three deeper down — and from floor 4 a <b>★ mini-boss</b> with a nasty trait (spill, rage, armour, leech, thorns, rally) guarding the floor's <b>rival</b>. Your health and daze carry down with you; rooms patch you up a little, and after every rival the <b>tavern</b> restores you fully and pours <b>tonight's specials</b>: order one, keep it all run, and they stack. Pick a reward after every room (two after a mini-boss). Beat a rival once and your next run can start on the floor below (a checkpoint) — except the last: <b>Lord Vodkamort only drinks with a wizard who beats all nine rivals in the same run</b>, starting on floor 1. Lose or go home and you keep what you won. Rivals <b>summon their minions</b> mid-fight. <b>Brew potions in the Cauldron</b> before you go: they ride along as free cards — pick recipes that answer what's waiting below. Every spell is a <b>potion you drink</b>: no mana, cast as many as you like, but each adds its <b>proof</b> to your <b>daze</b>, and the dazier you are the weaker it lands (100% → 80% → 60%). Land in the <b>sweet spot</b> just under your liver and every potion <b>crits ×2</b> (damage, shields, healing or draws). One drop over and it spills: you <b>pass out</b> and he gets a free turn. You sober up a little every turn, and 💧 water helps. Every foe's next move hangs above its head: plan the binge around it — nobody will do the maths for you. Mix in order for <b>cocktails</b> (❄→⚡ shatters, ☠→🔥 flambés, 🛡→hit +3, ✨ = −1 proof). Win ingredients to <b>carve your runes</b> (bigger hand, bigger liver, faster sobering) in the <b>Rune Circle</b> (Bag).</p></details>
         </div>
         <div data-lockrow="1" class="gate-off"></div>
       </div>
@@ -3356,7 +3382,7 @@ function freshState(){
     jkDeck:null, jkFreeBurns:0, jkExtraNext:0, jkHermitNext:0, jkLastCard:null,
     gbLedger:0, gbTier:0, gbPending:[], gbHouseUsed:false, gbWonTotal:0,
     saga:0, sagaStones:[], duels:{ w:0, l:0, d:0 }, trophies:[], duelNames:[], duelLap:null, tankDuelBoost:false, hgTokens:0,
-    wzSurge:0, wzPolyCount:0, wzLastForm:null, wzStardust:false,
+    wzSurge:0, wzPolyCount:0, wzLastForm:null, wzStardust:false, dwSeenRoles:[],
     lastBeerLogTs:0, pourStreak:0, steadyHand:false, wzElixir:false, squad:null, shopAlert:false, wzIngredients:[], wzRuneLv:[0,0,0,0,0], wzRuneV2:true, wzPolyArmed:false,
     bar:1, barRule:null, barQuest:null, barQuestDone:false, bestMoment:null, crowned:null, closedAt:0,
     dev:false, dwWins:{}, dwMats:{}, dwWand:{ core:0, wood:0, tip:0, charm:0, setting:0 }, dwBook:{}, dwDeck:[], dwGems:[], dwGemSet:[], dwFoe:'', dwPaid:0, dwFoesSeen:0, dwNew:[], dwBoonPending:null, dwName:'', dwPotions:[], dwStars:{}, hmPaidWins:0, hmBeaten:0, hmFoe:'', hmFoesSeen:0, hmMats:{}, hmForge:{ head:0, haft:0, grip:0, ward:0, pin:0, setting:0 }, hmNew:[], hmBoonPending:null, hmInlays:[], hmSocket:[], hmFinish:'iron', hmName:'', hmWins:{}
@@ -11403,10 +11429,14 @@ function dwStart(){
   if(!xp && !_dwRun){ const st = dwStartFloor(); if(st.id !== foe.id && !dwCheckpointOK(foe)) toast(foe.id === 'vodkamort' ? `🏁 THE LAST CALL: ALL TEN FLOORS, STARTING ON FLOOR 1` : `🗺 NO CHECKPOINT ON ${foe.short}'S FLOOR YET — STARTING ON FLOOR ${dwFloorOf(st.id) + 1}`); _dwRun = dwRunNew(st); dwRunSave(); }
   let f = foe, carry = null, ids = [foe.id], node = null;
   if(!xp && _dwRun){ node = dwRunNode(); f = DW_FOE_BY_ID[node.boss]; ids = node.foes; carry = { hp:_dwRun.hp, buzz:_dwRun.buzz }; dwCrawlBuild(build); }
-  _dw = { B:dwNewBattle(ids, build, 0, carry), foe:f, xp, busy:false, run:!xp && !!_dwRun, room:!!(node && node.t === 'room'), node };
+  _dw = { B:dwNewBattle(ids, build, 0, carry), foe:f, xp, busy:false, run:!xp && !!_dwRun, room:!!(node && node.t === 'room'), node, sel:null };
   _dw.startHp = _dw.B.me.hp;
   if(S.dwNew && S.dwNew.indexOf(foe.id) >= 0){ S.dwNew = S.dwNew.filter(x => x !== foe.id); save(); }
   _dwVis = { me:_dw.B.me.hp, foe:_dw.B.foe.hp };
+  // first time meeting a role this save: a one-time pop (roles are explained in the Foe sheet / Info)
+  if(!Array.isArray(S.dwSeenRoles)) S.dwSeenRoles = [];
+  { const newRoles = [...new Set(_dw.B.foes.filter(mf => DW_MINION_INFO[mf.id] && !DW_MINION_INFO[mf.id].elite).map(mf => DW_MINION_INFO[mf.id].role))].filter(r => S.dwSeenRoles.indexOf(r) < 0);
+    if(newRoles.length){ S.dwSeenRoles.push(...newRoles); save(); setTimeout(() => dwPop(`📣 NEW: ${DW_ROLES[newRoles[0]].n} — hold to inspect`, '#ffd24a', 150, 90, 1.1), 900); } }
   dwPop(_dw.room ? `${node.elite ? '★ MINI-BOSS' : 'ROOM ' + node.n} · FLOOR ${dwFloorOf(node.boss) + 1}` : _dw.run ? `👑 ${f.short}!` : 'DUEL!', '#ffd24a', 150, 60, 1.3);
   setTimeout(() => dwSay(0, true), 650);
   { const E = node && node.elite ? DW_MINION_INFO['e_' + node.boss] : null, T = E && DW_TRAITS[E.trait];
@@ -11419,7 +11449,10 @@ function dwPop(txt, col, x, y, sz){ _dwFx.pops.push({ txt, col, x, y, sz:sz||1, 
 const DW_ME = { x:58, y:130 }, DW_FOE_POS = { x:236, y:130 };
 function dwCanvasTap(ev){
   if(!_dw || _dw.busy || _dw.B.over || _dw.B.foes.length < 2) return;
-  const c = ev.currentTarget, r = c.getBoundingClientRect(), x = (ev.clientX - r.left) / r.width * HM_W;
+  const c = ev.currentTarget || document.getElementById('dwCanvas'); if(!c) return;
+  const r = c.getBoundingClientRect();
+  const t = ev.changedTouches && ev.changedTouches[0] ? ev.changedTouches[0] : ev;
+  const x = (t.clientX - r.left) / r.width * HM_W;
   let best = -1, bd = 1e9; const bf = !DW_MINION_INFO[_dw.B.foes[0].id]; _dw.B.foes.forEach((f, k) => { if(f.dead) return; const d = Math.abs(dwFoeXY(_dw.B.foes.length, k, bf).x - x); if(d < bd){ bd = d; best = k; } });
   if(best >= 0 && bd < 40 && dwTarget(_dw.B, best)){ buzz(8); dwRefresh(); }
 }
@@ -11429,6 +11462,7 @@ function dwPlayCard(i){
   if(!_dw || _dw.busy) return;
   const B = _dw.B;
   if(!dwCanPlay(B, i)){ toast(B.skip || B.me.ko ? '💤 YOU\'RE OUT COLD' : B.watered && dwIsWater(DW_SPELLS[B.hand[i]]) ? '💧 ONE GLASS OF WATER A TURN' : 'CAN\'T CAST THAT'); return; }
+  _dw.sel = null;
   const id = B.hand[i], s = DW_SPELLS[id];
   dwCardGhost(i);
   const hp0 = B.foe.hp, max0 = B.foe.max;
@@ -11506,6 +11540,7 @@ function dwBurst(x, y, col, n, up){ for(let i=0;i<n;i++) _dwFx.parts.push({ x, y
 function dwEnd(auto){
   if(!_dw || _dw.busy || _dw.B.over) return;
   if(!auto && !tapGuard('dwEnd', 500)) return;
+  _dw.sel = null;
   _dw.busy = true;
   const B = _dw.B, before = { me:B.me.hp, foe:B.foe.hp };
   const ev = dwEndTurn(B);
@@ -11921,40 +11956,30 @@ function dwCoach(B){
   bits.push(`<span>💧 −${sob} next turn</span>`);
   return bits.join('');
 }
-function dwCardHTML(B, id, i){
-  const s = DW_SPELLS[id], lv = dwSpellLv(B, id), el = DW_EL[s.el], cost = dwProof(B, id), base = s.pr|0, ok = dwCanPlay(B, i), F = dwF(B), pot = dwPotency(B, id), ko = ok && dwWouldKO(B, id);
+function dwCardHTML(B, id, i, selected){
+  const s = DW_SPELLS[id], lv = dwSpellLv(B, id), el = DW_EL[s.el], cost = dwProof(B, id), ok = dwCanPlay(B, i), F = dwF(B), pot = dwPotency(B, id), ko = ok && dwWouldKO(B, id);
   const combos = dwComboFor(B, id).map(c => DW_COCKTAILS.find(x => x.id === c)), fxEl = s.fx || s.el;
   let big = '', unit = '';
   if(s.dmg){ big = dwHitDmg(B, id, s.dmg[lv]) + (s.hits ? '×' + s.hits : ''); unit = s.aoe ? 'DMG TO ALL' : 'DMG'; }
   else if(s.block){ big = Math.round((s.block[lv] + (s.potion ? 0 : DW_CHARM_BLOCK[B.build.charm]))*pot); unit = 'SHIELD'; }
   else if(s.poison){ big = Math.max(1, Math.round((s.poison[lv] + ((B.build.gems||[]).includes('bitters') ? 2 : 0))*pot)); unit = 'POISON'; }
-  else if(s.sober){ big = '−' + s.sober[lv]; unit = 'BUZZ'; }
+  else if(s.sober){ big = '−' + s.sober[lv]; unit = 'DAZE'; }
   else if(s.heal){ big = '+' + Math.round(s.heal[lv]*pot); unit = 'HEAL'; }
   else if(s.draw){ big = '+' + s.draw[lv]*(pot === 2 ? 2 : 1); unit = 'SPELLS'; }
-  const fx = [];
-  if(s.dmg && s.block) fx.push(`+${s.block[lv] + DW_CHARM_BLOCK[B.build.charm]} SHIELD`);
-  if(s.dmg && s.poison) fx.push(`+${s.poison[lv]} POISON`);
-  if(s.dmg && !s.aoe && dwGuarded(B)) fx.push('🛡 GUARDED: ½');
-  if(s.freeze) fx.push('❄ FREEZES');
-  if(s.stun) fx.push(dwWary(B) ? '😠 HE\'S WIDE AWAKE' : 'SKIPS HIS MOVE');
-  if(s.confuse) fx.push('HE HITS HIMSELF');
-  if(s.strip) fx.push('BREAKS HIS WARD');
-  if(s.draw && unit !== 'SPELLS') fx.push(`DRAW ${s.draw[lv]}`);
-  if(s.sober && unit !== 'BUZZ') fx.push(`−${s.sober[lv]} BUZZ`);
-  if(dwIsWater(s)) fx.push(B.watered ? '🚫 ONE GLASS A TURN' : 'ONE GLASS A TURN');
-  if(s.shatter && !combos.some(c => c.id === 'shatter')) fx.push('×2 ON FROZEN');
-  if(s.self) fx.push(`HURTS YOU ${s.self[lv]}`);
-  if(s.blank) fx.push(dwWary(B) ? '😠 HE\'S WIDE AWAKE' : 'HIS NEXT HIT = 0');
-  if(s.heal && unit !== 'HEAL') fx.push(`HEAL ${Math.round(s.heal[lv]*pot)}`);
-  if(s.exhaust && !s.potion) fx.push('ONCE A DUEL');
-  const eff = s.dmg && !s.potion ? (F.weak === fxEl ? '<span class="dc-eff good">WEAK ×1.5</span>' : F.resist === fxEl ? '<span class="dc-eff bad">RESISTS ½</span>' : '') : '';
-  const cheap = cost < base ? ' cheap' : '';
-  return `<button type="button" class="dw-card el-${s.el}${ok ? '' : ' off'}${lv ? ' up' : ''}${s.potion ? ' potion' : ''}${combos.length ? ' combo' : ''}${ko ? ' ko' : ''}${pot === 2 && ok ? ' crit' : ''}" onclick="dwPlayCard(${i})" style="--ec:${el.c}">
-    <span class="dc-cost proof${cheap}${s.sober && !cost ? ' water' : ''}">${s.sober && !cost ? '💧' : cost}</span>${pot === 2 ? '<span class="dc-pot crit">💥 CRIT ×2</span>' : pot < 1 && pot > 0 && !s.potion ? `<span class="dc-pot">${Math.round(pot*100)}%</span>` : ''}${ko ? '<span class="dc-ko">💤 SPILLS · YOU PASS OUT</span>' : ''}${s.potion ? '<span class="dc-tag">POTION</span>' : lv ? '<span class="dc-tag">II</span>' : ''}
+  // at most one tag, by priority
+  let tag = '';
+  if(ko) tag = '<span class="dc-ko">💤 PASSES YOU OUT</span>';
+  else if(combos.length) tag = `<span class="dc-combo">🍸 ${combos[0].n}</span>`;
+  else if(pot === 2 && ok) tag = '<span class="dc-pot crit">💥 CRIT</span>';
+  else if(s.dmg && !s.potion && F.weak === fxEl) tag = '<span class="dc-eff good">WEAK ×1.5</span>';
+  else if(s.dmg && !s.potion && F.resist === fxEl) tag = '<span class="dc-eff bad">RESISTS ½</span>';
+  else if(s.dmg && !s.aoe && !s.potion && dwGuarded(B)) tag = '<span class="dc-eff bad">🛡 ½ GUARDED</span>';
+  return `<button type="button" class="dw-card el-${s.el}${ok ? '' : ' off'}${selected ? ' sel' : ''}${s.potion ? ' potion' : ''}"
+    onmousedown="dwCardDown(${i})" ontouchstart="dwCardDown(${i})" onmouseup="dwCardUp(${i},event)" ontouchend="dwCardUp(${i},event)" onmouseleave="dwCardCancel()" oncontextmenu="return false"
+    style="--ec:${el.c};--k:${i}">
+    ${s.potion ? `<span class="dc-cost potion">FREE</span>` : `<span class="dc-cost proof${s.sober && !cost ? ' water' : ''}">${s.sober && !cost ? '💧' : cost}</span>`}${tag}
     <span class="dc-art">${el.i}</span><b class="dc-name">${s.n}</b>
-    ${big !== '' ? `<span class="dc-big">${big}<i>${unit}</i></span>` : ''}${eff}
-    <small>${fx.join(' · ')}</small>
-    ${combos.length ? `<span class="dc-combo">🍸 ${combos.map(c => c.n).join(' + ')}</span>` : ''}</button>`;
+    ${big !== '' ? `<span class="dc-big">${big}<i>${unit}</i></span>` : ''}</button>`;
 }
 function dwIntentText(acts, foe){
   return acts.map(a => a.a === 'atk' ? `${a.big ? '💥' : '⚔'} ${a.v + (_dw ? _dw.B.foe.str : 0)}${a.x ? '×' + a.x : ''}${a.pierce ? '🗡' : ''}` : a.a === 'ward' ? `🛡 ${a.v}` : a.a === 'str' ? `💪 +${a.v}` : a.a === 'heal' ? `💚 ${a.v}` : a.a === 'burn' ? `🔥 ${a.v}` : a.a === 'counter' ? '📜 DECREE' : a.a === 'charm' ? '💘 CHARM' : a.a === 'trick' ? '🎭 TRICK' : a.a === 'summon' ? '📣 HELP' : a.a === 'charge' ? '⏳ CHARGING' : a.a === 'mend' ? `💚 MEND ${a.v}` : a.a === 'rally' ? `📣 +${a.v} ALL` : `🍸+${a.v || 3} DAZE`).join(' + ');
@@ -11969,58 +11994,198 @@ function dwRefresh(){
   const inRun = !xpMode && !!_dwRun && !(live && !_dw.run);
   if(lad){ const h = inRun ? dwRunMapHTML(_dwRun, false) : dwLadderHTML(); if(lad._h !== h){ lad.innerHTML = h; lad._h = h; const on = lad.querySelector('.nd.on'); if(on && on.scrollIntoView) on.scrollIntoView({ block:'nearest', inline:'center' }); } lad.classList.toggle('hide', live && !inRun); lad.classList.toggle('dw-maphost', inRun); }
   pane.classList.toggle('dw-live', live);
-  const fi = document.getElementById('dwFoeInfo');
-  if(fi) fi.classList.toggle('hide', live);
-  if(fi && !live){ const F = DW_FOES_CORE[foe.id], b = DW_BOONS[foe.id], got = dwFoeBeaten(foe);
-    const tags = [F.phases ? `❤ ${F.phases.map(p => p.hp).join(' → ')} · 4 FORMS` : `❤ ${F.hp}`, F.liver ? `🍺 LIVER −${F.liver}/HIT` : '', F.weak ? `WEAK ${DW_EL[F.weak].i}` : '', F.resist ? `RESISTS ${DW_EL[F.resist].i}` : '', F.regen ? `REGROWS ${F.regen}` : ''].filter(Boolean);
-    const tip = DW_TIP_DMG[dwLv('tip')], gate = F.liver && 6 + tip - F.liver < 4;
-    fi.innerHTML = `<b>${foe.n}</b> <span class="k">${foe.kind}</span><br><span class="t">${foe.td}</span>
-      <div class="dw-tags">${tags.map(t => `<span>${t}</span>`).join('')}</div>
-      ${gate ? `<div class="hm-hard bad">⚠ HIS LIVER EATS YOUR SPELLS: carve ᚦ THURISAZ deeper (now +${tip})</div>` : ''}
-      <div class="hm-boonline${got ? ' got' : ''}${foe.boss ? ' surtr' : ''}">${got ? '✓ BOON' : '🏆 BEAT THEM ONCE'}: <b>${b.icon} ${b.n}</b> — ${escapeHtml(b.d)}</div>
-      <div class="dw-chal${dwStarsOf(foe.id) & 4 ? ' done' : ''}"><span class="st">${dwStarIcons(foe.id)}</span><span>★ LAST ORDERS: <b>${DW_CHALLENGES[foe.id].d}</b>${dwStarsOf(foe.id) & 4 ? ' ✓' : ' · first time +2' + DW_MATS[foe.mat].icon + ' +20🪙'}</span><em>★ ${dwStarCount()}/${DW_FOES.length*3}</em></div>${dwPotionsHTML()}`; }
+
+  // header row: one line, same shape idle or live
+  const head = document.getElementById('dwHead');
+  if(head){
+    if(live){
+      const B = _dw.B, nd = _dw.node, pks = _dw.run ? dwPerks().map(id => DW_PERKS.find(x => x.id === id)).filter(Boolean) : [];
+      const where = nd && nd.t === 'boss' ? `👑 ${_dw.foe.short}` : nd && nd.elite ? '★ MINI-BOSS' : nd ? `ROOM ${nd.n}/${DW_FLOOR_ROOMS[dwFloorOf(nd.boss)]}` : `⚡ ${_dw.foe.short}`;
+      const ch = DW_CHALLENGES[_dw.foe.id], chOk = ch && ch.t(B);
+      const star = _dw.run && ch && !_dw.room && !(dwStarsOf(_dw.foe.id) & 4) ? `<span class="dw-h-star${chOk ? ' ok' : ''}" title="${escapeHtml(ch.d)}">★ ${ch.p(B)}</span>` : '';
+      head.innerHTML = `<span class="dw-h-loc">${_dw.run && nd ? `FLOOR ${dwFloorOf(nd.boss) + 1} › ${where}` : where}</span>
+        ${pks.length ? `<button type="button" class="dw-h-perks" onclick="dwOpenPerks()">${pks.map(x => x.icon).join('')}</button>` : ''}
+        <span class="dw-h-sp"></span>${star}
+        <button type="button" class="dw-h-ico" onclick="dwOpenMenu()" aria-label="Menu">☰</button>
+        <button type="button" class="dw-h-ico" onclick="dwOpenInfo()" aria-label="How to play">?</button>`;
+    } else {
+      head.innerHTML = `<span class="dw-h-loc">🗺 THE DUNGEON</span><span class="dw-h-sp"></span>
+        <button type="button" class="dw-h-ico" onclick="dwOpenBench()" aria-label="Rune Circle">🔮</button>
+        <button type="button" class="dw-h-ico" onclick="dwOpenInfo()" aria-label="How to play">?</button>`;
+    }
+  }
+
+  // rival summary card (idle only — tap opens the Rival File sheet with everything else)
+  const riv = document.getElementById('dwRival');
+  if(riv) riv.classList.toggle('hide', live);
+  if(riv && !live){
+    const F = DW_FOES_CORE[foe.id], floorIdx = dwFloorOf(foe.id), nr = DW_FLOOR_ROOMS[floorIdx], hasElite = !!DW_ELITES[foe.id];
+    const roomsTxt = `${nr} room${nr > 1 ? 's' : ''}${hasElite ? ' + a mini-boss' : ''}, then the rival`;
+    const twist = [F.regen ? `regrows ${F.regen} a turn` : '', F.weak ? `weak ${DW_EL[F.weak].i}` : '', F.resist ? `resists ${DW_EL[F.resist].i}` : ''].filter(Boolean).slice(0, 2).join(' · ');
+    riv.innerHTML = `<span class="dw-r1">FLOOR ${floorIdx + 1} · ${foe.n}</span>
+      <span class="dw-r2">${_dwRun ? roomsTxt : foe.kind}${twist ? ' · ' + twist : ''}</span>
+      <span class="dw-r3">${dwStarIcons(foe.id)} · tap for the full rival file</span>`;
+  }
+
   // controls
   const ctl = document.getElementById('dwCtl');
   if(ctl){
     if(live){
       const B = _dw.B;
-      const pv = null, tier = dwBuzzTier(B), sob = DW_SOBER[B.build.charm];
-      const endTxt = B.skip ? ' · 💤 SLEEP IT OFF' : '';
-      const after = Math.max(0, B.me.buzz - sob);
       const lo = dwSweetLo(B), inSweet = B.me.buzz >= lo;
-      const buzzBar = `<div class="dw-buzz" style="--tc:${inSweet ? '#ffd24a' : tier[1]}"><span class="lbl">🌀 DAZE <b>${B.me.buzz}/${B.me.cap}</b> · <em>${inSweet ? '💥 SWEET SPOT' : tier[0]}</em></span>
-        <div class="bar">${Array.from({ length:B.me.cap }, (_, k) => `<i class="${k < B.me.buzz ? 'on' : ''}${k >= after && k < B.me.buzz ? ' fade' : ''}${k + 1 >= lo ? ' sweet' : k + 1 > B.me.cap*.65 ? ' z3' : k + 1 > B.me.cap*.4 ? ' z2' : ''}"></i>`).join('')}<u>💤</u></div>
-        <span class="sub"><b>🌀 DAZE ${B.me.buzz}/${B.me.cap}</b> · 100% → 85% → 70% → <b>💥 ×2 AT ${lo}–${B.me.cap}</b> → 💤<em>${B.draw.length} 📚 · ${B.discard.length} 🗑</em></span></div>`;
-      const ch = DW_CHALLENGES[_dw.foe.id], chOk = ch && ch.t(B);
+      const sel = _dw.sel != null && B.hand[_dw.sel] != null ? _dw.sel : null;
+      const selId = sel != null ? B.hand[sel] : null, selSpell = selId != null ? DW_SPELLS[selId] : null;
+      const proofSel = selId != null ? dwProof(B, selId) : 0;
+      const afterSel = Math.min(B.me.cap, B.me.buzz + proofSel);
+      const dazeBar = `<div class="dw-buzz">
+        <span class="lbl">🌀 DAZE <b>${B.me.buzz}${selId != null ? ' → ' + afterSel : ''}/${B.me.cap}</b><em>💥 CRIT AT ${lo}–${B.me.cap}</em></span>
+        <div class="bar${afterSel > B.me.cap ? ' over' : ''}">${Array.from({ length:B.me.cap }, (_, k) => `<i class="${k < B.me.buzz ? 'on' : ''}${selId != null && k >= B.me.buzz && k < afterSel ? ' prev' : ''}${k + 1 >= lo ? ' sweet' : ''}"></i>`).join('')}<u>💤</u></div>
+        ${afterSel > B.me.cap ? `<span class="dw-pass">💤 PASSES YOU OUT</span>` : ''}</div>`;
       const _dealNow = _dw.dealt !== B.turn; setTimeout(() => { if(_dw && _dealNow) _dw.dealt = B.turn; }, 0);
-      const nd = _dw.node, pks = _dw.run ? dwPerks().map(id => DW_PERKS.find(x => x.id === id)).filter(Boolean) : [], runBar = `<div class="dw-runbar">${_dw.run && nd ? `<span class="rt">${pks.map(x => `<b title="${x.n}: ${x.d}">${x.icon}</b>`).join('')}<b class="on">🗺 FLOOR ${dwFloorOf(nd.boss) + 1}</b><i>›</i><b class="on">${nd.t === 'boss' ? '👑 ' + _dw.foe.short : (nd.elite ? '★ MINI-BOSS' : '⚔ ROOM ' + nd.n) + ' · ' + B.foes.filter(f => !f.dead).length + '/' + B.foes.length + ' LEFT'}</b></span>` : `<span class="rt"><b class="on">⚡ QUICK DUEL · XP ×${_dw.foe.win}</b></span>`}${ch && !_dw.room && !(dwStarsOf(_dw.foe.id) & 4) ? `<span class="lo${chOk ? ' ok' : ''}" title="${ch.d}">★ ${ch.p(B)}</span>` : ''}</div>`;
-      const EI = nd && nd.elite ? DW_MINION_INFO['e_' + nd.boss] : null, ET = EI && DW_TRAITS[EI.trait];
-      const roles = [...new Set(B.foes.filter(f => !f.dead && DW_MINION_INFO[f.id] && !DW_MINION_INFO[f.id].elite).map(f => DW_MINION_INFO[f.id].role))];
-      const roster = roles.length ? `<div class="dw-roster">${roles.map(r => `<span title="${DW_ROLES[r].d}">${DW_ROLES[r].i} <b>${DW_ROLES[r].n}</b> ${DW_ROLES[r].d.split(':')[0].split(' — ')[0]}</span>`).join('')}</div>` : '';
-      ctl.innerHTML = `${runBar}${roster}${ET ? `<div class="dw-trait">${ET.i} <b>${ET.n}</b> · ${ET.d(EI.tv)}</div>` : ''}${B.skip ? `<div class="dw-coach">${dwCoach(B)}</div>` : ''}
-        ${buzzBar}
-        <div class="dw-hand${_dw.dealt !== B.turn ? ' deal' : ''}">${B.hand.map((id, i) => dwCardHTML(B, id, i).replace('class="dw-card', `style="--k:${i}" class="dw-card`)).join('') || '<p class="small dim">No spells left in hand.</p>'}</div>
-        <div class="cw-actions"><button class="btn primary${pv && pv.dies ? ' danger' : ''}" onclick="dwEnd()" ${_dw.busy || B.over ? 'disabled' : ''}>🍺 END TURN${endTxt}</button></div>
-        <div class="dw-cocktails">${DW_COCKTAILS.map(c => `<span title="${c.d}"><b>${c.i}</b> ${c.n}</span>`).join('')}</div>`;
+      ctl.innerHTML = `${dazeBar}
+        <div class="dw-hand${_dw.dealt !== B.turn ? ' deal' : ''}">${B.hand.map((id, i) => dwCardHTML(B, id, i, sel === i)).join('') || '<p class="small dim">No spells left in hand.</p>'}</div>
+        ${B.skip
+          ? `<div class="cw-actions"><button class="btn primary" onclick="dwEnd()" ${_dw.busy || B.over ? 'disabled' : ''}>💤 SLEEP IT OFF</button></div>`
+          : `<div class="dw-actrow">
+              <span class="dw-counts">📚 ${B.draw.length} / 🗑 ${B.discard.length}</span>
+              ${sel != null ? `<button class="btn gold" onclick="dwPlayCard(${sel})" ${_dw.busy ? 'disabled' : ''}>${selSpell && selSpell.dmg && !selSpell.aoe && B.foes.length > 1 ? '⚡ CAST ON ' + (DW_MINION_INFO[B.foes[B.ti].id] ? DW_MINION_INFO[B.foes[B.ti].id].short : _dw.foe.short) : 'CAST'}</button>` : ''}
+              <button class="btn ${sel != null ? 'ghost' : 'primary'}" onclick="dwEnd()" ${_dw.busy || B.over ? 'disabled' : ''} style="${sel == null ? 'flex:1' : ''}">🍺 END TURN</button>
+            </div>`}`;
     } else {
-      const again = window._dwLast && window._dwLast.foe === foe.id;
+      const chips = [];
+      if(S.dwBest) chips.push(`🏆 BEST <b>${S.dwBest.floors} FLOOR${S.dwBest.floors === 1 ? '' : 'S'}</b>`);
+      if(S.dwLastCall|0) chips.push(`🏁 LAST CALLS ×<b>${S.dwLastCall}</b>`);
+      if((S.dwPotions||[]).length) chips.push(`🧪 <b>${S.dwPotions.length}</b> POTIONS READY`);
+      chips.push(`📚 <b>${dwDeck().length}</b> SPELLS`);
+      if(!xpMode && _dwRun){
+        dwPerks().map(id => DW_PERKS.find(x => x.id === id)).filter(Boolean).forEach(x => chips.push(`<span title="${escapeHtml(x.d)}">${x.icon} ${x.n}</span>`));
+        chips.push(`❤ ${_dwRun.hp != null ? _dwRun.hp : dwRunMaxHp()} · 🌀 ${_dwRun.buzz}`);
+      }
       ctl.innerHTML = `<div class="cw-actions">
         <button class="btn primary" onclick="dwStart()">${xpMode ? `⚡ STAKE XP ON A DUEL · ×${foe.win}` : _dwRun ? (dwRunNode().t === 'boss' ? `👑 FACE ${foe.short}` : dwRunNode().elite ? `★ FACE THE MINI-BOSS · FLOOR ${dwFloorOf(dwRunNode().boss) + 1}` : `⚔ ENTER ROOM ${dwRunNode().n} · FLOOR ${dwFloorOf(dwRunNode().boss) + 1}`) : `🗺 START A RUN · FLOOR ${dwFloorOf(dwStartFloor().id) + 1} → ${dwRunLast(dwFloorOf(dwStartFloor().id)) + 1}`}</button>
-        ${!xpMode && _dwRun ? '<button class="btn ghost sm" onclick="dwCrawlQuit()">🏠 GO HOME (END THE RUN)</button>' : ''}
-        ${!xpMode && _dwRun && dwPerks().length ? `<div class="cw-tagrow">${dwPerks().map(id => DW_PERKS.find(x => x.id === id)).filter(Boolean).map(x => `<span class="cw-tag" title="${x.d}">${x.icon} <b>${x.n}</b></span>`).join('')}</div>` : ''}
-        ${!xpMode && !_dwRun && (S.dwLastCall|0) ? `<div class="cw-tagrow"><span class="cw-tag">🏁 THE LAST CALL ×<b>${S.dwLastCall}</b></span></div>` : ''}
-        ${!xpMode && !_dwRun && S.dwBest ? `<div class="cw-tagrow"><span class="cw-tag">🏆 BEST RUN: <b>${S.dwBest.floors} FLOOR${S.dwBest.floors === 1 ? '' : 'S'}</b> · DEEPEST <b>FLOOR ${S.dwBest.deepest}</b></span></div>` : ''}
         ${xpMode ? '<button class="btn ghost sm" onclick="wizTakeSafe()">🛡 TAKE SAFE XP</button>' : ''}</div>
-        <div class="cw-tagrow"><span class="cw-tag hm-reward">${xpMode ? `XP ×<b>${foe.win}</b> IF YOU WIN · 0 IF HE DRINKS YOU UNDER` : _dwRun && dwRunNode().t === 'room' ? (dwRunNode().elite ? `★ MINI-BOSS: <b>+2${DW_MATS[foe.mat].icon}</b> · THEN PICK <b>TWO</b> REWARDS` : `ROOM: <b>+1${DW_MATS[foe.mat].icon}</b> · THEN PICK A REWARD`) : `WIN: <b>${dwPaidLeft() ? '+' + foe.purse + '🪙 ' : ''}+1${DW_MATS[foe.mat].icon}</b> · UNTOUCHED ×2${dwFoeBeaten(foe) || S.dev ? '' : ` · <b>1ST WIN +${foe.first}🪙</b>`}<br>🪙 PAID WINS LEFT THIS ROUND: <b>${dwPaidLeft()}/${DW_PAID_WINS}</b>`}</span></div>${dwTabHTML()}`;
+      <div class="dw-chiprow">${chips.map(c => `<span class="cw-tag">${c}</span>`).join('')}</div>
+      ${!xpMode && _dwRun ? '<button class="btn ghost sm" onclick="dwCrawlQuit()" style="margin-top:6px">🏠 GO HOME (END THE RUN)</button>' : ''}
+      ${dwTabHTML()}`;
     }
   }
-  const gear = document.getElementById('dwGear');
-  if(gear) gear.innerHTML = `<span class="hm-gear-name">🔮 ${escapeHtml(dwWandName())}</span> <span class="hm-gear-lv">${WZ_RUNES.map(r => r.glyph + dwLv(r.part)).join(' ')} · 📚 ${dwDeck().length} SPELLS${(S.dwGemSet||[]).length ? ' · ' + S.dwGemSet.map(g => DW_GEM_BY_ID[g].icon).join('') : ''}</span>`;
   const st = document.getElementById('dwStatus');
-  if(st && !live && !st.textContent.trim()) dwStatus(xpMode ? 'YOUR WIN IS ON THE TABLE' : !_dwRun && foe.id === 'vodkamort' ? '🏁 THE LAST CALL' : _dwRun ? `🗺 FLOOR ${dwFloorOf(dwRunNode().boss) + 1} · ${dwNodeName(dwRunNode())}` : `🗺 THE DUNGEON · ${dwDeepest() + 1} FLOOR${dwDeepest() ? 'S' : ''} OPEN`, xpMode ? `A quick duel: win ×${foe.win} XP. Lose: nothing.` : !_dwRun && foe.id === 'vodkamort' ? 'He has no floor of his own: he waits at the bottom of a run that starts on floor 1 and beats all nine rivals. No checkpoints, no shortcuts.' : _dwRun ? `Health ${_dwRun.hp != null ? _dwRun.hp : dwRunMaxHp()} · daze ${_dwRun.buzz}.` : `Rooms of minions, a mini-boss from floor 4, then the rival. The deeper, the longer the floor. Vodkamort only drinks with a wizard who beats all nine in one run.`);
+  if(st && !live) st.classList.toggle('hide', !st.textContent.trim());
   dwPaint(); dwIdleTick();
 }
 function dwOpenBench(){ if(_dw){ toast('FINISH THE DUEL FIRST'); return; } go('bag'); setTimeout(() => { const f = document.getElementById('bagWand'); if(f && !f.classList.contains('hide')) f.scrollIntoView({ behavior:'smooth', block:'start' }); }, 80); }
+function dwOpenInfo(){ if(document.getElementById('cardOverlay')) closeCard(); go('squad'); setTimeout(() => { const el = document.getElementById('infoDuel'); if(el) el.scrollIntoView({ behavior:'smooth', block:'start' }); }, 60); }
+function dwOpenPerks(){
+  if(!_dw) return;
+  const pks = dwPerks().map(id => DW_PERKS.find(x => x.id === id)).filter(Boolean);
+  if(!pks.length) return;
+  showCard({ tag:'🎁 RUN PERKS', title:'THIS RUN', body:pks.map(x => `${x.icon} ${x.n} — ${x.d}`).join('\n'),
+    buttons:`<button class="btn ghost" onclick="closeCard()">◀ CLOSE</button>` });
+}
+function dwOpenMenu(){
+  if(!_dw) return;
+  showCard({ tag:'☰ MENU', title:_dw.foe.n,
+    buttons:`<button class="btn ghost sm" onclick="closeCard(); dwOpenRivalFile()">📖 RIVAL FILE</button>
+      <button class="btn ghost sm" onclick="dwOpenInfo()">❔ HOW TO PLAY</button>
+      <button class="btn ghost sm" onclick="closeCard()">◀ CLOSE</button>` });
+}
+function dwOpenRivalFile(){
+  const live = !!_dw, foe = live ? _dw.foe : (_dwRun && !dwXPMode() ? dwRunBoss() : dwFoe());
+  const F = DW_FOES_CORE[foe.id], b = DW_BOONS[foe.id], got = dwFoeBeaten(foe);
+  const tags = [F.phases ? `❤ ${F.phases.map(p => p.hp).join(' → ')} · 4 FORMS` : `❤ ${F.hp}`, F.liver ? `🍺 LIVER −${F.liver}/HIT` : '', F.weak ? `WEAK ${DW_EL[F.weak].i}` : '', F.resist ? `RESISTS ${DW_EL[F.resist].i}` : '', F.regen ? `REGROWS ${F.regen}` : ''].filter(Boolean);
+  const tip = DW_TIP_DMG[dwLv('tip')], gate = F.liver && 6 + tip - F.liver < 4;
+  const ch = DW_CHALLENGES[foe.id];
+  showCard({
+    cls:'boss', tag:'📖 RIVAL FILE', title:foe.n,
+    body:`${foe.kind}\n${foe.td}`,
+    chips:tags,
+    extra:`${gate ? `<p class="small red">⚠ HIS LIVER EATS YOUR SPELLS: carve ᚦ THURISAZ deeper (now +${tip})</p>` : ''}
+      <p class="small">${got ? '✓ BOON UNLOCKED' : '🏆 BEAT THEM ONCE'}: <b class="gold">${b.icon} ${b.n}</b> — ${escapeHtml(b.d)}</p>
+      <p class="small">${dwStarIcons(foe.id)} ★ LAST ORDERS: <b>${escapeHtml(ch.d)}</b>${dwStarsOf(foe.id) & 4 ? ' ✓' : ' · first time +2' + DW_MATS[foe.mat].icon + ' +20🪙'}</p>
+      ${!dwXPMode() ? `<p class="small dim">WIN: ${dwPaidLeft() ? '+' + foe.purse + '🪙 · ' : ''}+1${DW_MATS[foe.mat].icon} · untouched ×2${got || S.dev ? '' : ` · 1ST WIN +${foe.first}🪙`} · paid wins left this round: ${dwPaidLeft()}/${DW_PAID_WINS}</p>` : ''}`,
+    buttons:`<button class="btn ghost" onclick="closeCard()">◀ CLOSE</button>`
+  });
+}
+/* press-and-hold a foe on the canvas (~400ms) opens its Foe sheet; a short tap still targets it */
+let _dwHoldT = null, _dwHoldFired = false;
+function dwFoeIdxAt(ev){
+  if(!_dw) return null;
+  const c = ev.currentTarget || document.getElementById('dwCanvas'); if(!c) return null;
+  const r = c.getBoundingClientRect();
+  const t = ev.touches && ev.touches[0] ? ev.touches[0] : ev;
+  const x = (t.clientX - r.left) / r.width * HM_W;
+  if(_dw.B.foes.length <= 1) return _dw.B.foes[0] && !_dw.B.foes[0].dead ? 0 : null;
+  let best = -1, bd = 1e9; const bf = !DW_MINION_INFO[_dw.B.foes[0].id];
+  _dw.B.foes.forEach((f, k) => { if(f.dead) return; const d = Math.abs(dwFoeXY(_dw.B.foes.length, k, bf).x - x); if(d < bd){ bd = d; best = k; } });
+  return bd < 40 ? best : null;
+}
+function dwHoldStart(ev){
+  if(!_dw || _dw.busy || _dw.B.over) return;
+  _dwHoldFired = false;
+  const k = dwFoeIdxAt(ev);
+  _dwHoldT = setTimeout(() => { _dwHoldFired = true; if(k != null) dwOpenFoeSheet(k); }, 420);
+}
+function dwHoldEnd(ev){
+  clearTimeout(_dwHoldT);
+  if(_dwHoldFired){ if(ev.cancelable) ev.preventDefault(); return; }
+  dwCanvasTap(ev);
+}
+function dwHoldCancel(){ clearTimeout(_dwHoldT); }
+function dwOpenFoeSheet(k){
+  if(!_dw) return;
+  const f = _dw.B.foes[k]; if(!f || f.dead) return;
+  const mi = DW_MINION_INFO[f.id];
+  const name = mi ? mi.n : _dw.foe.n;
+  const roleOrTrait = mi && mi.elite ? `${DW_TRAITS[mi.trait].i} ${DW_TRAITS[mi.trait].n} — ${DW_TRAITS[mi.trait].d(DW_ELITES[_dw.foe.id] ? DW_ELITES[_dw.foe.id].tv : 1)}` : mi ? `${DW_ROLES[mi.role].i} ${DW_ROLES[mi.role].n} — ${DW_ROLES[mi.role].d}` : '';
+  const sv = _dw.B.ti; _dw.B.ti = k; dwRelink(_dw.B);
+  const move = dwIntentText(dwShownIntent(_dw.B), _dw.foe);
+  _dw.B.ti = sv; dwRelink(_dw.B);
+  const statuses = [f.poison ? `☠ ${f.poison} poison` : '', f.frozen ? '❄ frozen' : '', f.str ? `💪 +${f.str} strength` : '', f.block ? `🛡 ${f.block} ward` : ''].filter(Boolean);
+  showCard({
+    tag:'🔎 FOE', title:name,
+    body:`${roleOrTrait}${statuses.length ? '\n\nSTATUS: ' + statuses.join(' · ') : ''}\n\nNEXT MOVE: ${move}`,
+    buttons:`<button class="btn ghost" onclick="closeCard()">◀ CLOSE</button>`
+  });
+}
+/* press-and-hold a card (~400ms) opens its Card sheet; a short tap selects/casts it */
+let _dwCardHoldT = null, _dwCardHoldFired = false;
+function dwCardDown(i){ if(!_dw || _dw.busy) return; _dwCardHoldFired = false; _dwCardHoldT = setTimeout(() => { _dwCardHoldFired = true; dwOpenCardSheet(i); }, 420); }
+function dwCardUp(i, ev){ clearTimeout(_dwCardHoldT); if(_dwCardHoldFired){ if(ev && ev.cancelable) ev.preventDefault(); return; } dwSelectCard(i); }
+function dwCardCancel(){ clearTimeout(_dwCardHoldT); }
+function dwSelectCard(i){
+  if(!_dw || _dw.busy) return;
+  const B = _dw.B;
+  if(!dwCanPlay(B, i)){ toast(B.skip || B.me.ko ? '💤 YOU\'RE OUT COLD' : B.watered && dwIsWater(DW_SPELLS[B.hand[i]]) ? '💧 ONE GLASS OF WATER A TURN' : 'CAN\'T CAST THAT'); return; }
+  if(_dw.sel === i){ dwPlayCard(i); return; }
+  _dw.sel = i; buzz(4); dwRefresh();
+}
+function dwOpenCardSheet(i){
+  if(!_dw) return;
+  const B = _dw.B, id = B.hand[i]; if(id == null) return;
+  const s = DW_SPELLS[id], lv = dwSpellLv(B, id), cost = dwProof(B, id);
+  const combos = dwComboFor(B, id).map(c => DW_COCKTAILS.find(x => x.id === c));
+  const fx = [];
+  if(s.dmg && s.block) fx.push(`+${s.block[lv] + DW_CHARM_BLOCK[B.build.charm]} shield`);
+  if(s.dmg && s.poison) fx.push(`+${s.poison[lv]} poison`);
+  if(s.dmg && !s.aoe && dwGuarded(B)) fx.push('🛡 guarded: half damage');
+  if(s.freeze) fx.push('freezes the target');
+  if(s.stun) fx.push(dwWary(B) ? '😠 he\'s wide awake — no effect' : 'skips his next move');
+  if(s.confuse) fx.push('he hits himself');
+  if(s.strip) fx.push('breaks his ward');
+  if(s.draw) fx.push(`draw ${s.draw[lv]}`);
+  if(s.sober) fx.push(`−${s.sober[lv]} daze`);
+  if(dwIsWater(s)) fx.push('one glass a turn');
+  if(s.self) fx.push(`hurts you ${s.self[lv]}`);
+  if(s.blank) fx.push(dwWary(B) ? '😠 he\'s wide awake — no effect' : 'his next hit does 0');
+  if(s.heal) fx.push(`heal ${s.heal[lv]}`);
+  if(s.exhaust && !s.potion) fx.push('once a duel');
+  showCard({
+    tag:(s.potion ? '🧪 POTION' : lv ? 'LEVEL II SPELL' : 'SPELL') + (combos.length ? ' · 🍸 COMBO' : ''),
+    title:`${DW_EL[s.el].i} ${s.n}`,
+    body:`PROOF (DAZE ADDED): ${s.sober && !cost ? '💧 free' : cost}${fx.length ? '\n\n' + fx.join('\n') : ''}${combos.length ? '\n\nCOCKTAIL: ' + combos.map(c => c.n + ' — ' + c.d).join(' · ') : ''}`,
+    buttons:`<button class="btn ghost" onclick="closeCard()">◀ CLOSE</button>`
+  });
+}
 
 /* ── ARENA ART ── */
 const DW_SPR = {
@@ -12236,7 +12401,7 @@ function dwPaint(){
       hmR(ctx, '#120804', P.x - bw/2 - 1, by - 1, bw + 2, 5); hmR(ctx, '#3a1a14', P.x - bw/2, by, bw, 3); hmR(ctx, '#d8343c', P.x - bw/2, by, bw*hp/mx, 3);
       if(f && f.block){ ctx.font = 'bold 5px monospace'; ctx.textAlign = 'right'; ctx.fillStyle = '#8ab8ff'; ctx.fillText('🛡' + f.block, P.x - bw/2 - 2, by + 4); }
       ctx.font = 'bold 5px monospace'; ctx.textAlign = 'center'; ctx.fillStyle = targ ? '#ffd24a' : '#e0c8a8';
-      ctx.fillText((targ ? '▼ ' : '') + (mi.elite ? DW_TRAITS[mi.trait].i + '★' : (mi.ri || '')) + mi.short + ' ' + Math.ceil(hp), P.x, by - 2);
+      ctx.fillText((targ ? '▼ ' : '') + (mi.elite ? DW_TRAITS[mi.trait].i + '★' : (mi.ri || '')) + ' ' + Math.ceil(hp), P.x, by - 2);
       if(B && !B.over && dwGuarded(B, k) && !f.dead){ ctx.font = 'bold 5px monospace'; ctx.fillStyle = '#8ab8ff'; ctx.textAlign = 'left'; ctx.fillText('🛡½', P.x + bw/2 + 1, by + 4); ctx.textAlign = 'center'; }
       if(B && !B.over){ const sv = B.ti; B.ti = k; dwRelink(B); const it = dwIntentText(dwShownIntent(B), foe); const st = [f.poison ? '☠' + f.poison : '', f.frozen ? '❄' : '', f.str ? '💪' + f.str : ''].filter(Boolean).join(' '); B.ti = sv; dwRelink(B);
         const itc = it.replace(/ \+ /g, '+').replace(/(\S) (\d)/g, '$1$2');
@@ -12256,14 +12421,7 @@ function dwPaint(){
   dwBar(ctx, 18, 12, 82, _dwVis.me, B ? B.me.max : (_dwRun && !dwXPMode() ? dwRunMaxHp() : DW_WOOD_HP[dwLv('wood')]), '#58c040', B ? B.me.block : 0, 'YOU', 0);
   if(hasBoss) dwBar(ctx, 200, 12, 82, _dwVis.foe, fMax, foe.boss ? '#58c040' : '#d8343c', BF ? BF.block : 0, foe.short + (F.phases ? ' · FORM ' + (BF ? (BF.phase|0) + 1 : 1) + '/4' : ''));
   if(hasBoss && F.phases){ const pn = DW_FOES_CORE[foe.id].phases[BF ? BF.phase|0 : 0].n; ctx.font = 'bold 6px monospace'; ctx.textAlign = 'center'; const pw = ctx.measureText(pn).width + 6; hmR(ctx, 'rgba(40,8,30,.8)', 241 - pw/2, 21, pw, 8); ctx.fillStyle = '#ff9ad8'; ctx.fillText(pn, 241, 27); }
-  if(B){   // the daze strip under your health: tinted zones, the gold sweet spot, a 💤 at the end
-    const cap = B.me.cap, w = 82, sw = w/cap, lo = dwSweetLo(B), y = 21, now2 = performance.now();
-    hmR(ctx, '#120804', 17, y - 1, w + 2, 6);
-    for(let k = 0; k < cap; k++){ const x = 18 + k*sw, on = k < B.me.buzz, sweet = k + 1 >= lo;
-      hmR(ctx, on ? (sweet ? '#ffd24a' : (k + 1)/cap > .75 ? '#ff9a50' : (k + 1)/cap > .5 ? '#ffd27a' : '#8ad4ff') : (sweet ? '#4a3a10' : '#241630'), x, y, Math.max(1, sw - 1), 4); }
-    if(B.me.buzz >= lo){ ctx.globalAlpha = .5 + .3*Math.sin(now2/120); hmR(ctx, '#ffd24a', 18 + (lo - 1)*sw, y - 1, sw*dwSweet(B), 6); ctx.globalAlpha = 1; }
-    ctx.font = 'bold 5px monospace'; ctx.textAlign = 'left'; ctx.fillStyle = '#c8b0e0'; ctx.fillText('🌀 DAZE ' + B.me.buzz + '/' + cap, 18, y + 10);
-  }
+  // daze now shows once, in the hand panel below — not duplicated on the canvas
   ctx.font = 'bold 7px monospace'; ctx.textAlign = 'left';
   const myS = B ? [B.me.burn ? `🔥${B.me.burn}` : '', B.me.charmed ? '💘' : ''].filter(Boolean).join(' ') : '';
   const foS = BF ? [BF.poison ? `☠${BF.poison}` : '', BF.frozen ? '❄' : '', BF.str ? `💪${BF.str}` : '', BF.confuse ? '🌀' : '', BF.counter ? '📜' : '', BF.blank ? '🤡' : ''].filter(Boolean).join(' ') : '';
@@ -12272,10 +12430,11 @@ function dwPaint(){
     const sv = B.ti; B.ti = 0; dwRelink(B);
     const liar = !!DW_FOES_CORE[foe.id].show, it = (liar ? '🎭 ' : '') + dwIntentText(dwShownIntent(B), foe), it2 = dwHas('umbrella') ? dwIntentText(dwShownIntent(B, 1), foe) : '';
     B.ti = sv; dwRelink(B);
-    const iy = Math.max(fy0 - 14, F.phases ? 42 : 0), w = ctx.measureText(it).width + 14;
+    ctx.font = 'bold 8px monospace';
+    const iy = Math.max(fy0 - 14, F.phases ? 42 : 0), w = ctx.measureText(it).width + 16;
     const ix = Math.max(w/2 + 1, Math.min(W - w/2 - 1, BX));
-    hmR(ctx, 'rgba(10,4,2,.8)', ix - w/2, iy - 9, w, 13); hmR(ctx, '#ffd24a', ix - w/2, iy - 9, w, 1);
-    ctx.textAlign = 'center'; ctx.fillStyle = '#ffd24a'; ctx.fillText(it, ix, iy);
+    hmR(ctx, 'rgba(10,4,2,.8)', ix - w/2, iy - 10, w, 15); hmR(ctx, '#ffd24a', ix - w/2, iy - 10, w, 1);
+    ctx.textAlign = 'center'; ctx.fillStyle = '#ffd24a'; ctx.fillText(it, ix, iy + 1);
     if(it2){ ctx.fillStyle = 'rgba(255,210,74,.55)'; ctx.font = '6px monospace'; ctx.fillText('THEN: ' + it2, ix, iy - 12 < 30 ? iy + 11 : iy - 12); }
   }
   // projectiles
@@ -14695,6 +14854,32 @@ function renderGuide(){
       <p class="small">Win a challenge and the <b class="gold">Cauldron</b> lights up. First <b>choose a recipe</b>, then add ingredients: each one climbs the next <b>rune</b> of that recipe, raising your XP multiplier (×1.4 → ×1.8 → ×2.25 → ×3.1 → ×5) and pouring that rune's gift into the bottle — <b>ᚠ draw</b>, <b>ᚢ healing</b>, <b>ᚦ damage</b>, <b>ᚨ shield</b>, <b>ᛟ sobering</b>. Each step risks a curdle. <b class="gold">BOTTLE IT</b> to bank the XP <b>and</b> the potion, which rides into Happy Hex Hour as a free card (hold up to 4; they stay in your hand until you drink them). <b class="gold">TAKE SAFE XP</b> gives ×1 and no potion.</p>
       <p class="small"><b class="gold">📜 Recipes & the Rune Circle:</b> every new KIND of challenge you win (beer, shot, party, physical, gamble, boss…) teaches a recipe, and every recipe climbs the runes in its <b>own order</b> (Dragon's Dram ᚦ ᚦ ᚠ ᚦ ᛟ, Moonwater ᛟ ᛟ ᚢ ᚠ…). A rune wakes once you know a recipe that uses it. In your <b>Bag</b> you carve runes with coins + duel ingredients: a carved rune pours more into every potion and makes its rungs safer, so the runes you carve decide what kind of brewer you become — more damage, more healing, more shields.</p>
       <p class="small">Your class: <b class="gold">+40% XP on shots</b> (they're potions, obviously) and shot tiles come up more — <b class="red">−25% on party games</b>.</p>
+    </div>
+    <div class="panel" id="infoDuel">
+      <h2>⚡ HAPPY HEX HOUR · 1 THE GOAL</h2>
+      <p class="small">Fight down the dungeon: each floor is <b class="gold">rooms of minions</b>, a <b class="gold">★ mini-boss</b> (from floor 4), then its <b class="gold">rival</b>. Health and daze carry over, and losing ends the run — you keep your loot. <b class="gold">Checkpoints</b> save your spot. <b class="gold">Lord Vodkamort</b> only appears in a run that started on floor 1 and beat all nine rivals.</p>
+    </div>
+    <div class="panel">
+      <h2>🌀 2 YOUR TURN</h2>
+      <p class="small">Every spell is a potion, and its orange number is its <b class="gold">proof</b> (it adds that much daze). The dazier you are, the weaker spells land (100% → 85% → 70%) — until the <b class="gold">gold sweet spot</b>, where every potion <b class="gold">crits ×2</b>. One over and you pass out: the spell spills and you sleep through a turn. You sober up a little each turn, and 💧 water helps. Tap a card to see where your daze lands, then tap again (or CAST) to cast.</p>
+    </div>
+    <div class="panel">
+      <h2>🎯 3 READING FOES</h2>
+      <p class="small"><b class="gold">Intents:</b> ⚔ attack · 💥 big hit · ⏳ charging · 🛡 ward · 💪 strength · 🍸 spikes your daze · 💚 mends · 📣 rallies · 📣 HELP summons · 📜 decree (cancels your next hit) · 💘 charm · 🎭 might be lying.</p>
+      <p class="small"><b class="gold">Roles:</b> ⚔ brute · 🗡 pest · 💚 medic · 🍸 spiker · 📣 hype · 🛡 guard. <b class="gold">Mini-boss traits:</b> 🍷 😤 🛡 🩸 🌵 📣.</p>
+      <p class="small dim">Press and hold any foe or card to inspect it.</p>
+    </div>
+    <div class="panel">
+      <h2>🍸 4 COCKTAILS</h2>
+      <p class="small">❄→⚡ shatter ×2 · ☠→🔥 flambé · 🛡→hit +3 · ✨→ −1 proof.</p>
+    </div>
+    <div class="panel">
+      <h2>🗺 5 THE RUN</h2>
+      <p class="small">A reward after every room (two after a mini-boss); the tavern after a rival (full heal + one of tonight's specials for the rest of the run); go home any time.</p>
+    </div>
+    <div class="panel">
+      <h2>💪 6 GETTING STRONGER</h2>
+      <p class="small">Carve runes (Bag) · brew potions (Cauldron) · buy spells and gems.</p>
     </div>
     <div class="panel">
       <h2>🌀 WILD MAGIC — POLYMORPH</h2>

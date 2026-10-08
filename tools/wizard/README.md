@@ -12,4 +12,16 @@ Env: `CASES='[[start,end,"build"]]'` (floor indexes 0–9), `N` runs per case, `
 
 Builds (`builds.json`): `bare` (no runes, starter deck) · `early` (runes 1, lime gem) · `mid` (runes 2) · `full` (runes 3, late spells).
 
-Reference numbers (v11, Oct 2026): F1–F3 early: smart 100% / naive 50% / random 20%. F1–F3 bare: smart ~50%. Full Last Call (F1–F10, full): ~0% (endgame by design).
+Reference numbers (sim fixed Oct 7, v11 engine, POT=1, N=12, noisy ±20 points):
+
+| Case | smart | naive | high | random |
+|---|---|---|---|---|
+| F1–F3 early | 75–92% | 67–100% | 83% | 75–83% |
+| F1–F3 bare | 8–17% | 8–33% | 17% | 8% |
+
+What this says:
+- **Targeting barely changes run outcomes yet.** Runs die at rivals (mostly the Troll), not in rooms.
+- Early rooms cost only ~1–7 health whatever you aim at.
+- Target choice starts to matter in the guard rooms from floor 5 (e.g. dementors room 2: smart −12, naive −6, high-HP-first −25).
+
+Earlier README numbers ("smart 100 / naive 50 / random 20") came from a bot bug and are wrong. The bug: lines recorded the target *after* the cast, so a kill-retarget sent the next spell at the wrong foe.

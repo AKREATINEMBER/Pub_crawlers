@@ -14,7 +14,7 @@ function look(B, d0, fixed){ let best = { s:-1e9, line:[] };
     for(let i = 0; i < st.hand.length; i++){ const id = st.hand[i]; if(seen.has(id)) continue; seen.add(id); if(!dwCanPlay(st, i)) continue;
       const s = DW_SPELLS[id], live = st.foes.map((f, k) => k).filter(k => !st.foes[k].dead);
       const tg = fixed != null ? [st.foes[fixed] && !st.foes[fixed].dead ? fixed : live[0]] : (s.dmg || s.stun || s.freeze || s.poison || s.blank || s.confuse) && !s.aoe ? live : [st.ti];
-      for(const k of tg){ const n = clone(st); dwTarget(n, k); dwPlay(n, n.hand.indexOf(id)); line.push([id, n.ti]); rec(n, line, d - 1); line.pop(); } } })(B, [], d0);
+      for(const k of tg){ const n = clone(st); dwTarget(n, k); const aim = n.ti; dwPlay(n, n.hand.indexOf(id)); line.push([id, aim]); rec(n, line, d - 1); line.pop(); } /* record the target AT CAST TIME: a kill retargets n.ti */ } })(B, [], d0);
   return best.line; }
 const pick = (B, order) => { const al = B.foes.map((f, k) => [f, k]).filter(x => !x[0].dead); al.sort(order); return al[0][1]; };
 const POL = {
