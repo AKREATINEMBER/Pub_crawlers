@@ -2486,6 +2486,7 @@ html.spot-lock{overflow:hidden;overscroll-behavior:none} /* only the viewport: c
             </div>
             <div class="cw-meter-lbl" data-gate="tank_rage"><span>🔥 BERSERKER RAGE</span><span id="chugRagePct">0%</span></div>
             <div class="cw-meter lh-rage" data-gate="tank_rage"><i id="chugRageFill" style="width:0%"></i></div>
+            <div class="cw-substat" id="tkRenownLbl">⚔ <b>THE FARMHAND</b></div>
             <div class="cw-substat" id="chugRankStats" data-gate="tank_rage">⚡ 0 flawless · 🔥 0 rage activations</div>
           </div>
         </div>
@@ -3381,7 +3382,7 @@ function freshState(){
   return {
     name:'', charId:'tank', currentTile:null, pulls:0, xp:0, level:1, drinks:0, fails:0, wins:0,
     skips:2, pace:0, waters:0, laps:0, spins:0, gambleWins:0, respin:1, badLuckHeat:0,
-    doubleNext:false, startTime:Date.now(), log:[], ach:[],
+    doubleNext:false, startTime:Date.now(), log:[], ach:[], tkTierSeen:0,
     flags:{}, resolved:false, secret:null, secretDone:false, secretBlown:false,
     secret2:null, secret2Available:false, secret2Declined:false, secret2Done:false, secret2Blown:false, karaokeDone:false, beerLogCount:0, bossMarks:{}, bossesAvenged:0,
     bounty:null, underdog:null, unlocksSeen:null, veteran:false, tutorialDone:false, tutStep:null, tutRate0:0, bountyStats:{ taken:0, survived:0, caught:0, failed:0, defended:0 },
@@ -3761,9 +3762,15 @@ function drawChar(ctx, ch, px, py, scale, frame){
       let col = map[c] || '#fff';
       if(ch.id==='tank'){
         // Viking brew-king: ginger braids & beard, fur mantle, blood-wine tunic,
-        // gold-buckled war belt, leather bracers, fur-wrapped boots
-        const ginger='#c4501e', gingerD='#8a3214', fur='#6b4a2e', tunic='#7a1a24', tunicD='#4e0f16',
-              leather='#2a170b', gold='#e0a530', boot='#8a6a44', bootD='#4a3020';
+        // gold-buckled war belt, leather bracers, fur-wrapped boots.
+        // ch.tier (the settlement hero only) swaps the kit for his renown — a farmhand has
+        // no mantle and no gold, Thor's equal is in storm-blue with a lightning buckle.
+        const T = ch.tier;
+        const ginger='#c4501e', gingerD='#8a3214',
+              fur = T ? (T.mantle || T.tunicD) : '#6b4a2e',
+              tunic = T ? T.tunic : '#7a1a24', tunicD = T ? T.tunicD : '#4e0f16',
+              leather = T ? T.belt : '#2a170b', gold = T ? T.metal : '#e0a530',
+              boot='#8a6a44', bootD='#4a3020';
         if((y>=3 && y<=5) && (x===3 || x===8)) col = y===5 ? gingerD : ginger;      // long hair down the sides
         else if(y===6 && c!=='O') col = (x===5||x===6) ? gingerD : ginger;           // moustache hides the grin
         else if(y===7 && c==='B') col = (x>=4 && x<=7) ? ginger : fur;               // beard over the fur mantle
@@ -3790,37 +3797,86 @@ function drawChar(ctx, ch, px, py, scale, frame){
   if(ch.accType==='crown'){
     for(const dx of [3,5,7]) ctx.fillRect(px+dx*scale, ay-scale*2, scale, scale*2);
     ctx.fillRect(px+3*scale, ay-scale, scale*5, scale);
-  } else if(ch.accType==='vikinghelm'){
+  } else if(ch.accType==='vikinghelm' || ch.accType==='tkTier'){
     const R = (x,y,w,h,c)=>{ ctx.fillStyle=c; ctx.fillRect(px+x*scale, ay+y*scale, w*scale, h*scale); };
+    const T = ch.tier, hd = T ? T.head : 'horned';
     const steel='#8d96a3', steelD='#5c6570', steelL='#c3cad4', horn='#efe2c4', hornD='#b8a47c', hornTip='#7a6a50',
-          gold='#e0a530', goldL='#ffd56a', fur='#6b4a2e', furL='#a07850', furTip='#d8c49a', ginger='#c4501e', bead='#ffd56a';
-    // fur mantle — lumpy pelt sitting proud of the shoulders
-    R(2.2,6.85,2.3,0.75,fur); R(7.5,6.85,2.3,0.75,fur);
-    R(2.4,6.75,0.8,0.35,furL); R(3.5,6.7,0.8,0.35,furL); R(7.7,6.7,0.8,0.35,furL); R(8.8,6.75,0.8,0.35,furL);
-    R(2.5,7.45,0.5,0.3,furTip); R(9.0,7.45,0.5,0.3,furTip);
-    // twin beard braids with gold beads
+          gold='#e0a530', goldL='#ffd56a', fur = T && T.mantle ? T.mantle : '#6b4a2e',
+          furL='#a07850', furTip='#d8c49a', ginger='#c4501e', bead='#ffd56a';
+    const now = Date.now();
+    // fur mantle — lumpy pelt sitting proud of the shoulders. The farmhand owns no pelt yet.
+    if(!T || T.mantle){
+      R(2.2,6.85,2.3,0.75,fur); R(7.5,6.85,2.3,0.75,fur);
+      R(2.4,6.75,0.8,0.35,furL); R(3.5,6.7,0.8,0.35,furL); R(7.7,6.7,0.8,0.35,furL); R(8.8,6.75,0.8,0.35,furL);
+      R(2.5,7.45,0.5,0.3,furTip); R(9.0,7.45,0.5,0.3,furTip);
+    }
+    // twin beard braids — gold beads once there is gold to spare
     R(4.95,8.9,0.7,0.5,ginger); R(6.35,8.9,0.7,0.5,ginger);
-    R(4.95,8.55,0.7,0.35,bead); R(6.35,8.55,0.7,0.35,bead);
+    if(!T || hd !== 'straw'){ const bc = T ? T.metal : bead; R(4.95,8.55,0.7,0.35,bc); R(6.35,8.55,0.7,0.35,bc); }
     // iron studs on the bracers
-    R(2.35,9.3,0.3,0.3,'#aab2bf'); R(9.35,9.3,0.3,0.3,'#aab2bf');
-    // horns — curl out and up from the sides of the helm
-    [[1.4,0.9,1.4,1.0],[0.6,0.0,1.3,1.1],[0.15,-1.0,1.05,1.15],[0.3,-1.9,0.75,1.0]].forEach(([x,y,w,h],i)=>{
-      R(x,y,w,h,horn); R(12-x-w,y,w,h,horn);
-      R(x,y+h-0.3,w,0.3,hornD); R(12-x-w,y+h-0.3,w,0.3,hornD);
-    });
-    R(0.35,-2.2,0.55,0.45,hornTip); R(11.1,-2.2,0.55,0.45,hornTip);
-    // iron dome
-    R(3.4,-0.9,5.2,0.8,steel); R(2.6,-0.2,6.8,2.3,steel);
-    R(2.6,-0.2,0.8,2.3,steelD); R(3.4,-0.9,0.6,0.8,steelD);
-    R(4.4,-0.7,2.4,0.35,steelL); R(4.0,0.0,0.6,1.4,steelL);
-    // ridge
-    R(5.65,-1.2,0.7,3.0,steelD);
-    // the crown band — still king of the longhouse
-    R(2.3,1.9,7.4,0.9,gold); R(2.3,1.9,7.4,0.25,goldL);
-    R(3.2,2.15,0.55,0.45,'#7a1a24'); R(5.72,2.15,0.55,0.45,'#2e6bd6'); R(8.25,2.15,0.55,0.45,'#7a1a24');
-    R(3.3,1.5,0.35,0.45,gold); R(5.82,1.4,0.35,0.5,gold); R(8.35,1.5,0.35,0.45,gold);
-    // nose guard
-    R(5.65,2.8,0.7,1.5,steel); R(5.65,2.8,0.25,1.5,steelD);
+    if(!T || hd !== 'straw'){ R(2.35,9.3,0.3,0.3,'#aab2bf'); R(9.35,9.3,0.3,0.3,'#aab2bf'); }
+    if(hd === 'straw'){
+      // a wide straw hat and nothing else worth stealing
+      const strawL='#d8bc70', straw='#b89a48', strawD='#8a7030';
+      R(1.6,1.75,8.8,0.6,strawD); R(1.9,1.35,8.2,0.5,straw);
+      R(3.1,0.1,5.8,1.35,straw); R(3.1,0.1,5.8,0.4,strawL); R(3.1,1.1,5.8,0.3,strawD);
+      R(4.0,-0.35,4.0,0.5,straw); R(4.3,-0.35,2.0,0.25,strawL);
+    } else if(hd === 'leather'){
+      // a studded leather cap, first thing he took off somebody
+      const lth='#6a4a28', lthD='#3e2a14', lthL='#8a6838';
+      R(2.9,-0.1,6.2,2.1,lth); R(2.9,-0.1,6.2,0.45,lthL); R(2.9,1.6,6.2,0.4,lthD);
+      R(2.6,0.9,0.5,1.1,lthD); R(8.9,0.9,0.5,1.1,lthD);
+      [3.6,5.0,6.4,7.8].forEach(x=> R(x,0.6,0.35,0.35,'#aab2bf'));
+      R(5.65,2.6,0.7,1.1,lth);
+    } else if(hd === 'iron'){
+      // a plain riveted skullcap with a nose bar — a real warrior's kit at last
+      R(3.3,-0.5,5.4,0.7,steel); R(2.75,0.1,6.5,2.0,steel);
+      R(2.75,0.1,0.7,2.0,steelD); R(3.3,-0.5,0.5,0.7,steelD);
+      R(4.3,-0.3,2.2,0.3,steelL);
+      R(2.75,1.75,6.5,0.35,steelD);
+      [3.4,5.65,7.9].forEach(x=> R(x,0.5,0.35,0.35,steelL));
+      R(5.65,2.1,0.7,1.5,steel); R(5.65,2.1,0.25,1.5,steelD);
+    } else {
+      // the full war helm: horns, iron dome, ridge, nose guard
+      [[1.4,0.9,1.4,1.0],[0.6,0.0,1.3,1.1],[0.15,-1.0,1.05,1.15],[0.3,-1.9,0.75,1.0]].forEach(([x,y,w,h],i)=>{
+        R(x,y,w,h,horn); R(12-x-w,y,w,h,horn);
+        R(x,y+h-0.3,w,0.3,hornD); R(12-x-w,y+h-0.3,w,0.3,hornD);
+      });
+      R(0.35,-2.2,0.55,0.45,hornTip); R(11.1,-2.2,0.55,0.45,hornTip);
+      R(3.4,-0.9,5.2,0.8,steel); R(2.6,-0.2,6.8,2.3,steel);
+      R(2.6,-0.2,0.8,2.3,steelD); R(3.4,-0.9,0.6,0.8,steelD);
+      R(4.4,-0.7,2.4,0.35,steelL); R(4.0,0.0,0.6,1.4,steelL);
+      R(5.65,-1.2,0.7,3.0,steelD);
+      // the crown band — the jarl has the horns, but the crown is the king's
+      if(!T || hd !== 'horned'){
+        const cg = T ? T.metal : gold;
+        R(2.3,1.9,7.4,0.9,cg); R(2.3,1.9,7.4,0.25,goldL);
+        R(3.2,2.15,0.55,0.45,'#7a1a24'); R(5.72,2.15,0.55,0.45,'#2e6bd6'); R(8.25,2.15,0.55,0.45,'#7a1a24');
+        R(3.3,1.5,0.35,0.45,cg); R(5.82,1.4,0.35,0.5,cg); R(8.35,1.5,0.35,0.45,cg);
+      }
+      R(5.65,2.8,0.7,1.5,steel); R(5.65,2.8,0.25,1.5,steelD);
+      // god-touched: runes burning along the horns, breathing in and out
+      if(hd === 'runed' || hd === 'storm'){
+        const pulse = 0.55 + 0.45*Math.sin(now/320);
+        ctx.save(); ctx.globalAlpha = pulse;
+        [[1.0,0.45],[0.45,-0.6],[10.1,0.45],[10.5,-0.6]].forEach(([x,y])=> R(x,y,0.45,0.45,'#c08aff'));
+        R(5.68,-1.0,0.35,2.4,'#c08aff');
+        ctx.restore();
+      }
+      // Thor's equal: the helm throws sparks and the horns are lit white-hot
+      if(hd === 'storm'){
+        ctx.save();
+        ctx.globalAlpha = 0.35 + 0.3*Math.sin(now/180);
+        R(0.1,-2.4,1.2,0.5,'#eaf6ff'); R(10.7,-2.4,1.2,0.5,'#eaf6ff');
+        ctx.restore();
+        for(let i=0;i<3;i++){
+          const t = ((now/260) + i/3) % 1;
+          ctx.save(); ctx.globalAlpha = Math.max(0, 1 - t);
+          R(1.6 + i*3.8 + Math.sin(now/200 + i)*0.5, -2.6 - t*1.6, 0.35, 0.8, '#fff4d0');
+          ctx.restore();
+        }
+      }
+    }
   } else if(ch.accType==='hat'){
     ctx.fillRect(px+2*scale, ay, scale*8, scale);
     ctx.fillRect(px+3*scale, ay-scale*2, scale*6, scale*2);
@@ -5143,13 +5199,45 @@ const TK_SAGA = [
   ['THE GOD OF MEAD', 'Ragnarök. The serpent rises and Thor needs a hand. The peasant from the turf hut answers.']
 ];
 
-function tkStage(L){ return L<=2 ? 'peasant' : L<=4 ? 'raider' : L<=9 ? 'jarl' : L<=12 ? 'armoured' : L<=18 ? 'king' : L===19 ? 'ascending' : 'god'; }
+/* ══ THE TANK-ARD'S RENOWN ══
+   He wears what he has done. RENOWN = his level + 2 for every achievement earned this run,
+   so trophies visibly pull him up the ladder without ever letting him turn up to Ragnarök
+   in a farmhand's smock. Seven tiers, each with its own kit: tunic, mantle, metal and headgear.
+   The hero drawn into the settlement (vkHeroScene) is the only sprite that tiers up — the
+   character select, the duel and the shop all keep the canonical Tank-ard look. */
+const TK_RENOWN_PER_ACH = 2;
+const TK_TIERS = [
+  { id:'peasant',   n:'THE FARMHAND',    need:0,  tunic:'#6a5a3a', tunicD:'#463a24', belt:'#4a3a20', mantle:null,      metal:'#7a6a50', head:'straw'   },
+  { id:'raider',    n:'THE RAIDER',      need:6,  tunic:'#5a4028', tunicD:'#3a2818', belt:'#2a170b', mantle:'#5a4530', metal:'#8a7a60', head:'leather' },
+  { id:'huscarl',   n:'THE HUSCARL',     need:13, tunic:'#4a5460', tunicD:'#333c46', belt:'#2a170b', mantle:'#5a4530', metal:'#aab2bf', head:'iron'    },
+  { id:'jarl',      n:'THE JARL',        need:20, tunic:'#7a1a24', tunicD:'#4e0f16', belt:'#2a170b', mantle:'#6b4a2e', metal:'#e0a530', head:'horned'  },
+  { id:'king',      n:'THE BREW-KING',   need:28, tunic:'#7a1a24', tunicD:'#4e0f16', belt:'#2a170b', mantle:'#6b4a2e', metal:'#e0a530', head:'crowned' },
+  { id:'ascending', n:'THE GOD-TOUCHED', need:38, tunic:'#2e2a58', tunicD:'#1c1a38', belt:'#2a1a4a', mantle:'#3a2a60', metal:'#c08aff', head:'runed'   },
+  { id:'god',       n:"THOR'S EQUAL",    need:48, tunic:'#2e2a58', tunicD:'#1c1a38', belt:'#3a2a10', mantle:'#4a3a70', metal:'#ffe27a', head:'storm'   }
+];
+function tankRenown(){ if(!S) return 0; return (S.level||1) + ((S.ach||[]).length * TK_RENOWN_PER_ACH); }
+function tkTierIdx(r){ r = r == null ? tankRenown() : r; let i = 0; TK_TIERS.forEach((t,k)=>{ if(r >= t.need) i = k; }); return i; }
+function tkTier(){ return TK_TIERS[tkTierIdx()]; }
+function tankTierName(){ return tkTier().n; }
+function tkNextTier(){ return TK_TIERS[tkTierIdx()+1] || null; }
 const _tkStageCache = {};
-function tankStageChar(L){
-  const st = tkStage(Math.max(1, Math.min(20, L||1)));
-  if(_tkStageCache[st]) return _tkStageCache[st];
+function tankStageChar(){
+  const t = tkTier();
+  if(_tkStageCache[t.id]) return _tkStageCache[t.id];
   const base = CHARS.find(c=>c.id==='tank');
-  return (_tkStageCache[st] = Object.assign({}, base, { stage:st }));
+  return (_tkStageCache[t.id] = Object.assign({}, base, { stage:t.id, tier:t, accType:'tkTier' }));
+}
+// a tier-up is the payoff for a trophy: announce it wherever the player happens to be.
+// S.tkTierSeen keeps it to once per tier however many paths call this, and across a reload.
+function tkCheckTierUp(){
+  if(!S || S.charId !== 'tank') return;
+  const now = tkTierIdx();
+  if(now <= (S.tkTierSeen|0)) return;
+  S.tkTierSeen = now;
+  const t = TK_TIERS[now];
+  addLog('⚔ THE SAGA GROWS — you are now ' + t.n);
+  floatText('⚔ ' + t.n, '#d4841a');
+  setTimeout(()=>epicToast('⚔ ' + t.n + ' — THE VILLAGE SEES YOU DIFFERENTLY'), 450);
 }
 function vkSay(ctx, x, y, text){
   ctx.save(); ctx.font = 'bold 5px monospace'; ctx.textAlign = 'center';
@@ -5182,7 +5270,7 @@ function vkHeroProp(ctx, kind, hx, hy, now, o){
 /* draw him: feet at (x, gy). o: { prop, flip, lift, ang, bx, by } */
 function vkHeroSprite(ctx, x, gy, L, now, o){
   o = o || {};
-  const ch = tankStageChar(L), sc = 1.45;
+  const ch = tankStageChar(), sc = 1.45;
   const px = x - 6*sc, py = gy - 12*sc - (o.lift || 0);
   drawChar(ctx, ch, px, py, sc, 100);
   const hx = o.flip ? px + 1.4*sc : px + 10.6*sc, hy = py + 8.8*sc;
@@ -7207,7 +7295,7 @@ function computeEpicTitle(){
   if(!S || !S.charId) return '';
   const ch = CHARS.find(c=>c.id===S.charId);
   const parts = [];
-  if(S.charId === 'tank' && (S.relics||[]).includes('skullcup')) parts.push((ch ? ch.name : '') + ' — HEADHUNTER');
+  if(S.charId === 'tank') parts.push((ch ? ch.name : '') + ' — ' + tankTierName() + ((S.relics||[]).includes('skullcup') ? ' · HEADHUNTER' : ''));
   else parts.push(CHAR_TITLE_BASE[S.charId] || (ch ? ch.name : ''));
   const avenged = S.bossesAvenged||0;
   if(avenged>=2) parts.push(`SLAYER OF ${avenged} BOSSES`);
@@ -9625,6 +9713,13 @@ function refreshChug(){
   if(modeLbl) modeLbl.textContent = pw ? '🔨 XP ON THE STUMP' : 'THE STUMP AWAITS';
   const rankStatEl = document.getElementById('chugRankStats');
   if(rankStatEl) rankStatEl.textContent = '⚡ '+(S.perfectChugs||0)+' flawless wagers · 🔥 '+(S.rageActivations||0)+' rage activations';
+  const renownEl = document.getElementById('tkRenownLbl');
+  if(renownEl){
+    const nx = tkNextTier();
+    renownEl.innerHTML = '⚔ <b>' + tankTierName() + '</b>'
+      + (nx ? ' · <span class="dim">' + Math.max(0, nx.need - tankRenown()) + ' renown to ' + nx.n + '</span>'
+            : ' · <span class="dim">the saga is complete</span>');
+  }
   const rageBar = document.getElementById('chugRageFill'), ragePct = document.getElementById('chugRagePct'), bloodiedBadge = document.getElementById('chugBloodied');
   const rage = S.rage || 0;
   if(rageBar){
@@ -13796,7 +13891,9 @@ setInterval(()=>{
   const ctx = c.getContext('2d');
   ctx.clearRect(0,0,c.width,c.height);
   const polyId = S.charId==='wizard' && S._wizPendingWin && S._wizPendingWin.poly;
-  const ch = CHARS.find(x=>x.id===(polyId || S.charId)), p = CW_PORTRAIT[polyId || S.charId];
+  // the Tank-ard's own portrait wears his renown, so a tier-up is visible without leaving the panel
+  const ch = (!polyId && S.charId === 'tank') ? tankStageChar() : CHARS.find(x=>x.id===(polyId || S.charId));
+  const p = CW_PORTRAIT[polyId || S.charId];
   const { scale, px, py } = charFit(c.width, c.height);
   const excited = !!(S._pendingWin || S._tankPendingWin || S._wizPendingWin || _chugPhase==='going' || _pintHolding);
   drawChar(ctx, ch, px, py, scale, excited ? p.off + (_cwFrame % p.win) : _cwFrame);
@@ -14098,6 +14195,7 @@ function checkAchievements(){
     if(S.ach.includes(a.id)) return;
     if(a.test(S)){ S.ach.push(a.id); toast('🏅 '+a.n); addLog('ACHIEVEMENT: '+a.n); }
   });
+  tkCheckTierUp();   // trophies are renown: the Tank-ard may have just grown out of his kit
 }
 function renderLog(){
   const el = document.getElementById('logList');
