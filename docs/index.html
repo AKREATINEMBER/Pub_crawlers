@@ -212,7 +212,17 @@ input[type=text]::placeholder{color:#fff;opacity:.9;}
 
 /* ---------- arena ---------- */
 #arenaWrap{position:relative;border:3px solid #6b4a26;box-shadow:0 0 0 3px #170f08, inset 0 0 30px rgba(217,126,43,.18);background:#0f0904;overflow:hidden;}
-#arena{width:100%;height:auto;}
+#arena{width:100%;height:auto;touch-action:pan-y;cursor:grab;-webkit-user-select:none;user-select:none;}
+#arena.dragging{cursor:grabbing;}
+#sagaCap{position:absolute;left:8px;right:8px;top:8px;padding:7px 10px 8px;background:linear-gradient(180deg,rgba(14,6,4,.9),rgba(14,6,4,.74));border:1px solid rgba(255,190,110,.4);border-left:3px solid #ffb347;pointer-events:none;opacity:0;transform:translateY(-6px);transition:opacity .5s ease, transform .5s ease;}
+#sagaCap.in{opacity:1;transform:none;}
+#sagaCap.low{top:auto;bottom:26px;}
+#sagaCap.out{opacity:0;}
+#sagaCap small{display:block;font-size:6.5px;letter-spacing:2px;color:#c09070;}
+#sagaCap b{display:block;font-size:11px;letter-spacing:1.5px;color:#ffd24a;margin:3px 0 3px;}
+#sagaCap span{display:block;font-size:8px;line-height:1.55;color:#f2e2bd;}
+#arenaHint{position:absolute;left:50%;bottom:30px;transform:translateX(-50%);font-size:9px;letter-spacing:2px;color:#ffe9b0;background:rgba(10,6,4,.6);border:1px solid rgba(255,210,140,.35);padding:5px 10px;border-radius:12px;pointer-events:none;white-space:nowrap;animation:hintPulse 1.6s ease-in-out infinite;}
+@keyframes hintPulse{0%,100%{opacity:.55}50%{opacity:1}}
 #arenaWrap{position:relative;margin-bottom:0;}
 #brewRateLabel{position:absolute;bottom:6px;right:8px;font-size:12px;color:#e8b23a;text-shadow:0 2px 0 #3a1e00,0 0 10px rgba(232,178,58,.5);letter-spacing:1px;font-weight:bold;font-family:'Courier New',monospace;}
 #arenaLabel{position:absolute;top:4px;left:6px;font-size:7px;color:var(--dim);}
@@ -2391,6 +2401,8 @@ html.spot-lock{overflow:hidden;overscroll-behavior:none} /* only the viewport: c
   <section id="screen-game" class="hide">
     <div id="arenaWrap">
       <canvas id="arena" width="720" height="440"></canvas>
+      <div id="arenaHint" class="hide">◀ SWIPE TO LOOK AROUND ▶</div>
+      <div id="sagaCap" class="hide"></div>
       <div id="brewRateLabel">🍺 0.0/min</div>
     </div>
     <div class="panel tight" style="margin-top:0;border-top:none;border-radius:0 0 8px 8px;">
@@ -4805,10 +4817,56 @@ function vkParty(ctx, x0, x1, gy, now){
   for(let i=0;i<4;i++){ const t = ((now/1600) + i/4) % 1; ctx.globalAlpha = Math.sin(t*Math.PI); ctx.fillStyle = '#ffd24a'; ctx.fillText(i%2 ? '♪' : '♫', x0 + 20 + i*((x1-x0-40)/3), gy - 18 - t*16); }
   ctx.globalAlpha = 1;
 }
+function vkNow(){ return Date.now() - (window._vkEpoch || 0); }
+// time within an event's cycle: the event unlocked by the latest level-up starts at 0, the others stay half a cycle away
+function vkPh(now, P, evLevel){ return (now + (window._vkRevealLevel === evLevel ? 0 : P*0.5)) % P; }
+/* where the camera should look when level L unlocks its new thing (world x) */
+function vkRevealX(L){
+  const v = vkConf(), lay = vkInland(v), X0 = lay.X0;
+  const seg = t => { const q = lay.segs.find(z=>z.t===t); return q ? q.x + q.w/2 : null; };
+  const great = v.b.find(b=>b[0]==='great'), docks = vkDocks(v), mainW = vkMainWidth(v);
+  const at = {
+    1: X0 + v.b[0][1] + 10,                       // the snoring viking
+    2: X0 + vkSeaEnd(v) - 20,                     // end of the jetty
+    3: X0 + 121,                                  // mead hall + goats
+    4: great ? X0 + great[1] + great[2]/2 : X0 + 130,
+    5: X0 + 60,                                   // Jelling stone; the Valkyrie flies in from here
+    6: X0 + 227,                                  // golden statue
+    7: X0 + mainW - 40,                           // kraken
+    8: seg('fenrir'), 9: seg('farm'), 10: seg('forge'),
+    11: docks.length ? X0 + docks[0].x : null,    // stone quay + bigger ship
+    12: X0 + v.shore + 60,                        // frost giant (starts here)
+    13: seg('market'), 14: seg('tree'),
+    15: docks.length ? X0 + docks[0].x : null,    // the dragonship
+    16: great ? X0 + great[1] + great[2]/2 : null,// Thor's chariot passes over; goats gone from the yard
+    17: seg('barrow'),
+    18: docks.length ? X0 + docks[0].x : null,    // golden flagship
+    19: seg('crag'),
+    20: null                                      // Ragnarök: the fight camera takes over
+  };
+  return at[L] == null ? null : at[L];
+}
+function vkRevealTick(){
+  const L = window._vkPendingReveal; if(!L) return;
+  const game = document.getElementById('screen-game');
+  const clear = game && !game.classList.contains('hide') && !document.getElementById('levelFlash') && !document.getElementById('cardOverlay');
+  const now = performance.now();
+  if(!clear){ window._vkRevealClearSince = 0; return; }
+  if(!window._vkRevealClearSince){ window._vkRevealClearSince = now; return; }
+  if(now - window._vkRevealClearSince < 450) return;          // make sure no card is about to pop up
+  window._vkPendingReveal = 0; window._vkRevealClearSince = 0;
+  window._vkEpoch = Date.now();                                // restart the settlement clock: the new event plays now
+  window._vkRevealLevel = L;
+  tkSagaShow(L);
+  const x = (S && S.level === L) ? (S.charId === 'wizard' ? spRevealX(L) : vkRevealX(L)) : null;
+  window._vkFocus = x == null ? null : { x, until: now + 9000 };
+  if(typeof _cam !== 'undefined'){ _cam.manual = false; _cam.vel = 0; }
+}
+
 /* ── RAGNARÖK set-piece: Thor vs Jörmungandr at the end of the pier ──
    every 45 s, a 16 s fight; the camera glides over to watch it */
 const VK_FIGHT_P = 45000, VK_FIGHT_D = 18600, VK_FIGHT_LEAD = 1300;   // camera arrives 1.3 s early and leaves 1.3 s after
-function vkFightT(now){ const t = now % VK_FIGHT_P; return t < VK_FIGHT_D ? t : -1; }
+function vkFightT(now){ const t = vkPh(now, VK_FIGHT_P, 20); return t < VK_FIGHT_D ? t : -1; }
 function vkPierEnd(v){ return vkSeaEnd(v) - 6 + (v.ragnarok ? 30 : 0); }   // Ragnarök: an extra stretch of pier for Thor
 function vkFightFocusWorldX(){ const v = vkConf(); return vkInland(v).X0 + vkPierEnd(v) + 24; }
 function vkBolt(ctx, x, y0, y1, seed, w){
@@ -5061,8 +5119,822 @@ function vkHeimdall(ctx, x, w, gy, night, now, W){
     ctx.restore();
   }
 }
+const TK_SAGA = [
+  null,
+  ['THE HUMBLE PEASANT', 'A peasant with a pitchfork and a thirst. Nobody in the village knows his name. Yet.'],
+  ['THE FISHERMAN', 'He fishes off the new jetty and laughs at whoever falls in. Somebody always falls in.'],
+  ['THE RAID-CALLER', 'He climbs onto a mead barrel and tells the village what lies across the sea. Tonight, they raid.'],
+  ['THE RAID CAPTAIN', 'First ashore, last to put the loot down. The village starts saying his name.'],
+  ['THE JARL', 'They carve him a high seat beside the great stone. The peasant is a jarl now.'],
+  ['THE GOLDEN JARL', 'They melted the loot into a statue of him. He polishes it personally.'],
+  ['THE SEA-KING', 'The kraken rose. He walked to the end of the jetty and stared it down. The kraken blinked first.'],
+  ['THE WOLF-WARDEN', 'Fenrir is chained at the edge of town. Someone has to feed him. Guess who.'],
+  ['LORD OF TWO VILLAGES', 'The next village asked to join. He walks between them, waving at everyone.'],
+  ['THE DWARF-FRIEND', 'He drank the dwarves under the table. They forged him armour as payment.'],
+  ['THE HARBOUR-KING', 'Stone quays, bigger ships, and him on the dock shouting where to put them.'],
+  ['THE GIANT-SLAYER', 'A frost giant waded into the fjord. He walked to the shore and raised his axe. The giant thought about it.'],
+  ['KING OF THE DANES', 'A crown, a market town, and a royal court held between the fish stall and the amber stall.'],
+  ['THE SEEKER', 'He sits beneath Yggdrasil until the runes start talking back.'],
+  ['THE ADMIRAL', 'A dragonship so big it needs its own harbour. He stands on its prow like he built it.'],
+  ["THOR'S DRINKING BUDDY", 'Thor flies over in his chariot. He raises his horn. Thor raises his. Skål.'],
+  ['THE DEATH-DEFIER', 'A draugr crawled out of the barrow. He sent it straight back. Every time.'],
+  ['EMPEROR OF THE GOLDEN FLEET', 'A golden flagship, and the whole sea knows whose it is.'],
+  ['THE ONE WHO ANSWERS', 'Heimdall blows the Gjallarhorn. Everyone looks up. He starts to glow.'],
+  ['THE GOD OF MEAD', 'Ragnarök. The serpent rises and Thor needs a hand. The peasant from the turf hut answers.']
+];
+
+function tkStage(L){ return L<=2 ? 'peasant' : L<=4 ? 'raider' : L<=9 ? 'jarl' : L<=12 ? 'armoured' : L<=18 ? 'king' : L===19 ? 'ascending' : 'god'; }
+const _tkStageCache = {};
+function tankStageChar(L){
+  const st = tkStage(Math.max(1, Math.min(20, L||1)));
+  if(_tkStageCache[st]) return _tkStageCache[st];
+  const base = CHARS.find(c=>c.id==='tank');
+  return (_tkStageCache[st] = Object.assign({}, base, { stage:st }));
+}
+function vkSay(ctx, x, y, text){
+  ctx.save(); ctx.font = 'bold 5px monospace'; ctx.textAlign = 'center';
+  const w = ctx.measureText(text).width + 5;
+  ctx.fillStyle = 'rgba(16,8,4,.85)'; ctx.fillRect(x - w/2, y - 6, w, 7.5);
+  ctx.fillStyle = '#ffd24a'; ctx.fillText(text, x, y);
+  ctx.restore();
+}
+function vkHeroProp(ctx, kind, hx, hy, now, o){
+  if(!kind) return;
+  const R = (a,b,c,d,col)=>{ ctx.fillStyle=col; ctx.fillRect(a,b,c,d); };
+  ctx.save(); ctx.translate(hx, hy); if(o.flip) ctx.scale(-1, 1);
+  if(kind==='fork'){ R(-0.5,-16,1.2,24,'#7a5432'); R(-2.5,-17,6,1,'#8d96a3'); R(-2.5,-20,1,3,'#8d96a3'); R(-0.4,-20.5,1,3.5,'#8d96a3'); R(1.8,-20,1,3,'#8d96a3'); }
+  else if(kind==='rod'){
+    ctx.strokeStyle = '#7a5432'; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(16,-13); ctx.stroke();
+    ctx.strokeStyle = 'rgba(230,236,255,.7)'; ctx.lineWidth = 0.4; ctx.beginPath(); ctx.moveTo(16,-13); ctx.quadraticCurveTo(20, 0, o.bx, o.by); ctx.stroke();
+    R(o.bx-1, o.by-1, 2, 2, '#e83a2a');
+  }
+  else if(kind==='axe'){ ctx.rotate(o.ang ?? -0.9); R(0,-0.7,13,1.5,'#6a4424'); R(10.5,-4.5,4,8,'#aab2bf'); R(10.5,-4.5,4,1.2,'#d8dee8'); }
+  else if(kind==='sword'){ ctx.rotate(o.ang ?? -1.2); R(-1,-0.8,3,1.6,'#3a2414'); R(2,-2.4,1,4.8,'#ffd24a'); R(3,-0.7,13,1.4,'#d8dee8'); R(3,-0.7,13,0.5,'#ffffff'); }
+  else if(kind==='horn'){ ctx.rotate(o.ang ?? -1.0); ctx.fillStyle = '#efe2c4'; ctx.beginPath(); ctx.moveTo(0,-1); ctx.quadraticCurveTo(5,-2,9,-4); ctx.lineTo(9.5,0); ctx.quadraticCurveTo(5,1,0,1); ctx.fill(); R(8.6,-4.2,1.4,4.4,'#ffd24a'); R(9.6,-4,1,3.6,'#fff4d0'); }
+  else if(kind==='mug'){ ctx.rotate(o.ang ?? 0); R(-1,-9,8,10,'#e0a530'); R(-1,-9,8,1.5,'#ffd56a'); R(7,-6,2.4,1.2,'#c8901a'); R(8.6,-6,1.2,5,'#c8901a'); R(7,-2.2,2.4,1.2,'#c8901a'); R(-1.5,-11,9,2.4,'#fff4d0'); }
+  else if(kind==='stick'){ ctx.rotate(o.ang ?? -2.75); R(0,-0.5,24,1,'#7a5432'); R(23,-2.2,4.5,4.4,'#b8442e'); R(26.5,-0.6,2.4,1.2,'#f4f0e0'); }
+  else if(kind==='cloth'){ R(2 + Math.sin(now/110)*2.2, -3 + Math.cos(now/110)*2.2, 3.4, 2.4, '#f4f0e0'); }
+  else if(kind==='wave'){ ctx.rotate(-2.1 + Math.sin(now/140)*0.45); R(0,-0.8,6,1.6,'#f0c49b'); R(5.5,-1.3,2,2.6,'#f0c49b'); }
+  else if(kind==='point'){ ctx.rotate(-0.45 + Math.sin(now/700)*0.35); R(0,-0.8,7,1.6,'#f0c49b'); R(6.6,-0.5,2,1,'#f0c49b'); }
+  else if(kind==='chest'){ R(-12,-22,12,8,'#6a4424'); R(-12,-22,12,1.5,'#ffd24a'); R(-7,-19,2,2.4,'#ffd24a'); R(-10,-24,2,2.5,'#ffe27a'); R(-4,-24.5,1.5,2.8,'#ffe27a'); }
+  ctx.restore();
+}
+/* draw him: feet at (x, gy). o: { prop, flip, lift, ang, bx, by } */
+function vkHeroSprite(ctx, x, gy, L, now, o){
+  o = o || {};
+  const ch = tankStageChar(L), sc = 1.45;
+  const px = x - 6*sc, py = gy - 12*sc - (o.lift || 0);
+  drawChar(ctx, ch, px, py, sc, 100);
+  const hx = o.flip ? px + 1.4*sc : px + 10.6*sc, hy = py + 8.8*sc;
+  vkHeroProp(ctx, o.prop, hx, hy, now, o);
+  if(o.say) vkSay(ctx, x, py - 7*sc, o.say);
+}
+function vkHeroWalk(now, speed){ return Math.abs(Math.sin(now/(speed||150)))*1.2; }
+/* where he is and what he's doing, level by level (world coords; main settlement is offset by X0) */
+function vkHeroScene(ctx, v, lay, gy, waterY, now){
+  const L = v.L, X0 = lay.X0;
+  const seg = t => lay.segs.find(z=>z.t===t);
+  const ships = window._vkShipPos || [];
+  const great = v.b.find(b=>b[0]==='great');
+  const fightOn = v.ragnarok && (vkFightT(now) - VK_FIGHT_LEAD) >= 0 && (vkFightT(now) - VK_FIGHT_LEAD) <= 16000;
+  const onShip = (s, prop, extra)=>{
+    if(!s || !s.vis) return;
+    vkHeroSprite(ctx, X0 + s.x + s.dir*14*s.sc, s.y - 5*s.sc, L, now, Object.assign({ prop, flip: s.dir < 0 }, extra || {}));
+  };
+  if(L <= 1){
+    const bx0 = v.b[0][1] + v.b[0][2] + 4, x = X0 + bx0 + 24 + Math.sin(now/1700)*7;
+    vkHeroSprite(ctx, x, gy, L, now, { prop:'fork', lift: Math.abs(Math.cos(now/1700)) > 0.3 ? vkHeroWalk(now, 160) : 0 });
+  } else if(L === 2){
+    const x = X0 + v.shore + 10, T = vkPh(now, 21000, 2) / 21000;
+    vkHeroSprite(ctx, x, gy - 1, L, now, { prop:'rod', bx: 14, by: waterY - gy + 10 + Math.sin(now/500), say: (T > 0.40 && T < 0.58) ? 'HA HA!' : null });
+  } else if(L === 3 || L === 4){
+    // the raid loop of ship 0: he rallies → walks to the ship → sails → comes home (with the biggest loot)
+    const ph = (now % VK_RAID_MS) / VK_RAID_MS, d0 = vkDocks(v)[0];
+    const home = L === 3 ? v.shore - 74 : v.shore - 46;
+    const dock = d0 ? d0.x - 8 : v.shore + 20;
+    if(L === 3 && (ph > 0.88 || ph < 0.005)){
+      const bx = X0 + home;
+      ctx.fillStyle = '#6a4424'; ctx.fillRect(bx-5, gy-7, 10, 7); ctx.fillStyle = '#2e1c10'; ctx.fillRect(bx-5, gy-5, 10, 1); ctx.fillRect(bx-5, gy-2.5, 10, 1);
+      vkHeroSprite(ctx, bx, gy - 7, L, now, { prop:'axe', ang: -1.6 + Math.sin(now/180)*0.3, say: ph > 0.93 ? 'TO THE SHIPS!' : 'LISTEN!' });
+    } else if(ph < 0.18){
+      const u = ph/0.18; vkHeroSprite(ctx, X0 + home + (dock - home)*u, gy, L, now, { prop:'axe', ang:-0.6, lift: vkHeroWalk(now) });
+    } else if(ph < 0.84){ onShip(ships[0], 'axe', { ang: -1.3 }); }
+    else { const u = Math.min(1, (ph-0.84)/0.06); vkHeroSprite(ctx, X0 + dock + (home - dock)*u, gy, L, now, { prop: L===4 ? 'chest' : 'axe', ang:-0.6, flip:true, lift: u < 1 ? vkHeroWalk(now) : 0 }); }
+  } else if(L === 5){
+    const x = X0 + 52;
+    ctx.fillStyle = '#4a2e1a'; ctx.fillRect(x-8, gy-22, 16, 22); ctx.fillStyle = '#6a4424'; ctx.fillRect(x-7, gy-21, 14, 20);
+    ctx.fillStyle = '#c8901a'; ctx.fillRect(x-9, gy-25, 3, 4); ctx.fillRect(x+6, gy-25, 3, 4); ctx.fillRect(x-8, gy-8, 16, 2);
+    vkHeroSprite(ctx, x, gy - 4, L, now, { prop:'sword', ang: 1.35 });
+  } else if(L === 6){
+    vkHeroSprite(ctx, X0 + 204, gy, L, now, { prop:'cloth' });
+    if(Math.sin(now/200) > 0.7){ ctx.fillStyle = '#fff8d0'; const sx = X0 + 222, sy = gy - 30; ctx.fillRect(sx-0.5, sy-3, 1, 6); ctx.fillRect(sx-3, sy-0.5, 6, 1); }
+  } else if(L === 7){
+    vkHeroSprite(ctx, X0 + vkSeaEnd(v) - 14, gy - 1, L, now, { prop:'axe', ang: -0.2 + Math.sin(now/900)*0.15, say: Math.sin(now/2500) > 0.6 ? 'COME AT ME' : null });
+  } else if(L === 8){
+    const s = seg('fenrir'); if(s) vkHeroSprite(ctx, s.x + 88, gy, L, now, { prop:'stick', flip:true, ang: -0.5 + Math.sin(now/600)*0.08 });
+  } else if(L === 9){
+    const f = seg('farm'), a = f ? f.x + f.w*0.55 : X0 - 80, b = X0 + 40;
+    const T = (now % 30000) / 30000, k = T < 0.5 ? T*2 : 2 - T*2;
+    vkHeroSprite(ctx, a + (b - a)*k, gy, L, now, { prop:'wave', flip: T >= 0.5, lift: vkHeroWalk(now) });
+  } else if(L === 10){
+    const s = seg('forge'); if(s){ const x = s.x + s.w - 14; vkHeroSprite(ctx, x, gy, L, now, { prop:'sword', ang:-1.5 });
+      for(let i=0;i<4;i++){ const t = ((now/900) + i/4) % 1; ctx.globalAlpha = Math.sin(t*Math.PI); ctx.fillStyle = '#9ae8ff'; ctx.fillRect(x - 8 + i*5, gy - 10 - t*14, 1.2, 1.2); } ctx.globalAlpha = 1; }
+  } else if(L === 11){
+    vkHeroSprite(ctx, X0 + v.shore + 8, gy - 2, L, now, { prop:'point', say: Math.sin(now/1800) > 0.5 ? 'NOT THERE!' : null });
+  } else if(L === 12){
+    vkHeroSprite(ctx, X0 + v.shore - 12, gy, L, now, { prop:'axe', ang: -1.9 + Math.sin(now/300)*0.25 });
+  } else if(L === 13){
+    const s = seg('market'); if(s){ const x = s.x + 112;
+      ctx.fillStyle = '#5a3a22'; ctx.fillRect(x-10, gy-4, 20, 4); ctx.fillStyle = '#b3203a'; ctx.fillRect(x-9, gy-4, 18, 1.2);
+      vkHeroSprite(ctx, x, gy - 4, L, now, { prop:'sword', ang: 1.45, say: Math.sin(now/2200) > 0.65 ? 'COURT IS IN SESSION' : null }); }
+  } else if(L === 14){
+    const s = seg('tree'); if(s){ const x = s.x + s.w/2 - 20, lift = 2 + Math.sin(now/800)*1.5;
+      vkHeroSprite(ctx, x, gy, L, now, { lift });
+      for(let i=0;i<5;i++){ const a = now/900 + i*Math.PI*2/5, rx = x + Math.cos(a)*13, ry = gy - 12 - lift + Math.sin(a)*5;
+        ctx.globalAlpha = 0.6 + 0.4*Math.sin(now/300 + i); ctx.fillStyle = '#8af0c8'; ctx.fillRect(rx, ry, 0.8, 3.4); ctx.fillRect(rx, ry + 0.8, 2, 0.7); }
+      ctx.globalAlpha = 1; }
+  } else if(L === 15 || L === 18){
+    onShip(ships[0], 'sword', { ang: -0.5 + Math.sin(now/1100)*0.2 });
+  } else if(L === 16){
+    const x = great ? X0 + great[1] + great[2] + 16 : X0 + 200, toast = vkPh(now, 22000, 16) < 9500;
+    vkHeroSprite(ctx, x, gy, L, now, { prop:'horn', ang: toast ? -1.9 : -0.9, say: toast ? 'SKÅL, THOR!' : null });
+  } else if(L === 17){
+    const s = seg('barrow'); if(s){
+      const P = 24000, T = vkPh(now, P, 17)/P, cx = s.x + s.w/2;
+      let dx = cx; if(T >= 0.12 && T < 0.86){ dx = cx + Math.sin((T-0.12)/0.74*Math.PI*2)*(s.w/2 - 16); }
+      const hx = s.x + s.w - 6, close = Math.abs(dx - hx) < 26 && T >= 0.12 && T < 0.86;
+      vkHeroSprite(ctx, hx, gy, L, now, { prop:'sword', flip:true, ang: close ? (Math.sin(now/90) > 0 ? -1.2 : 0.4) : (T >= 0.86 ? -1.6 : -0.4), say: T >= 0.86 && T < 0.97 ? 'AND STAY DOWN' : null });
+    }
+  } else if(L === 19){
+    const s = seg('crag'); if(s){ const ph = vkHornPhase(now), on = ph > 0.15 && ph < 0.95; const lift = on ? 4 + Math.sin(now/200)*1.5 : 0;
+      vkHeroSprite(ctx, s.x + s.w - 8, gy, L, now, { lift, prop: on ? 'wave' : null, flip:true });
+      if(on){ ctx.globalAlpha = 0.5; ctx.fillStyle = '#ffe9a8'; for(let i=0;i<5;i++) ctx.fillRect(s.x + s.w - 14 + i*3, gy - ((now/60 + i*7) % 20), 1, 2); ctx.globalAlpha = 1; } }
+  } else if(L >= 20){
+    if(!fightOn){ const kx = X0 + (40 + v.shore - 70)/2; vkHeroSprite(ctx, kx, gy - 9, L, now, { prop:'mug', lift: Math.abs(Math.sin(now/170))*4, ang: Math.sin(now/170)*0.3, say: Math.sin(now/2600) > 0.7 ? 'ONE MORE ROUND!' : null }); }
+  }
+}
+function tkSagaShow(L){
+  const s = (S && S.charId === 'wizard' ? WZ_SAGA : TK_SAGA)[L]; if(!s) return;
+  const el = document.getElementById('sagaCap'); if(!el) return;
+  el.innerHTML = `<small>LEVEL ${L} · THE SAGA OF ${escapeHtml((S && S.name) || 'THE HERO')}</small><b>${s[0]}</b><span>${s[1]}</span>`;
+  el.classList.toggle('low', !!(S && S.charId === 'wizard' && [9,15,20].includes(L)));   // sky reveals: keep the caption out of the way
+  el.classList.remove('hide', 'out'); void el.offsetWidth; el.classList.add('in');
+  clearTimeout(window._sagaT1); clearTimeout(window._sagaT2);
+  window._sagaT1 = setTimeout(()=>{ el.classList.add('out'); }, 8000);
+  window._sagaT2 = setTimeout(()=>{ el.classList.add('hide'); el.classList.remove('in','out'); }, 8800);
+  try{ addLog('📜 ' + s[0] + ' — ' + s[1]); }catch(e){}
+}
+
+/* ══════════════════════════════════════════════════════
+   THE BREW-ZARD'S BREWERY — THE ALCHEMIST'S SPIRE
+   A crooked tower that grows into a floating magic citadel.
+   One new piece of castle or one new weird thing per level,
+   and the Brew-zard himself rising from apprentice to Archmage of Ale.
+   Shares the level-up reveal camera + saga captions with the Tank-ard.
+   ══════════════════════════════════════════════════════ */
+const SP_NAMES = ['THE LEANING TOWER','THE POTION SHED','THE BREWHOUSE','THE ALEMBIC TOWERS','THE STAINED-GLASS HALL','THE COPPER CITADEL','THE STARLIT OBSERVATORY','THE MUSHROOM GROVE','THE FLOATING LIBRARY','THE GOLEM FORGE','THE MOAT OF MEAD','THE CRYSTAL SPIRE','THE MARKET OF ODDITIES','THE SLEEPING DRAGON','THE SKY ISLANDS','THE CLOCKWORK WING','THE MIRROR LAKE','THE ARCANE ACADEMY','THE PORTAL GATE','THE GRAND TRANSMUTATION'];
+const WZ_SAGA = [
+  null,
+  ['THE APPRENTICE', 'A crooked tower, a leaky cauldron, and an old apprentice with a broom. Every legend starts somewhere.'],
+  ['THE BOTTLE-WASHER', 'A frog in a tiny hat keeps escaping the cauldron. He has stopped asking where it came from.'],
+  ['THE BREWER', 'His first real brewhouse. The brew glows. The mushrooms outside have started glowing too.'],
+  ['THE JOURNEYMAN', 'Glass pipes, bottle towers, and a broom that sweeps by itself. He conducts it like an orchestra.'],
+  ['THE SCHOLAR', 'A hall of stained glass and a library so restless the books fly out of the windows.'],
+  ['THE ALCHEMIST', 'Copper domes and castle walls. Once a night something explodes and the moon turns green. Probably him.'],
+  ['THE STARGAZER', 'He built a telescope and the stars noticed. Now they fall into his cauldron on purpose.'],
+  ['THE DRUID-FRIEND', 'Giant glowing toadstools sprout beside the castle. He plays the flute and the wisps dance.'],
+  ['THE ARCHIVIST', 'The library got so heavy with magic it floated off. He reads up there. Upside down.'],
+  ['THE GOLEM-MAKER', 'He sculpted a helper out of clay and beer foam. It carries barrels and never complains.'],
+  ['THE MOAT-KEEPER', 'A moat of glowing mead around the walls. The fish in it are very, very happy.'],
+  ['THE STORM-CALLER', 'A spire of living crystal. Lightning jumps between the towers whenever he raises his staff.'],
+  ['THE MERCHANT-MAGE', 'A market of oddities: eyeballs, wands, a cat that refuses to touch the ground. He haggles with goblins.'],
+  ['THE DRAGON-TAMER', 'A dragon fell asleep around one of his towers. Nobody is brave enough to wake it. He tiptoes.'],
+  ['THE SKY-LORD', 'Whole chunks of the castle now float in the sky. He gets around by potion-flask balloon.'],
+  ['THE TIME-BENDER', 'Brass gears turn in the walls. Every so often time stops. He is the only one who keeps moving.'],
+  ['THE SPIRIT-SPEAKER', 'The lake reflects a castle that is not quite his. Ghost wizards drift out of it to chat.'],
+  ['THE HEADMASTER', 'A school full of tiny apprentices. Their spells keep going wrong. There is a cow on the roof again.'],
+  ['THE GATEKEEPER', 'A ring of runes opens onto somewhere else. Strange things peek through. He keeps the door.'],
+  ['THE ARCHMAGE OF ALE', 'The whole castle lifts into the sky and the heavens become a cauldron of stars. He stirs. Everyone parties.']
+];
+const SP_PIECES = [
+  [1,'tower',76],[2,'shed',54],[3,'brew',86],[4,'alembic',78],[5,'hall',106],[6,'gate',72],[7,'obs',64],[8,'grove',94],
+  [10,'forge',76],[12,'crystal',54],[13,'market',114],[14,'roost',86],[16,'clock',86],[17,'lake',126],[18,'academy',106],[19,'portal',78]
+];
+function spLevel(){ return Math.max(1, Math.min(20, (S && S.level) || 1)); }
+function spLayout(L){ let x = 10; const segs = {}; for(const [lv,id,w] of SP_PIECES){ if(lv <= L){ segs[id] = { x, w }; x += w; } } return { segs, W: x + 16 }; }
+function spireWorldWidth(){ return Math.max(240, spLayout(spLevel()).W); }
+function spireTierName(){ return SP_NAMES[spLevel()-1]; }
+/* L16: every 30 s time stops for 1.6 s. Scene time skips the frozen stretch; he keeps moving. */
+const SP_FREEZE_P = 30000, SP_FREEZE_AT = 1500, SP_FREEZE_D = 1600;
+function spFreezeOffset(t){ return window._vkRevealLevel === 16 ? 0 : SP_FREEZE_P/2; }
+function spFreezeG(x){ const k = Math.floor(x/SP_FREEZE_P), r = x - k*SP_FREEZE_P; return k*SP_FREEZE_D + Math.max(0, Math.min(SP_FREEZE_D, r - SP_FREEZE_AT)); }
+function spFrozenTotal(t){ t = Math.max(0, t); const off = spFreezeOffset(t); return spFreezeG(t + off) - spFreezeG(off); }   // frozen ms since the scene clock started (never more than t)
+function spIsFrozen(t){ const r = (t + spFreezeOffset(t)) % SP_FREEZE_P; return r > SP_FREEZE_AT && r < SP_FREEZE_AT + SP_FREEZE_D; }
+function spRevealX(L){
+  const lay = spLayout(L), s = lay.segs, c = id => s[id] ? s[id].x + s[id].w/2 : null;
+  const piece = SP_PIECES.find(p => p[0] === L);
+  if(piece) return c(piece[1]);
+  if(L === 9) return c('hall');
+  if(L === 11) return s.gate ? s.gate.x : c('brew');
+  if(L === 15) return s.market ? ((s.grove ? s.grove.x : s.market.x) + s.market.x + s.market.w)/2 : c('grove');
+  if(L === 20) return lay.W/2;
+  return null;
+}
+/* the Brew-zard's look by level */
+function wzStage(L){ return L<=3 ? 'apprentice' : L<=8 ? 'wizard' : L<=12 ? 'starry' : L<=16 ? 'staff' : L<=19 ? 'floating' : 'archmage'; }
+const _wzStageCache = {};
+function wzStageChar(L){
+  const st = wzStage(Math.max(1, Math.min(20, L||1)));
+  if(_wzStageCache[st]) return _wzStageCache[st];
+  const base = CHARS.find(c=>c.id==='wizard');
+  const o = Object.assign({}, base, { stage: st });
+  if(st === 'apprentice'){ o.body = '#7a5a3a'; o.pants = '#5a4630'; }
+  if(st === 'starry'){ o.body = '#2a3a7a'; o.pants = '#1e2a5a'; o.hatCol = '#2e4088'; o.hatDark = '#1e2a5a'; o.stars = true; }
+  if(st === 'staff' || st === 'floating'){ o.body = '#4a2a7a'; o.pants = '#341c5a'; o.hatCol = '#5a3490'; o.hatDark = '#3a1e64'; o.stars = true; o.orb = '#ffd24a'; o.orbGlow = true; }
+  if(st === 'archmage'){ o.body = '#120c2e'; o.pants = '#0a0620'; o.hatCol = '#1a1240'; o.hatDark = '#0e0a24'; o.stars = true; o.orb = '#fff2a0'; o.orbGlow = true; }
+  return (_wzStageCache[st] = o);
+}
+function spHeroSprite(ctx, x, gy, L, now, o){
+  o = o || {};
+  const ch = wzStageChar(L), sc = 1.45;
+  const lift = (o.lift || 0) + (ch.stage === 'floating' || ch.stage === 'archmage' ? 3 + Math.sin(now/500)*1.2 : 0);
+  const px = x - 6*sc, py = gy - 12*sc - lift;
+  if(lift > 2){ ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(x, gy, 5, 1.2, 0, 0, Math.PI*2); ctx.fill(); }
+  drawChar(ctx, ch, px, py, sc, 100);
+  const hx = px + 1.4*sc, hy = py + 8.8*sc;                 // props go in his left hand — the staff lives in the right
+  spHeroProp(ctx, o.prop, hx, hy, now, o);
+  if(o.say) vkSay(ctx, x, py - 9*sc, o.say);
+}
+function spHeroProp(ctx, kind, hx, hy, now, o){
+  if(!kind) return;
+  const R = (a,b,c,d,col)=>{ ctx.fillStyle=col; ctx.fillRect(a,b,c,d); };
+  ctx.save(); ctx.translate(hx, hy); ctx.scale(-1, 1);
+  if(kind==='broom'){ ctx.rotate(o.ang ?? 0.9); R(0,-0.6,14,1.2,'#8a6030'); ctx.fillStyle = '#d8b050'; ctx.beginPath(); ctx.moveTo(13,-1); ctx.lineTo(19,-3.5); ctx.lineTo(19,3.5); ctx.lineTo(13,1); ctx.fill(); }
+  else if(kind==='wand'){ ctx.rotate(o.ang ?? -0.8); R(0,-0.5,8,1,'#5a3a1a'); R(7.5,-1,1.5,2,'#fff2a0'); if(Math.sin(now/120) > 0){ R(9,-2.5,1,1,'#fff'); R(10.5,0.5,1,1,'#a0e8ff'); } }
+  else if(kind==='spoon'){ ctx.rotate(o.ang ?? 0.5); R(0,-0.7,16,1.4,'#7a5432'); R(15,-2,4,4,'#7a5432'); }
+  else if(kind==='flute'){ ctx.rotate(-0.25); R(-2,-0.6,9,1.2,'#c8a060'); for(let i=0;i<3;i++) R(1+i*2,-0.6,0.6,0.5,'#3a2414'); }
+  else if(kind==='book'){ ctx.rotate(o.ang ?? -0.3); R(0,-3,5,6,'#7a1a24'); R(0.6,-2.6,3.8,5.2,'#f4e6d0'); R(2.6,-3,0.5,6,'#7a1a24'); }
+  else if(kind==='rod'){ ctx.strokeStyle = '#5a3a1a'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(14,-11); ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,240,180,.75)'; ctx.lineWidth = 0.4; ctx.beginPath(); ctx.moveTo(14,-11); ctx.quadraticCurveTo(17,0,o.bx,o.by); ctx.stroke(); R(o.bx-1,o.by-1,2,2,'#e83a2a'); }
+  else if(kind==='point'){ ctx.rotate(o.ang ?? -0.4); R(0,-0.8,7,1.6,'#f0c49b'); R(6.6,-0.5,2,1,'#f0c49b'); }
+  ctx.restore();
+}
+/* small helpers */
+function spBubbleSparks(ctx, x, y, now, n, col){
+  for(let i=0;i<n;i++){
+    const t = ((now/1700) + i/n) % 1, bx = x + Math.sin(i*2.1 + now/600)*4 + (i%3-1)*2, by = y - t*34;
+    if(t < 0.8){ ctx.strokeStyle = `rgba(200,255,200,${0.75*(1-t)})`; ctx.lineWidth = 0.6; ctx.beginPath(); ctx.arc(bx, by, 1 + (i%3)*0.6 + t, 0, Math.PI*2); ctx.stroke(); }
+    else { const k = (t-0.8)/0.2; ctx.fillStyle = col || '#ffe27a'; ctx.globalAlpha = 1-k; for(let s=0;s<4;s++){ const a = s*Math.PI/2 + 0.4; ctx.fillRect(bx + Math.cos(a)*k*4, by + Math.sin(a)*k*4, 0.9, 0.9); } ctx.globalAlpha = 1; }
+  }
+}
+function spWin(ctx, x, y, w, h, night, col){ ctx.fillStyle = '#1a1424'; ctx.fillRect(x, y, w, h); if(night > 0.1){ ctx.globalAlpha = 0.35 + 0.6*night; ctx.fillStyle = col || '#ffcf6a'; ctx.fillRect(x+0.5, y+0.5, w-1, h-0.5); ctx.globalAlpha = 1; } }
+function spCone(ctx, cx, top, w, h, col, dark){ ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(cx - w/2, top + h); ctx.lineTo(cx, top); ctx.lineTo(cx + w/2, top + h); ctx.closePath(); ctx.fill(); ctx.fillStyle = dark; ctx.beginPath(); ctx.moveTo(cx - w/2, top + h); ctx.lineTo(cx, top); ctx.lineTo(cx - w/6, top + h); ctx.closePath(); ctx.fill(); }
+function spDome(ctx, cx, base, r, copper){ ctx.fillStyle = copper ? '#b87333' : '#3a3a5a'; ctx.beginPath(); ctx.ellipse(cx, base, r, r*0.9, 0, Math.PI, 0); ctx.fill(); ctx.fillStyle = copper ? '#d8925a' : '#4e4e74'; ctx.beginPath(); ctx.ellipse(cx - r*0.3, base - r*0.35, r*0.25, r*0.35, 0, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = copper ? '#ffd24a' : '#8a86a0'; ctx.fillRect(cx - 0.6, base - r*0.9 - 4, 1.2, 4); }
+function spWall(ctx, x, y, w, h){ ctx.fillStyle = '#6a6678'; ctx.fillRect(x, y, w, h); ctx.fillStyle = '#5a5668'; for(let r=y+4; r<y+h; r+=5) for(let c=x + ((r/5)%2)*3; c<x+w; c+=7) ctx.fillRect(c, r, 5.4, 0.5); ctx.fillStyle = '#7e7a90'; ctx.fillRect(x, y, w, 1); }
+function spCrenel(ctx, x, y, w){ ctx.fillStyle = '#6a6678'; for(let c=x; c<x+w-1; c+=4) ctx.fillRect(c, y-3, 2.4, 3); }
+function spCauldron(ctx, cx, base, r, brew, now){
+  ctx.fillStyle = '#1a1820'; ctx.beginPath(); ctx.ellipse(cx, base - r*0.7, r, r*0.75, 0, 0, Math.PI*2); ctx.fill();
+  ctx.fillRect(cx - r*0.7, base - 1.2, 1.4, 1.2); ctx.fillRect(cx + r*0.7 - 1.4, base - 1.2, 1.4, 1.2);
+  ctx.fillStyle = brew || '#6aff7a'; ctx.beginPath(); ctx.ellipse(cx, base - r*1.3, r*0.85, r*0.25, 0, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#2a2830'; ctx.fillRect(cx - r - 0.5, base - r*1.4, r*2 + 1, 1);
+  for(let i=0;i<3;i++){ const t = ((now/700) + i/3) % 1; ctx.fillStyle = `rgba(200,255,200,${0.8*(1-t)})`; ctx.beginPath(); ctx.arc(cx - r*0.4 + i*r*0.4, base - r*1.35 - t*3, 0.7 + t*0.6, 0, Math.PI*2); ctx.fill(); }
+}
+
+/* ── the castle pieces ── */
+function spTower(ctx, x, w, gy, night, now, L){
+  const cx = x + 30, top = gy - 66;
+  ctx.save(); ctx.translate(cx, gy); ctx.rotate(-0.07); ctx.translate(-cx, -gy);
+  spWall(ctx, cx - 12, top, 24, 66);
+  spWin(ctx, cx - 3, top + 14, 6, 9, night); spWin(ctx, cx - 3, top + 34, 6, 9, night);
+  ctx.fillStyle = '#2a1c10'; ctx.fillRect(cx - 4, gy - 12, 8, 12);
+  spCrenel(ctx, cx - 14, top, 28); ctx.fillStyle = '#6a6678'; ctx.fillRect(cx - 14, top - 1, 28, 2);
+  spCauldron(ctx, cx + 1, top - 2, 6, L >= 6 ? '#8aff9a' : '#6aff7a', now);
+  ctx.restore();
+  spBubbleSparks(ctx, cx + 3, top - 12, now, 6);                       // L1: bubbles pop into sparks
+}
+function spShed(ctx, x, w, gy, night, now){
+  const sx = x + 6, sw = 38, sh = 24;
+  ctx.fillStyle = '#6a4424'; ctx.fillRect(sx, gy - sh, sw, sh);
+  ctx.fillStyle = '#4a2e1a'; for(let i=sx+3;i<sx+sw;i+=5) ctx.fillRect(i, gy - sh, 1, sh);
+  ctx.fillStyle = '#3a2414'; ctx.beginPath(); ctx.moveTo(sx - 4, gy - sh); ctx.lineTo(sx + sw/2, gy - sh - 10); ctx.lineTo(sx + sw + 4, gy - sh); ctx.fill();
+  ctx.fillStyle = '#1a1018'; ctx.fillRect(sx + 6, gy - sh + 5, sw - 12, sh - 5);
+  const cols = ['#e83a5a','#5ab0ff','#8aff6a','#ffd24a','#c070ff','#ff9a3a'];
+  for(let r=0;r<3;r++){ ctx.fillStyle = '#6a4424'; ctx.fillRect(sx + 6, gy - sh + 10 + r*6, sw - 12, 0.8);
+    for(let i=0;i<5;i++){ const c = cols[(r*5+i)%6]; ctx.fillStyle = c; ctx.fillRect(sx + 8 + i*5, gy - sh + 6.5 + r*6, 2.4, 3.4); ctx.fillRect(sx + 8.6 + i*5, gy - sh + 5.6 + r*6, 1.2, 1); if(night>0.2){ ctx.globalAlpha = 0.3*night; ctx.fillRect(sx + 7 + i*5, gy - sh + 5.5 + r*6, 4.4, 5); ctx.globalAlpha = 1; } } }
+}
+function spFrog(ctx, x, gy, now, hop){
+  const y = gy - 1.5 - hop;
+  ctx.fillStyle = '#4ab04a'; ctx.fillRect(x-2.5, y-2.5, 5, 2.5); ctx.fillRect(x+1.5, y-3.5, 2, 1.5);
+  ctx.fillStyle = '#fff'; ctx.fillRect(x+2, y-3.8, 0.8, 0.8); ctx.fillStyle = '#170f08'; ctx.fillRect(x+2.3, y-3.6, 0.4, 0.4);
+  ctx.fillStyle = '#3a8a3a'; ctx.fillRect(x-3, y-0.5, 1.5, 1); ctx.fillRect(x+1.5, y-0.5, 1.5, 1);
+  ctx.fillStyle = '#5a2a8a'; ctx.fillRect(x+1, y-4.6, 3, 0.8); ctx.fillRect(x+1.8, y-6, 1.4, 1.4);   // tiny hat
+}
+function spBrew(ctx, x, w, gy, night, now, L){
+  const hx = x + 22, hw = 58, hh = 34;
+  spWall(ctx, hx, gy - hh, hw, hh);
+  spDome(ctx, hx + hw/2, gy - hh, 20, L >= 6);
+  ctx.fillStyle = '#5a5668'; ctx.fillRect(hx + hw - 10, gy - hh - 14, 5, 14);
+  for(let i=0;i<3;i++){ const t = ((now/1500) + i/3) % 1; ctx.fillStyle = `rgba(150,255,170,${0.4*(1-t)})`; ctx.beginPath(); ctx.arc(hx + hw - 7.5 + Math.sin(t*5)*2, gy - hh - 16 - t*16, 1.5 + t*2.5, 0, Math.PI*2); ctx.fill(); }
+  spWin(ctx, hx + 8, gy - 24, 6, 10, night, '#8aff9a'); spWin(ctx, hx + hw - 14, gy - 24, 6, 10, night, '#8aff9a');
+  ctx.fillStyle = '#2a1c10'; ctx.beginPath(); ctx.moveTo(hx + hw/2 - 6, gy); ctx.lineTo(hx + hw/2 - 6, gy - 12); ctx.quadraticCurveTo(hx + hw/2, gy - 18, hx + hw/2 + 6, gy - 12); ctx.lineTo(hx + hw/2 + 6, gy); ctx.fill();
+  spCauldron(ctx, x + 11, gy, 7, '#6aff7a', now);                       // the big outdoor cauldron
+}
+function spMushrooms(ctx, x0, x1, gy, night, now){
+  for(let i=0, x=x0+6; x<x1; i++, x+= 13 + (i*7)%9){
+    const h = 3 + (i%3), c = i%2 ? '#7ae0ff' : '#c08aff';
+    ctx.fillStyle = '#e8e4dc'; ctx.fillRect(x, gy - h, 1, h);
+    ctx.fillStyle = c; ctx.beginPath(); ctx.ellipse(x + 0.5, gy - h, 2.4, 1.6, 0, Math.PI, 0); ctx.fill();
+    if(night > 0.15){ ctx.globalAlpha = 0.25*night*(0.7 + 0.3*Math.sin(now/600 + i)); ctx.beginPath(); ctx.arc(x + 0.5, gy - h, 5, 0, Math.PI*2); ctx.fill(); ctx.globalAlpha = 1; }
+  }
+}
+function spAlembic(ctx, x, w, gy, night, now, L, lay){
+  [[x + 20, 50],[x + 56, 62]].forEach(([cx, h], k)=>{
+    ctx.fillStyle = '#6a6678'; ctx.beginPath(); ctx.arc(cx, gy - 13, 13, 0, Math.PI*2); ctx.fill(); ctx.fillRect(cx - 13, gy - 13, 26, 13);
+    ctx.fillStyle = '#7e7a90'; ctx.beginPath(); ctx.arc(cx - 4, gy - 18, 4, 0, Math.PI*2); ctx.fill();
+    spWall(ctx, cx - 5, gy - h, 10, h - 22);
+    spWin(ctx, cx - 2, gy - h + 8, 4, 6, night, '#8aff9a');
+    if(L >= 6) spDome(ctx, cx, gy - h, 7, true); else spCone(ctx, cx, gy - h - 16, 14, 16, '#3a3a5a', '#2a2a44');
+    spWin(ctx, cx - 3, gy - 16, 6, 7, night, '#8aff9a');
+  });
+  // glowing glass pipes from the bottle towers into the brewhouse dome
+  const b = lay.segs.brew; if(!b) return;
+  const tx = b.x + 22 + 29, ty = gy - 34 - 14;
+  [[x + 20, gy - 40],[x + 56, gy - 52]].forEach(([sx, sy], k)=>{
+    ctx.strokeStyle = 'rgba(180,255,200,.55)'; ctx.lineWidth = 2.4; ctx.beginPath(); ctx.moveTo(sx, sy); ctx.quadraticCurveTo((sx+tx)/2, sy - 18 - k*6, tx, ty); ctx.stroke();
+    ctx.strokeStyle = '#7aff9a'; ctx.lineWidth = 1; ctx.stroke();
+    const t = ((now/900) + k*0.5) % 1, u = 1 - t, qx = u*u*sx + 2*u*t*((sx+tx)/2) + t*t*tx, qy = u*u*sy + 2*u*t*(sy - 18 - k*6) + t*t*ty;
+    ctx.fillStyle = '#e8ffe8'; ctx.beginPath(); ctx.arc(qx, qy, 1.1, 0, Math.PI*2); ctx.fill();
+  });
+}
+function spBroom(ctx, x0, x1, gy, now){
+  const T = (now % 9000)/9000, f = T < 0.5 ? T*2 : 2 - T*2, x = x0 + (x1-x0)*f, sw = Math.sin(now/140);
+  ctx.save(); ctx.translate(x, gy - 7); ctx.rotate(0.35 + sw*0.25);
+  ctx.fillStyle = '#8a6030'; ctx.fillRect(-0.6, -8, 1.2, 12); ctx.fillStyle = '#d8b050'; ctx.beginPath(); ctx.moveTo(-1, 3.5); ctx.lineTo(-3.5, 8); ctx.lineTo(3.5, 8); ctx.lineTo(1, 3.5); ctx.fill();
+  ctx.restore();
+  for(let i=0;i<4;i++){ const t = ((now/500) + i/4) % 1; ctx.fillStyle = `rgba(200,180,140,${0.5*(1-t)})`; ctx.beginPath(); ctx.arc(x - (T<0.5?1:-1)*(3 + t*6), gy - 1 - t*3, 0.8 + t*1.4, 0, Math.PI*2); ctx.fill(); }
+}
+function spHall(ctx, x, w, gy, night, now, L){
+  const hx = x + 6, hw = w - 12, hh = 40;
+  spWall(ctx, hx, gy - hh, hw, hh);
+  ctx.fillStyle = '#3a3a5a'; ctx.beginPath(); ctx.moveTo(hx - 3, gy - hh); ctx.lineTo(hx + 10, gy - hh - 20); ctx.lineTo(hx + hw - 10, gy - hh - 20); ctx.lineTo(hx + hw + 3, gy - hh); ctx.fill();
+  ctx.fillStyle = L >= 6 ? '#ffd24a' : '#5a5a7a'; ctx.fillRect(hx + 10, gy - hh - 21, hw - 20, 1.4);
+  // pointed stained-glass windows
+  const glass = ['#e83a5a','#5ab0ff','#8aff6a','#ffd24a','#c070ff'];
+  for(let i=0;i<5;i++){
+    const wx = hx + 9 + i*((hw - 18)/4) - 3;
+    ctx.fillStyle = '#1a1424'; ctx.beginPath(); ctx.moveTo(wx, gy - 10); ctx.lineTo(wx, gy - 28); ctx.lineTo(wx + 3, gy - 32); ctx.lineTo(wx + 6, gy - 28); ctx.lineTo(wx + 6, gy - 10); ctx.fill();
+    for(let p=0;p<4;p++){ ctx.fillStyle = glass[(i+p)%5]; ctx.globalAlpha = 0.45 + 0.5*night; ctx.fillRect(wx + 0.8 + (p%2)*2.4, gy - 27 + Math.floor(p/2)*8, 2, 7); }
+    ctx.globalAlpha = 1;
+  }
+  // rose window
+  ctx.fillStyle = '#1a1424'; ctx.beginPath(); ctx.arc(hx + hw/2, gy - hh - 8, 5, 0, Math.PI*2); ctx.fill();
+  for(let p=0;p<6;p++){ ctx.fillStyle = glass[p%5]; ctx.globalAlpha = 0.5 + 0.5*night; const a = p*Math.PI/3 + now/4000; ctx.beginPath(); ctx.arc(hx + hw/2 + Math.cos(a)*2.6, gy - hh - 8 + Math.sin(a)*2.6, 1.4, 0, Math.PI*2); ctx.fill(); }
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = '#2a1c10'; ctx.fillRect(hx + hw/2 - 5, gy - 14, 10, 14);
+}
+function spBooks(ctx, cx, cy, now){
+  const cols = ['#7a1a24','#2e4088','#3a7a3a','#8a5a1a'];
+  for(let i=0;i<6;i++){
+    const a = now/1400 + i*Math.PI/3, x = cx + Math.cos(a)*(24 + (i%2)*8), y = cy + Math.sin(a*1.3)*8 - (i%3)*3, flap = Math.sin(now/90 + i);
+    ctx.fillStyle = cols[i%4]; ctx.save(); ctx.translate(x, y);
+    ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-4, -2.5*flap); ctx.lineTo(-4, -2.5*flap + 3); ctx.lineTo(0, 3); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(4, -2.5*flap); ctx.lineTo(4, -2.5*flap + 3); ctx.lineTo(0, 3); ctx.fill();
+    ctx.fillStyle = '#f4e6d0'; ctx.fillRect(-0.4, 0, 0.8, 3); ctx.restore();
+  }
+}
+function spGate(ctx, x, w, gy, night, now){
+  spWall(ctx, x, gy - 26, w, 26); spCrenel(ctx, x, gy - 26, w);
+  const cx = x + w/2;
+  spWall(ctx, cx - 14, gy - 38, 28, 38); spCrenel(ctx, cx - 14, gy - 38, 28);
+  ctx.fillStyle = '#1a1424'; ctx.beginPath(); ctx.moveTo(cx - 7, gy); ctx.lineTo(cx - 7, gy - 16); ctx.quadraticCurveTo(cx, gy - 24, cx + 7, gy - 16); ctx.lineTo(cx + 7, gy); ctx.fill();
+  ctx.fillStyle = '#4a4458'; for(let i=-6;i<=6;i+=3) ctx.fillRect(cx + i, gy - 19, 0.8, 16); for(let j=0;j<4;j++) ctx.fillRect(cx - 7, gy - 16 + j*4, 14, 0.8);
+  [x + 6, x + w - 6].forEach(tx=>{ spWall(ctx, tx - 6, gy - 44, 12, 44); spDome(ctx, tx, gy - 44, 7, true); spWin(ctx, tx - 1.5, gy - 34, 3, 5, night); });
+  ctx.fillStyle = '#5a3490'; ctx.fillRect(cx - 0.6, gy - 54, 1.2, 16);
+  const wv = Math.sin(now/300); ctx.fillStyle = '#7a4ab0'; ctx.beginPath(); ctx.moveTo(cx + 0.6, gy - 54); ctx.lineTo(cx + 12, gy - 51 + wv); ctx.lineTo(cx + 0.6, gy - 47); ctx.fill();
+  ctx.fillStyle = '#ffd24a'; ctx.fillRect(cx + 4, gy - 51.5 + wv*0.4, 2, 2);
+}
+function spObs(ctx, x, w, gy, night, now){
+  const cx = x + w/2;
+  spWall(ctx, cx - 11, gy - 58, 22, 58);
+  spWin(ctx, cx - 2, gy - 44, 4, 7, night); spWin(ctx, cx - 2, gy - 26, 4, 7, night);
+  ctx.fillStyle = '#5a5668'; ctx.fillRect(cx - 15, gy - 60, 30, 3);
+  ctx.fillStyle = '#b87333'; ctx.beginPath(); ctx.ellipse(cx, gy - 60, 13, 12, 0, Math.PI, 0); ctx.fill();
+  ctx.fillStyle = '#1a1424'; ctx.fillRect(cx - 1.5, gy - 71, 3, 11);
+  ctx.save(); ctx.translate(cx + 1, gy - 64); ctx.rotate(-0.75 + Math.sin(now/5000)*0.15);
+  ctx.fillStyle = '#c8901a'; ctx.fillRect(0, -2, 22, 4); ctx.fillStyle = '#ffd24a'; ctx.fillRect(20, -2.6, 3, 5.2); ctx.fillStyle = '#8a5a0e'; ctx.fillRect(4, -2, 1, 4); ctx.fillRect(12, -2, 1, 4);
+  ctx.restore();
+}
+function spShootingStar(ctx, x0, x1, tx, ty, now){
+  const P = 14000, T = vkPh(now, P, 7) / P; if(T > 0.16) return;
+  const k = T/0.16, sx = x1 + 40, sy = 6;
+  const x = sx + (tx - sx)*k, y = sy + (ty - sy)*k*k;
+  ctx.strokeStyle = 'rgba(255,250,220,.8)'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + 14*(1-k*0.5), y - 4); ctx.stroke();
+  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x, y, 1.4, 0, Math.PI*2); ctx.fill();
+  if(k > 0.92){ for(let s=0;s<8;s++){ const a = -Math.PI*0.9 + s*0.25; ctx.fillStyle = s%2 ? '#ffe27a' : '#8aff9a'; ctx.fillRect(tx + Math.cos(a)*(k-0.9)*120, ty + Math.sin(a)*(k-0.9)*90, 1, 1); } }
+}
+function spGrove(ctx, x, w, gy, night, now){
+  [[x+14,30,12,'#7a4ab0'],[x+40,46,18,'#4a8ad8'],[x+68,36,14,'#c04a8a'],[x+84,20,8,'#4ab08a']].forEach(([cx,h,r,cap],i)=>{
+    ctx.fillStyle = '#e8e0d0'; ctx.fillRect(cx - r*0.18, gy - h, r*0.36, h); ctx.fillStyle = '#c8c0b0'; ctx.fillRect(cx - r*0.18, gy - h, r*0.1, h);
+    ctx.fillStyle = cap; ctx.beginPath(); ctx.ellipse(cx, gy - h, r, r*0.65, 0, Math.PI, 0); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.55)'; for(let s=0;s<4;s++) ctx.fillRect(cx - r*0.6 + s*r*0.38, gy - h - r*0.35 + (s%2)*2, 1.6, 1.2);
+    if(night > 0.1){ ctx.globalAlpha = 0.18*night; ctx.beginPath(); ctx.arc(cx, gy - h, r*1.5, 0, Math.PI*2); ctx.fill(); ctx.globalAlpha = 1; }
+  });
+}
+function spWisps(ctx, x, w, gy, now){
+  for(let i=0;i<6;i++){
+    const a = now/1100 + i*1.7, wx = x + w/2 + Math.sin(a)*w*0.42, wy = gy - 18 - Math.sin(a*1.6 + i)*12 - (i%3)*6;
+    for(let s=3;s>=0;s--){ ctx.globalAlpha = 0.18*(4-s); ctx.fillStyle = i%2 ? '#aaf8ff' : '#e0b0ff'; ctx.beginPath(); ctx.arc(wx - Math.cos(a)*s*1.5, wy + s*0.8, 1.5 - s*0.25, 0, Math.PI*2); ctx.fill(); }
+    ctx.globalAlpha = 1;
+  }
+}
+function spFloatingLibrary(ctx, hall, gy, night, now){
+  const cx = hall.x + hall.w/2 + 6, by = gy - 96 + Math.sin(now/1200)*2.5;
+  // chains down to the hall roof
+  ctx.fillStyle = '#8a86a0'; for(let k=0;k<2;k++){ const ax = cx - 16 + k*32; for(let s=0;s<8;s++) ctx.fillRect(ax + (k?-1:1)*s*0.6, by + 4 + s*4, 1.2, 2.4); }
+  // the floating rock
+  ctx.fillStyle = '#5a5668'; ctx.beginPath(); ctx.moveTo(cx - 24, by); ctx.lineTo(cx + 24, by); ctx.lineTo(cx + 14, by + 8); ctx.lineTo(cx + 4, by + 16); ctx.lineTo(cx - 6, by + 12); ctx.lineTo(cx - 16, by + 7); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#3e5a2e'; ctx.fillRect(cx - 24, by - 1, 48, 2);
+  // the little library
+  spWall(ctx, cx - 16, by - 20, 32, 19);
+  ctx.fillStyle = '#3a3a5a'; ctx.beginPath(); ctx.moveTo(cx - 19, by - 20); ctx.lineTo(cx, by - 30); ctx.lineTo(cx + 19, by - 20); ctx.fill();
+  const cols = ['#7a1a24','#2e4088','#3a7a3a','#8a5a1a','#5a2a7a'];
+  ctx.fillStyle = '#2a1c10'; ctx.fillRect(cx - 12, by - 16, 24, 12);
+  for(let r=0;r<2;r++) for(let i=0;i<10;i++){ ctx.fillStyle = cols[(i+r*3)%5]; ctx.fillRect(cx - 11 + i*2.3, by - 15 + r*6, 1.8, 4.6); }
+  // the quill writing runes in the air
+  const q = now/2600, qx = cx + 30 + Math.sin(q*3)*6, qy = by - 20 + Math.cos(q*2)*4;
+  ctx.save(); ctx.translate(qx, qy); ctx.rotate(-0.6); ctx.fillStyle = '#f4f0e0'; ctx.beginPath(); ctx.moveTo(0,0); ctx.quadraticCurveTo(3,-6,1,-12); ctx.quadraticCurveTo(-1,-6,0,0); ctx.fill(); ctx.restore();
+  ctx.fillStyle = '#8af0c8';
+  for(let i=0;i<5;i++){ const t = ((now/4000) + i/5) % 1; ctx.globalAlpha = 1 - t; const rx = cx + 28 - i*5, ry = by - 30 - t*8; ctx.fillRect(rx, ry, 0.8, 4); ctx.fillRect(rx, ry + 1, 2.2, 0.7); }
+  ctx.globalAlpha = 1;
+  return { x: cx, y: by + 16 };
+}
+function spForge(ctx, x, w, gy, night, now){
+  const hx = x + 6, hw = 50;
+  spWall(ctx, hx, gy - 28, hw, 28);
+  ctx.fillStyle = '#3a3a5a'; ctx.beginPath(); ctx.moveTo(hx - 3, gy - 28); ctx.lineTo(hx + hw/2, gy - 40); ctx.lineTo(hx + hw + 3, gy - 28); ctx.fill();
+  const fl = 0.7 + 0.3*Math.sin(now/90);
+  ctx.fillStyle = '#1a0806'; ctx.fillRect(hx + 10, gy - 16, 14, 16);
+  ctx.fillStyle = `rgba(255,${Math.round(150*fl)},40,1)`; ctx.fillRect(hx + 12, gy - 12, 10, 12);
+  ctx.fillStyle = '#5a5668'; ctx.fillRect(hx + hw - 12, gy - 46, 6, 18);
+  for(let i=0;i<3;i++){ const t = ((now/1300) + i/3) % 1; ctx.fillStyle = `rgba(120,110,130,${0.45*(1-t)})`; ctx.beginPath(); ctx.arc(hx + hw - 9, gy - 48 - t*16, 1.5 + t*2.5, 0, Math.PI*2); ctx.fill(); }
+}
+function spGolem(ctx, x0, x1, gy, now){
+  const P = 16000, T = (now % P)/P, f = T < 0.5 ? T*2 : 2 - T*2, x = x0 + (x1-x0)*f, dir = T < 0.5 ? 1 : -1, step = Math.floor(now/260)%2;
+  const R = (a,b,c,d,col)=>{ ctx.fillStyle=col; ctx.fillRect(a,b,c,d); };
+  R(x-4, gy-6 + step*0.5, 3, 6 - step*0.5, '#7a5a3a'); R(x+1, gy-6 + (1-step)*0.5, 3, 6 - (1-step)*0.5, '#7a5a3a');
+  R(x-6, gy-17, 12, 11, '#9a7048'); R(x-6, gy-17, 12, 1.5, '#b88a5a'); R(x-1, gy-14, 1, 6, '#6a4a2a');
+  R(x-4, gy-23, 8, 6, '#9a7048'); R(x-2.6 + dir, gy-21, 1.4, 1.4, '#7af0ff'); R(x+0.8 + dir, gy-21, 1.4, 1.4, '#7af0ff');
+  R(x-8, gy-29, 16, 5, '#6a4424'); R(x-8, gy-27.6, 16, 0.8, '#2e1c10'); R(x-9, gy-24, 2.4, 8, '#9a7048'); R(x+6.6, gy-24, 2.4, 8, '#9a7048');
+}
+function spMoat(ctx, x0, x1, gy, now, gateX){
+  const g = ctx.createLinearGradient(0, gy + 1, 0, gy + 8); g.addColorStop(0, '#f0b030'); g.addColorStop(1, '#a8640a');
+  ctx.fillStyle = g; ctx.fillRect(x0, gy + 1.5, x1 - x0, 6);
+  ctx.fillStyle = 'rgba(255,250,210,.8)'; for(let i=0;i<Math.floor((x1-x0)/14);i++) ctx.fillRect(x0 + ((i*29 + now/50) % (x1 - x0)), gy + 3 + (i%3)*1.5, 3, 0.6);
+  ctx.fillStyle = 'rgba(255,250,230,.9)'; for(let i=0;i<Math.floor((x1-x0)/22);i++) ctx.fillRect(x0 + 4 + i*22, gy + 1.5, 6, 0.8);       // foam
+  if(gateX){ ctx.fillStyle = '#6a4424'; ctx.fillRect(gateX - 8, gy, 16, 2); ctx.fillStyle = '#4a2e1a'; for(let i=-7;i<8;i+=3) ctx.fillRect(gateX + i, gy, 0.6, 2); }
+  // luminous fish leaping
+  for(let k=0;k<2;k++){
+    const P = 7000 + k*2300, T = ((now/P) + k*0.4) % 1; if(T > 0.25) continue;
+    const u = T/0.25, fx = x0 + 30 + ((Math.floor(now/P + k*0.4)*97 + k*150) % Math.max(1, x1 - x0 - 60)), x = fx + u*14, y = gy + 2 - Math.sin(u*Math.PI)*12;
+    ctx.save(); ctx.translate(x, y); ctx.rotate(-Math.cos(u*Math.PI)*0.9);
+    ctx.fillStyle = '#ffe27a'; ctx.fillRect(-2.5, -1, 5, 2); ctx.fillStyle = '#ffb347'; ctx.beginPath(); ctx.moveTo(-2.5, 0); ctx.lineTo(-4.5, -1.6); ctx.lineTo(-4.5, 1.6); ctx.fill();
+    ctx.globalAlpha = 0.3; ctx.fillStyle = '#fff6c0'; ctx.beginPath(); ctx.arc(0, 0, 4, 0, Math.PI*2); ctx.fill(); ctx.restore();
+  }
+}
+function spCrystal(ctx, x, w, gy, night, now){
+  const cx = x + w/2, top = gy - 96;
+  const pulse = 0.7 + 0.3*Math.sin(now/500);
+  const g = ctx.createLinearGradient(cx, top, cx, gy); g.addColorStop(0, '#e0f8ff'); g.addColorStop(0.5, '#7ad0ff'); g.addColorStop(1, '#7a4ab0');
+  ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(cx, top); ctx.lineTo(cx + 9, gy - 60); ctx.lineTo(cx + 12, gy); ctx.lineTo(cx - 12, gy); ctx.lineTo(cx - 9, gy - 60); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.beginPath(); ctx.moveTo(cx, top); ctx.lineTo(cx - 9, gy - 60); ctx.lineTo(cx - 12, gy); ctx.lineTo(cx - 3, gy); ctx.closePath(); ctx.fill();
+  [[cx - 16, 26, 6],[cx + 15, 20, 5]].forEach(([sx,h,r])=>{ ctx.fillStyle = '#9ae0ff'; ctx.beginPath(); ctx.moveTo(sx, gy - h); ctx.lineTo(sx + r, gy); ctx.lineTo(sx - r, gy); ctx.fill(); });
+  ctx.save(); ctx.globalAlpha = 0.25*pulse; ctx.fillStyle = '#9ae8ff'; ctx.beginPath(); ctx.arc(cx, top + 10, 18, 0, Math.PI*2); ctx.fill(); ctx.restore();
+  return { x: cx, y: top };
+}
+function spArc(ctx, ax, ay, bx, by, seed){
+  ctx.save(); ctx.lineJoin = 'round';
+  [[3, 'rgba(160,220,255,.35)'],[1, '#e8f8ff']].forEach(([lw,col])=>{
+    ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.beginPath(); ctx.moveTo(ax, ay);
+    for(let i=1;i<8;i++){ const t = i/8; ctx.lineTo(ax + (bx-ax)*t + (((seed*37 + i*53) % 11) - 5), ay + (by-ay)*t - Math.sin(t*Math.PI)*14 + (((seed*17 + i*29) % 7) - 3)); }
+    ctx.lineTo(bx, by); ctx.stroke();
+  });
+  ctx.restore();
+}
+function spMarket(ctx, x, w, gy, night, now){
+  const goods = [['#f4f0f0','#2e6bd6'],['#e83a5a','#8aff6a'],['#8a6030','#ffd24a']];
+  const stripes = [['#5a3490','#ffd24a'],['#3a7a5a','#f4e6d0'],['#8a2a3a','#e8c34a']];
+  for(let i=0;i<3;i++){
+    const sx = x + 8 + i*34;
+    ctx.fillStyle = '#4a2e1a'; ctx.fillRect(sx, gy - 16, 1.5, 16); ctx.fillRect(sx + 26, gy - 16, 1.5, 16);
+    for(let k=0;k<7;k++){ ctx.fillStyle = stripes[i][k%2]; ctx.beginPath(); ctx.moveTo(sx - 2 + k*4.3, gy - 16); ctx.lineTo(sx - 2 + k*4.3 + 4.3, gy - 16); ctx.lineTo(sx + 12, gy - 24); ctx.fill(); }
+    ctx.fillStyle = '#6a4424'; ctx.fillRect(sx, gy - 8, 27.5, 2);
+    for(let k=0;k<6;k++){ const [a,b] = goods[i]; if(i===0){ ctx.fillStyle = a; ctx.beginPath(); ctx.arc(sx + 3 + k*4, gy - 9.6, 1.5, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = b; ctx.fillRect(sx + 2.6 + k*4, gy - 10, 0.9, 0.9); }
+      else if(i===1){ ctx.fillStyle = k%2 ? a : b; ctx.fillRect(sx + 2 + k*4, gy - 12, 2, 3.6); ctx.fillRect(sx + 2.5 + k*4, gy - 13, 1, 1); }
+      else { ctx.fillStyle = a; ctx.save(); ctx.translate(sx + 3 + k*4, gy - 9); ctx.rotate(-0.5); ctx.fillRect(0, -0.4, 5, 0.8); ctx.fillStyle = b; ctx.fillRect(4.6, -0.6, 1, 1.2); ctx.restore(); } }
+  }
+  // the cat that refuses to touch the ground
+  const cx = x + 54 + Math.sin(now/1800)*20, cy = gy - 34 + Math.sin(now/700)*3;
+  ctx.fillStyle = '#1a1420'; ctx.beginPath(); ctx.ellipse(cx, cy, 5, 3, 0, 0, Math.PI*2); ctx.fill(); ctx.fillRect(cx + 3, cy - 4, 4, 4);
+  ctx.beginPath(); ctx.moveTo(cx + 3, cy - 4); ctx.lineTo(cx + 3.6, cy - 6); ctx.lineTo(cx + 4.4, cy - 4); ctx.fill(); ctx.beginPath(); ctx.moveTo(cx + 5.6, cy - 4); ctx.lineTo(cx + 6.4, cy - 6); ctx.lineTo(cx + 7, cy - 4); ctx.fill();
+  ctx.fillStyle = '#ffe27a'; ctx.fillRect(cx + 4, cy - 2.8, 0.8, 0.8); ctx.fillRect(cx + 5.8, cy - 2.8, 0.8, 0.8);
+  ctx.strokeStyle = '#1a1420'; ctx.lineWidth = 0.9; ctx.beginPath(); ctx.moveTo(cx - 5, cy); ctx.quadraticCurveTo(cx - 9, cy - 4 + Math.sin(now/300)*2, cx - 8, cy - 7); ctx.stroke();
+  ctx.fillStyle = 'rgba(200,170,255,.35)'; for(let i=0;i<3;i++){ const t = ((now/900) + i/3) % 1; ctx.fillRect(cx - 3 + i*3, cy + 4 + t*6, 1, 1); }
+}
+function spGoblin(ctx, x, gy, now){
+  const R = (a,b,c,d,col)=>{ ctx.fillStyle=col; ctx.fillRect(a,b,c,d); };
+  R(x-1.6, gy-3, 1.2, 3, '#3a2a1a'); R(x+0.6, gy-3, 1.2, 3, '#3a2a1a'); R(x-2.4, gy-7.5, 4.8, 4.6, '#6a4a2a');
+  R(x-2.2, gy-11, 4.4, 3.6, '#6ab04a'); R(x-4, gy-10.6, 2, 1.2, '#6ab04a'); R(x+2, gy-10.6, 2, 1.2, '#6ab04a');
+  R(x-1.2, gy-10, 0.8, 0.8, '#ffe27a'); R(x+0.6, gy-10, 0.8, 0.8, '#ffe27a'); R(x+2.4, gy-7, 2.6, 1, '#ffd24a');
+}
+function spRoost(ctx, x, w, gy, night, now){
+  const cx = x + w/2;
+  spWall(ctx, cx - 10, gy - 78, 20, 78); spCrenel(ctx, cx - 12, gy - 78, 24); ctx.fillStyle = '#6a6678'; ctx.fillRect(cx - 12, gy - 79, 24, 2);
+  spWin(ctx, cx - 2, gy - 60, 4, 7, night); spWin(ctx, cx - 2, gy - 36, 4, 7, night);
+  // the dragon, coiled around the tower, fast asleep
+  const breathe = Math.sin(now/1400)*1.2, dk = '#1e5a4a', md = '#2e7a6a', bl = '#9ad8a0';
+  ctx.lineCap = 'round';
+  [[gy - 12, 24],[gy - 34, 20],[gy - 56, 17]].forEach(([y, r], i)=>{
+    ctx.strokeStyle = dk; ctx.lineWidth = 9 - i*1.5 + breathe*0.3; ctx.beginPath(); ctx.ellipse(cx, y, r, 6, -0.1, 0.15, Math.PI - 0.15); ctx.stroke();
+    ctx.strokeStyle = md; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(cx, y - 1.5, r, 6, -0.1, 0.4, Math.PI - 0.4); ctx.stroke();
+    ctx.fillStyle = '#0e3a2e'; for(let s=0;s<5;s++){ const a = 0.4 + s*0.55, sx = cx + Math.cos(a)*r, sy = y + Math.sin(a)*6 - 4; ctx.beginPath(); ctx.moveTo(sx - 1.5, sy + 1); ctx.lineTo(sx, sy - 2.5); ctx.lineTo(sx + 1.5, sy + 1); ctx.fill(); }
+  });
+  // tail hanging down + head resting on top
+  ctx.strokeStyle = dk; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(cx + 22, gy - 10); ctx.quadraticCurveTo(cx + 30, gy - 4, cx + 34, gy - 1); ctx.stroke();
+  ctx.fillStyle = dk; ctx.beginPath(); ctx.moveTo(cx + 34, gy - 1); ctx.lineTo(cx + 38, gy - 3); ctx.lineTo(cx + 37, gy + 1); ctx.fill();
+  const hx = cx - 4, hy = gy - 84 + breathe*0.5;
+  ctx.fillStyle = dk; ctx.beginPath(); ctx.ellipse(hx, hy, 11, 5, 0, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = md; ctx.fillRect(hx - 13, hy - 2, 9, 5); ctx.fillStyle = bl; ctx.fillRect(hx - 13, hy + 1.5, 9, 1.2);
+  ctx.fillStyle = '#0e3a2e'; ctx.beginPath(); ctx.moveTo(hx + 4, hy - 4); ctx.lineTo(hx + 10, hy - 10); ctx.lineTo(hx + 7, hy - 3); ctx.fill(); ctx.beginPath(); ctx.moveTo(hx, hy - 4); ctx.lineTo(hx + 3, hy - 11); ctx.lineTo(hx + 3, hy - 4); ctx.fill();
+  ctx.fillStyle = '#0e3a2e'; ctx.fillRect(hx - 6, hy - 1.5, 3, 0.7);                    // closed eye
+  ctx.fillStyle = '#170f08'; ctx.fillRect(hx - 12.4, hy - 0.8, 1, 0.8);
+  // snoring smoke rings
+  for(let i=0;i<3;i++){ const t = ((now/2400) + i/3) % 1; ctx.strokeStyle = `rgba(200,200,210,${0.6*(1-t)})`; ctx.lineWidth = 0.8; ctx.beginPath(); ctx.ellipse(hx - 16 - t*16, hy - 3 - t*14, 1.5 + t*3, 1 + t*2, 0, 0, Math.PI*2); ctx.stroke(); }
+  if(Math.sin(now/1400) > 0.6){ ctx.fillStyle = '#e8e4f4'; ctx.font = 'bold 5px monospace'; ctx.textAlign = 'left'; ctx.fillText('z', hx + 12, hy - 8); ctx.font = 'bold 4px monospace'; ctx.fillText('z', hx + 16, hy - 12); }
+}
+function spSkyIslands(ctx, x0, x1, gy, night, now){
+  const span = Math.max(80, x1 - x0), pos = [[x0 + span*0.14, gy - 84, 24],[x0 + span*0.5, gy - 96, 30],[x0 + span*0.86, gy - 80, 22]];
+  const isl = pos.map(([cx, cy, r], i)=>[cx, cy + Math.sin(now/1300 + i*2)*2.5, r]);
+  // rope bridges
+  ctx.strokeStyle = '#8a6a44'; ctx.lineWidth = 0.8;
+  for(let i=0;i<2;i++){ const [ax,ay,ar] = isl[i], [bx,by,br] = isl[i+1]; ctx.beginPath(); ctx.moveTo(ax + ar - 2, ay); ctx.quadraticCurveTo((ax+bx)/2, (ay+by)/2 + 10, bx - br + 2, by); ctx.stroke();
+    for(let s=1;s<10;s++){ const t = s/10, px = (1-t)*(1-t)*(ax+ar-2) + 2*(1-t)*t*((ax+bx)/2) + t*t*(bx-br+2), py = (1-t)*(1-t)*ay + 2*(1-t)*t*((ay+by)/2+10) + t*t*by; ctx.fillStyle = '#6a4424'; ctx.fillRect(px - 0.8, py - 0.3, 1.6, 1.2); } }
+  isl.forEach(([cx, cy, r], i)=>{
+    ctx.fillStyle = '#5a5668'; ctx.beginPath(); ctx.moveTo(cx - r, cy); ctx.lineTo(cx + r, cy); ctx.lineTo(cx + r*0.5, cy + r*0.4); ctx.lineTo(cx, cy + r*0.75); ctx.lineTo(cx - r*0.55, cy + r*0.35); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#3e5a2e'; ctx.fillRect(cx - r, cy - 1.5, r*2, 2.5);
+    const tw = 10 + i*2; spWall(ctx, cx - tw/2, cy - 22 - i*4, tw, 21 + i*4); spCone(ctx, cx, cy - 36 - i*6, tw + 4, 14, '#5a3490', '#3a1e64');
+    spWin(ctx, cx - 1.5, cy - 15 - i*2, 3, 5, night);
+    for(let s=0;s<3;s++){ const t = ((now/1000) + s/3 + i*0.2) % 1; ctx.fillStyle = `rgba(150,140,170,${0.6*(1-t)})`; ctx.fillRect(cx - r*0.3 + s*r*0.3, cy + r*0.6 + t*14, 1, 1.4); }
+  });
+  return isl;
+}
+function spBalloon(ctx, isl, now){
+  const P = 26000, T = (now % P)/P, f = T < 0.5 ? T*2 : 2 - T*2, e = f*f*(3-2*f);
+  const ax = isl[0][0], bx = isl[2][0], x = ax + (bx - ax)*e, y = Math.min(isl[0][1], isl[2][1]) - 22 + Math.sin(now/900)*3;
+  // the flask balloon
+  ctx.fillStyle = 'rgba(160,240,200,.75)'; ctx.beginPath(); ctx.arc(x, y - 10, 9, 0, Math.PI*2); ctx.fill(); ctx.fillRect(x - 2.5, y - 22, 5, 6);
+  ctx.fillStyle = '#5a3a1a'; ctx.fillRect(x - 3, y - 23, 6, 1.6);
+  ctx.fillStyle = 'rgba(80,220,140,.8)'; ctx.beginPath(); ctx.ellipse(x, y - 7, 8, 4, 0, 0, Math.PI); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,.5)'; ctx.fillRect(x - 5, y - 15, 1.6, 4);
+  ctx.strokeStyle = '#6a4424'; ctx.lineWidth = 0.5; ctx.beginPath(); ctx.moveTo(x - 7, y - 4); ctx.lineTo(x - 4, y + 6); ctx.moveTo(x + 7, y - 4); ctx.lineTo(x + 4, y + 6); ctx.stroke();
+  return { x, y: y + 6 };
+}
+function spClock(ctx, x, w, gy, night, now, sceneNow){
+  const hx = x + 6, hw = w - 12;
+  spWall(ctx, hx, gy - 44, hw, 44); spCrenel(ctx, hx, gy - 44, hw);
+  [[hx + 20, gy - 22, 12, 1],[hx + 46, gy - 30, 8, -1.5],[hx + 60, gy - 14, 7, 2]].forEach(([gx, gy2, r, sp], i)=>{
+    const a = sceneNow/1000*sp*0.4;
+    ctx.fillStyle = i===0 ? '#c8901a' : '#b87333';
+    for(let t=0;t<10;t++){ const aa = a + t*Math.PI/5; ctx.save(); ctx.translate(gx + Math.cos(aa)*r, gy2 + Math.sin(aa)*r); ctx.rotate(aa); ctx.fillRect(-1.2, -1.6, 2.4, 3.2); ctx.restore(); }
+    ctx.beginPath(); ctx.arc(gx, gy2, r, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#5a3a0e'; ctx.beginPath(); ctx.arc(gx, gy2, r*0.35, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#8a5a0e'; ctx.lineWidth = 0.8; for(let s=0;s<4;s++){ const aa = a + s*Math.PI/2; ctx.beginPath(); ctx.moveTo(gx + Math.cos(aa)*r*0.4, gy2 + Math.sin(aa)*r*0.4); ctx.lineTo(gx + Math.cos(aa)*r*0.9, gy2 + Math.sin(aa)*r*0.9); ctx.stroke(); }
+  });
+  // clock face on the roof
+  const cx = hx + hw/2, cy = gy - 56;
+  spWall(ctx, cx - 9, cy - 8, 18, 20);
+  ctx.fillStyle = '#f4e6d0'; ctx.beginPath(); ctx.arc(cx, cy + 2, 6.5, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle = '#2a1c10'; ctx.lineWidth = 0.9; ctx.beginPath(); ctx.moveTo(cx, cy + 2); ctx.lineTo(cx + Math.cos(sceneNow/9000)*5, cy + 2 + Math.sin(sceneNow/9000)*5); ctx.moveTo(cx, cy + 2); ctx.lineTo(cx + Math.cos(sceneNow/700)*3.5, cy + 2 + Math.sin(sceneNow/700)*3.5); ctx.stroke();
+  spCone(ctx, cx, cy - 22, 22, 14, '#3a3a5a', '#2a2a44');
+}
+function spLake(ctx, x, w, gy, night, now, L){
+  const lx = x + 6, lw = w - 12;
+  const g = ctx.createLinearGradient(0, gy - 3, 0, gy + 18); g.addColorStop(0, '#3a5a8a'); g.addColorStop(1, '#1a2a4a');
+  ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(lx + lw/2, gy + 4, lw/2, 9, 0, 0, Math.PI*2); ctx.fill();
+  // the reflection shows a castle that is not quite his: an extra tower and red windows
+  ctx.save(); ctx.beginPath(); ctx.ellipse(lx + lw/2, gy + 4, lw/2 - 2, 8, 0, 0, Math.PI*2); ctx.clip();
+  ctx.globalAlpha = 0.45;
+  [[lx + 18, 14],[lx + 40, 22],[lx + 62, 18],[lx + 84, 26],[lx + 104, 15]].forEach(([tx,h],i)=>{ ctx.fillStyle = '#4a4660'; ctx.fillRect(tx - 4, gy, 8, h); ctx.fillStyle = '#7a1a3a'; ctx.beginPath(); ctx.moveTo(tx - 5, gy + h); ctx.lineTo(tx, gy + h + 7); ctx.lineTo(tx + 5, gy + h); ctx.fill(); ctx.fillStyle = '#ff4a4a'; ctx.fillRect(tx - 1, gy + 4, 2, 2.4); });
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = 'rgba(220,235,255,.35)'; for(let i=0;i<6;i++) ctx.fillRect(lx + 10 + ((i*23 + now/80) % (lw - 20)), gy + 1 + (i%3)*2.5, 6, 0.6);
+  ctx.restore();
+  // ghost wizards drifting out of the lake
+  for(let k=0;k<3;k++){
+    const P = 12000 + k*2600, T = ((now/P) + k*0.33) % 1;
+    const gx = lx + 20 + k*36 + Math.sin(T*6 + k)*8, gy2 = gy + 2 - T*58, a = Math.sin(T*Math.PI)*0.55;
+    ctx.save(); ctx.globalAlpha = a; ctx.fillStyle = '#d8f0ff';
+    ctx.beginPath(); ctx.moveTo(gx - 4, gy2); ctx.quadraticCurveTo(gx - 5, gy2 - 10, gx, gy2 - 12); ctx.quadraticCurveTo(gx + 5, gy2 - 10, gx + 4, gy2); ctx.lineTo(gx + 2, gy2 + 2 + Math.sin(now/200)*1); ctx.lineTo(gx, gy2); ctx.lineTo(gx - 2, gy2 + 2); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(gx - 3.5, gy2 - 11); ctx.lineTo(gx + 1, gy2 - 21); ctx.lineTo(gx + 3.5, gy2 - 11); ctx.fill();
+    ctx.fillStyle = '#5a7aa0'; ctx.fillRect(gx - 2, gy2 - 9, 1, 1); ctx.fillRect(gx + 1, gy2 - 9, 1, 1);
+    ctx.restore();
+  }
+}
+function spAcademy(ctx, x, w, gy, night, now){
+  const hx = x + 6, hw = w - 12;
+  spWall(ctx, hx, gy - 36, hw, 36); spCrenel(ctx, hx, gy - 36, hw);
+  for(let r=0;r<2;r++) for(let i=0;i<7;i++) spWin(ctx, hx + 6 + i*13, gy - 30 + r*12, 4, 6, night);
+  [hx + 6, hx + hw - 6].forEach(tx=>{ spWall(ctx, tx - 6, gy - 52, 12, 52); spCone(ctx, tx, gy - 68, 16, 16, '#5a3490', '#3a1e64'); });
+  ctx.fillStyle = '#2a1c10'; ctx.fillRect(hx + hw/2 - 5, gy - 13, 10, 13);
+  // tiny apprentices, spells going wrong
+  const cols = ['#7a2a3a','#2e4088','#3a7a3a','#8a6a1a','#5a2a7a'];
+  for(let i=0;i<5;i++){
+    const ax = hx + 10 + i*18 + Math.sin(now/1500 + i)*3, R = (a,b,c,d,col)=>{ ctx.fillStyle=col; ctx.fillRect(a,b,c,d); };
+    R(ax - 1.6, gy - 5, 3.2, 5, cols[i]); R(ax - 1, gy - 7, 2, 2, '#f0c49b');
+    ctx.fillStyle = cols[i]; ctx.beginPath(); ctx.moveTo(ax - 2, gy - 6.8); ctx.lineTo(ax, gy - 11); ctx.lineTo(ax + 2, gy - 6.8); ctx.fill();
+    const T = ((now/3000) + i*0.37) % 1;
+    if(T < 0.12){ const k = T/0.12; ctx.globalAlpha = 1 - k; ctx.fillStyle = ['#ff9a3a','#8aff6a','#c070ff','#ffe27a','#5ab0ff'][i];
+      for(let s=0;s<7;s++){ const a = s*Math.PI*2/7; ctx.fillRect(ax + 3 + Math.cos(a)*k*7, gy - 8 + Math.sin(a)*k*7, 1.2, 1.2); }
+      ctx.fillStyle = 'rgba(200,200,210,.6)'; ctx.beginPath(); ctx.arc(ax + 3, gy - 8, 2 + k*3, 0, Math.PI*2); ctx.fill(); ctx.globalAlpha = 1; }
+  }
+  // the cow on the roof (poof!)
+  const P = 18000, T = vkPh(now, P, 18)/P;
+  if(T < 0.6){
+    const cx = hx + hw/2 + 8, cy = gy - 36, R = (a,b,c,d,col)=>{ ctx.fillStyle=col; ctx.fillRect(a,b,c,d); };
+    R(cx - 6, cy - 7, 12, 5, '#f4f0e8'); R(cx - 3, cy - 7, 3, 3, '#2a2420'); R(cx + 2, cy - 5, 3, 2, '#2a2420');
+    R(cx + 5, cy - 9, 4, 4, '#f4f0e8'); R(cx + 7.6, cy - 7, 1.8, 1.6, '#e8a0a0'); R(cx + 5, cy - 10, 1, 1.5, '#d8c8a8'); R(cx + 8, cy - 10, 1, 1.5, '#d8c8a8');
+    R(cx - 5, cy - 2, 1.2, 2, '#f4f0e8'); R(cx + 3.6, cy - 2, 1.2, 2, '#f4f0e8');
+    if(T < 0.06){ ctx.fillStyle = `rgba(230,220,255,${1 - T/0.06})`; ctx.beginPath(); ctx.arc(cx, cy - 5, 4 + T/0.06*10, 0, Math.PI*2); ctx.fill(); }
+    if(Math.sin(now/600) > 0.6){ vkSay(ctx, cx + 2, cy - 13, 'MOO'); }
+    return { cowOn: true };
+  }
+  return { cowOn: false };
+}
+function spPortal(ctx, x, w, gy, night, now){
+  const cx = x + w/2, cy = gy - 30, r = 26;
+  // swirling vortex
+  ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, r - 4, 0, Math.PI*2); ctx.clip();
+  ctx.fillStyle = '#1a0a3a'; ctx.fillRect(cx - r, cy - r, r*2, r*2);
+  for(let i=0;i<40;i++){ const a = i*0.5 + now/600, rr = (i/40)*(r - 4); ctx.fillStyle = i%3 ? '#7a3ab0' : '#c08aff'; ctx.globalAlpha = 0.7; ctx.fillRect(cx + Math.cos(a)*rr, cy + Math.sin(a)*rr, 1.6, 1.6); }
+  ctx.globalAlpha = 1;
+  // something peeks through
+  const P = 11000, T = vkPh(now, P, 19)/P, which = Math.floor(now / P) % 3;
+  if(T < 0.5){ const k = Math.sin(T/0.5*Math.PI);
+    if(which === 0){ ctx.fillStyle = '#ffe27a'; ctx.beginPath(); ctx.arc(cx - 5, cy - 2, 2.2*k, 0, Math.PI*2); ctx.arc(cx + 5, cy - 2, 2.2*k, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = '#170f08'; ctx.fillRect(cx - 5.4, cy - 3.6*k, 0.8, 3.2*k); ctx.fillRect(cx + 4.6, cy - 3.6*k, 0.8, 3.2*k); }
+    else if(which === 1){ ctx.strokeStyle = '#8a4ab0'; ctx.lineWidth = 2.6; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(cx - 10, cy + 14); ctx.quadraticCurveTo(cx - 4 + Math.sin(now/200)*4, cy, cx + 2, cy - 12*k); ctx.stroke(); }
+    else { ctx.fillStyle = '#6ab04a'; ctx.beginPath(); ctx.arc(cx, cy + 22 - 16*k, 7, Math.PI, 0); ctx.fill(); ctx.fillStyle = '#fff'; ctx.fillRect(cx - 3, cy + 18 - 16*k, 2, 2); ctx.fillRect(cx + 1, cy + 18 - 16*k, 2, 2); } }
+  ctx.restore();
+  // the stone ring with glowing runes
+  ctx.strokeStyle = '#6a6678'; ctx.lineWidth = 7; ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.stroke();
+  ctx.strokeStyle = '#4e4a5e'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(cx, cy, r + 3, 0, Math.PI*2); ctx.stroke();
+  for(let i=0;i<12;i++){ const a = i*Math.PI/6 + now/8000; ctx.fillStyle = `rgba(190,140,255,${0.6 + 0.4*Math.sin(now/300 + i)})`; ctx.fillRect(cx + Math.cos(a)*r - 0.6, cy + Math.sin(a)*r - 1.6, 1.2, 3.2); }
+  ctx.fillStyle = '#5a5668'; ctx.fillRect(cx - r - 6, gy - 4, 2*r + 12, 4);
+}
+function spCosmicCauldron(ctx, cx, cy, now){
+  // the heavens as a cauldron of stars, swirling
+  ctx.save();
+  const g = ctx.createRadialGradient(cx, cy, 4, cx, cy, 90); g.addColorStop(0, 'rgba(255,240,200,.55)'); g.addColorStop(0.4, 'rgba(160,100,255,.28)'); g.addColorStop(1, 'rgba(60,30,140,0)');
+  ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(cx, cy, 120, 40, 0, 0, Math.PI*2); ctx.fill();
+  for(let i=0;i<140;i++){
+    const arm = i%3, a = now/2200 + i*0.09 + arm*Math.PI*2/3, rr = 4 + (i/140)*108;
+    ctx.fillStyle = ['#fff6dc','#c8a0ff','#8ae0ff'][i%3]; ctx.globalAlpha = 0.85 - (i/140)*0.6;
+    ctx.fillRect(cx + Math.cos(a)*rr, cy + Math.sin(a)*rr*0.33, 1.3, 1.3);
+  }
+  ctx.globalAlpha = 1; ctx.restore();
+}
+function spWizardParty(ctx, x0, x1, gy, now){
+  const cols = ['#7a2a3a','#2e4088','#3a7a3a','#8a6a1a','#5a2a7a','#2a6a7a'];
+  const n = Math.max(6, Math.floor((x1 - x0)/16));
+  for(let i=0;i<n;i++){
+    const x = x0 + (x1 - x0)*i/(n-1), j = Math.abs(Math.sin(now/180 + i*0.8))*4, R = (a,b,c,d,col)=>{ ctx.fillStyle=col; ctx.fillRect(a,b,c,d); };
+    R(x - 2.4, gy - 8 - j, 4.8, 8, cols[i%6]); R(x - 1.4, gy - 10.6 - j, 2.8, 2.6, '#f0c49b'); R(x - 1.4, gy - 8.6 - j, 2.8, 1.6, '#e8e4dc');
+    ctx.fillStyle = cols[i%6]; ctx.beginPath(); ctx.moveTo(x - 3, gy - 10.4 - j); ctx.lineTo(x + 0.5, gy - 17 - j); ctx.lineTo(x + 3, gy - 10.4 - j); ctx.fill();
+    if(i%2){ R(x + 2.4, gy - 13 - j, 0.8, 5, '#8a6030'); R(x + 2.1, gy - 14 - j, 1.4, 1.4, ['#ffe27a','#8aff6a','#ff8aff'][i%3]); }
+  }
+  // sparkle fireworks
+  for(let k=0;k<4;k++){ const P = 2600 + k*500, T = ((now/P) + k*0.25) % 1, fx = x0 + 20 + k*((x1 - x0 - 40)/3), fy = gy - 46 - (k%2)*10;
+    if(T < 0.5){ const u = T/0.5; for(let s=0;s<10;s++){ const a = s*Math.PI/5; ctx.fillStyle = ['#ffe27a','#8aff6a','#c08aff','#8ae0ff'][(s+k)%4]; ctx.globalAlpha = 1 - u; ctx.fillRect(fx + Math.cos(a)*u*12, fy + Math.sin(a)*u*12 + u*u*4, 1.2, 1.2); } ctx.globalAlpha = 1; } }
+}
+
+/* ── the whole scene ── */
+function drawSpire(ctx, W, H, groundY, frame, tier, night, isDay){
+  const L = spLevel(), lay = spLayout(L), s = lay.segs, gy = groundY;
+  const realNow = vkNow();
+  const now = L >= 16 ? realNow - spFrozenTotal(realNow) : realNow;   // scene clock (stops while time is frozen)
+  const frozen = L >= 16 && spIsFrozen(realNow);
+  const pan = window._arenaPan || 0, vw = window._arenaViewW || 240;
+  // Grand Transmutation: the sky becomes a cauldron of stars
+  if(L >= 20) spCosmicCauldron(ctx, pan + vw/2, 34, now);
+  // L6: once a night an explosion turns the moon green
+  if(L >= 6){ const P = 40000, T = vkPh(now, P, 6)/P; if(T < 0.1 && night > 0.05){ ctx.save(); ctx.globalAlpha = Math.sin(T/0.1*Math.PI)*0.9; ctx.fillStyle = '#7aff6a'; ctx.beginPath(); ctx.arc(W - 34, 20, 10, 0, Math.PI*2); ctx.fill(); ctx.globalAlpha *= 0.3; ctx.beginPath(); ctx.arc(W - 34, 20, 22, 0, Math.PI*2); ctx.fill(); ctx.restore(); } }
+  // L15: sky islands (drawn behind the castle)
+  let isl = null;
+  if(L >= 15 && s.market) isl = spSkyIslands(ctx, s.grove ? s.grove.x : s.market.x, s.market.x + s.market.w, gy, night, now);
+  // L20: the castle lifts off the ground
+  const lift = L >= 20 ? 16 + Math.sin(now/1400)*2 : 0;
+  ctx.save(); ctx.translate(0, -lift);
+  if(lift){
+    const x0 = s.tower.x, x1 = lay.W - 16;
+    ctx.fillStyle = '#4a4658'; ctx.beginPath(); ctx.moveTo(x0, gy);
+    for(let x=x0; x<=x1; x+=12) ctx.lineTo(x, gy + 6 + ((x*13)%9) + Math.sin(x/40)*4);
+    ctx.lineTo(x1, gy); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#3e5a2e'; ctx.fillRect(x0, gy - 1, x1 - x0, 2);
+  }
+  if(s.tower) spTower(ctx, s.tower.x, s.tower.w, gy, night, now, L);
+  if(s.shed) spShed(ctx, s.shed.x, s.shed.w, gy, night, now);
+  if(s.brew) spBrew(ctx, s.brew.x, s.brew.w, gy, night, now, L);
+  if(s.alembic) spAlembic(ctx, s.alembic.x, s.alembic.w, gy, night, now, L, lay);
+  if(s.hall) spHall(ctx, s.hall.x, s.hall.w, gy, night, now, L);
+  if(s.gate) spGate(ctx, s.gate.x, s.gate.w, gy, night, now);
+  if(s.obs) spObs(ctx, s.obs.x, s.obs.w, gy, night, now);
+  if(s.grove) spGrove(ctx, s.grove.x, s.grove.w, gy, night, now);
+  if(s.forge) spForge(ctx, s.forge.x, s.forge.w, gy, night, now);
+  let crystal = null; if(s.crystal) crystal = spCrystal(ctx, s.crystal.x, s.crystal.w, gy, night, now);
+  if(s.market) spMarket(ctx, s.market.x, s.market.w, gy, night, now);
+  if(s.roost) spRoost(ctx, s.roost.x, s.roost.w, gy, night, now);
+  if(s.clock) spClock(ctx, s.clock.x, s.clock.w, gy, night, now, now);
+  if(s.lake) spLake(ctx, s.lake.x, s.lake.w, gy, night, now, L);
+  let acad = null; if(s.academy) acad = spAcademy(ctx, s.academy.x, s.academy.w, gy, night, now);
+  if(s.portal) spPortal(ctx, s.portal.x, s.portal.w, gy, night, now);
+  // weird things living in the castle
+  if(L >= 3) spMushrooms(ctx, s.tower.x, (s.alembic ? s.alembic.x + s.alembic.w : s.brew.x + s.brew.w), gy, night, now);
+  if(L >= 4) spBroom(ctx, s.alembic.x + 4, s.alembic.x + s.alembic.w - 4, gy, now);
+  if(L >= 5) spBooks(ctx, s.hall.x + s.hall.w/2, gy - 78, now);
+  if(L >= 7) spShootingStar(ctx, 0, W, s.brew.x + 11, gy - 10, now);
+  if(L >= 8) spWisps(ctx, s.grove.x, s.grove.w, gy, now);
+  let lib = null; if(L >= 9) lib = spFloatingLibrary(ctx, s.hall, gy, night, now);
+  if(L >= 10) spGolem(ctx, s.forge.x + 8, s.forge.x + s.forge.w + (s.crystal ? 0 : 10), gy, now);
+  if(L >= 11) spMoat(ctx, s.tower.x - 6, s.gate.x + s.gate.w + 6, gy, now, s.gate.x + s.gate.w/2);
+  if(L >= 12 && crystal){ const P = 6000, T = vkPh(now, P, 12)/P; if(T < 0.12){ const seed = Math.floor(now/P);
+      if(s.obs) spArc(ctx, crystal.x, crystal.y + 4, s.obs.x + s.obs.w/2, gy - 70, seed);
+      if(s.alembic) spArc(ctx, crystal.x, crystal.y + 4, s.alembic.x + 56, gy - 64, seed + 3); } }
+  if(L >= 13 && s.market) spGoblin(ctx, s.market.x + 62, gy, now);
+  // L6: the green-moon explosion over the brewhouse
+  if(L >= 6){ const P = 40000, T = vkPh(now, P, 6)/P; if(T < 0.08){ const k = T/0.08, bx = s.brew.x + 51, by = gy - 56;
+      ctx.fillStyle = `rgba(140,255,120,${1-k})`; ctx.beginPath(); ctx.arc(bx, by, 4 + k*22, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = `rgba(90,110,90,${0.7*(1-k)})`; for(let i=0;i<6;i++){ const a = i*Math.PI/3; ctx.beginPath(); ctx.arc(bx + Math.cos(a)*k*20, by + Math.sin(a)*k*14 - k*8, 3 + k*4, 0, Math.PI*2); ctx.fill(); } } }
+  ctx.restore();
+  let balloon = null; if(L >= 15 && isl) balloon = spBalloon(ctx, isl, now);
+  // ── the Brew-zard himself ──
+  spHeroScene(ctx, L, lay, gy, realNow, now, { lift, lib, crystal, balloon, acad, frozen });
+  // L16: frozen time — a cold blue hush over everything
+  if(frozen){ ctx.save(); ctx.globalAlpha = 0.22; ctx.fillStyle = '#9ac8ff'; ctx.fillRect(pan, 0, vw, H); ctx.globalAlpha = 0.8; ctx.strokeStyle = '#e8f4ff'; ctx.lineWidth = 1;
+    const r = ((realNow % 1600)/1600)*90; ctx.beginPath(); ctx.arc(s.clock.x + s.clock.w/2, gy - 54, r, 0, Math.PI*2); ctx.stroke(); ctx.restore(); }
+  // L20: potion rain + the party below
+  if(L >= 20){
+    for(let i=0;i<Math.floor(W/8);i++){ const px = (i*53 + now/30) % W, py = (i*71 + now/9) % gy; ctx.fillStyle = ['#8aff9a','#c08aff','#ffe27a','#8ae0ff'][i%4]; ctx.globalAlpha = 0.75; ctx.fillRect(px, py, 1, 2.4); }
+    ctx.globalAlpha = 1;
+    spWizardParty(ctx, s.tower.x + 10, lay.W - 30, gy + 14, now);
+  }
+}
+function spHeroScene(ctx, L, lay, gy, realNow, now, ex){
+  const s = lay.segs, c = id => s[id] ? s[id].x + s[id].w/2 : 0;
+  const lift = ex.lift || 0;
+  if(L === 1){ const x = s.tower.x + 50 + Math.sin(now/1600)*7; spHeroSprite(ctx, x, gy, L, now, { prop:'broom', ang: 0.9 + Math.sin(now/160)*0.3 }); }
+  else if(L === 2){
+    const P = 14000, T = (now % P)/P, x0 = s.shed.x + 4, x1 = s.shed.x + s.shed.w + 30, fx = x0 + (x1 - x0)*T, hop = Math.abs(Math.sin(now/220))*4;
+    spFrog(ctx, fx, gy, now, hop);
+    spHeroSprite(ctx, fx - 16, gy, L, now, { lift: vkHeroWalk(now, 120), prop:'point', ang: -0.2, say: Math.sin(now/1500) > 0.4 ? 'COME BACK!' : null });
+  }
+  else if(L === 3){ spHeroSprite(ctx, s.brew.x + 22, gy, L, now, { prop:'spoon', ang: 0.7 + Math.sin(now/300)*0.35 }); }
+  else if(L === 4){ spHeroSprite(ctx, s.alembic.x + 2, gy, L, now, { prop:'wand', ang: -0.9 + Math.sin(now/250)*0.6 }); }
+  else if(L === 5){ const T = (now % 5000)/5000, x = c('hall') - 18;
+    spHeroSprite(ctx, x, gy, L, now, { prop: T > 0.5 ? 'book' : 'point', ang: -1.6 });
+    if(T < 0.5){ const k = T/0.5; ctx.fillStyle = '#2e4088'; ctx.save(); ctx.translate(x - 3, gy - 60 + k*38); ctx.rotate(k*6); ctx.fillRect(-2.5,-3,5,6); ctx.restore(); } }
+  else if(L === 6){ const P = 40000, T = vkPh(now, P, 6)/P, x = s.brew.x + 30, boom = T < 0.16;
+    spHeroSprite(ctx, x, gy, L, now, { prop:'wand', ang: boom ? -1.8 : -0.6, say: (T > 0.06 && T < 0.16) ? '...OOPS' : null });
+    if(boom){ ctx.fillStyle = `rgba(60,60,60,${0.7*(1 - T/0.16)})`; ctx.beginPath(); ctx.arc(x, gy - 22, 9, 0, Math.PI*2); ctx.fill(); } }
+  else if(L === 7){ spHeroSprite(ctx, c('obs') - 9, gy - 60, L, now, { prop:'point', ang: -1.0 }); }
+  else if(L === 8){ spHeroSprite(ctx, s.grove.x + 26, gy, L, now, { prop:'flute' });
+    for(let i=0;i<3;i++){ const t = ((now/1200) + i/3) % 1; ctx.globalAlpha = Math.sin(t*Math.PI); ctx.fillStyle = '#ffe27a'; ctx.font = 'bold 5px monospace'; ctx.fillText('♪', s.grove.x + 16 - t*6, gy - 22 - t*14); } ctx.globalAlpha = 1; }
+  else if(L === 9 && ex.lib){
+    ctx.save(); ctx.translate(ex.lib.x + 8, ex.lib.y - 2); ctx.scale(1, -1);     // hanging upside down under the floating rock, reading
+    spHeroSprite(ctx, 0, 0, L, now, { prop:'book', ang: -0.6 }); ctx.restore(); }
+  else if(L === 10){ spHeroSprite(ctx, s.forge.x - 4, gy, L, now, { prop:'point', ang: 0.2, say: Math.sin(now/2000) > 0.6 ? 'GENTLY!' : null }); }
+  else if(L === 11){ spHeroSprite(ctx, s.gate.x + s.gate.w + 14, gy, L, now, { prop:'rod', bx: 16, by: 18 + Math.sin(now/500) }); }
+  else if(L === 12 && ex.crystal){ spHeroSprite(ctx, s.crystal.x - 6, gy, L, now, { prop:'wand', ang: -1.7 });
+    const P = 6000, T = vkPh(now, P, 12)/P; if(T < 0.12) spArc(ctx, s.crystal.x - 2, gy - 30, ex.crystal.x, ex.crystal.y + 10, Math.floor(now/P) + 7); }
+  else if(L === 13){ const x = s.market.x + 76; spHeroSprite(ctx, x, gy, L, now, { prop:'point', ang: 0.1, say: Math.sin(now/1300) > 0.3 ? (Math.sin(now/2600) > 0 ? 'TOO MUCH!' : 'FINE. 3 GOLD.') : null }); }
+  else if(L === 14){ const P = 20000, T = (now % P)/P, f = T < 0.5 ? T*2 : 2 - T*2, x0 = s.roost.x - 6, x1 = s.roost.x + s.roost.w + 6;
+    spHeroSprite(ctx, x0 + (x1 - x0)*f, gy, L, now, { lift: Math.abs(Math.sin(now/420))*1.6, prop:'point', ang: -1.9, say: 'SHHH...' }); }
+  else if(L === 15 && ex.balloon){
+    const b = ex.balloon; spHeroSprite(ctx, b.x, b.y - 2, L, now, { prop:'wand', ang: -0.4 });
+    ctx.fillStyle = '#6a4424'; ctx.fillRect(b.x - 5, b.y - 4, 10, 5); ctx.fillStyle = '#8a6030'; ctx.fillRect(b.x - 5, b.y - 4, 10, 1); }
+  else if(L === 16){ const x = c('clock') + Math.sin(realNow/1800)*24;   // he moves on real time — even when everything else is frozen
+    spHeroSprite(ctx, x, gy, L, realNow, { lift: vkHeroWalk(realNow, 140), prop:'wand', ang: -0.5, say: ex.frozen ? 'HEH.' : null }); }
+  else if(L === 17){ spHeroSprite(ctx, s.lake.x + 4, gy, L, now, { prop:'point', ang: -0.6, say: Math.sin(now/1700) > 0.5 ? 'HELLO AGAIN!' : null }); }
+  else if(L === 18){ spHeroSprite(ctx, s.academy.x + s.academy.w + 2, gy, L, now, { prop:'wand', ang: -1.2, say: ex.acad && ex.acad.cowOn && Math.sin(now/900) > 0 ? 'NOT THE COW AGAIN' : null }); }
+  else if(L === 19){ spHeroSprite(ctx, s.portal.x + 2, gy, L, now, { prop:'wand', ang: -1.5 + Math.sin(now/700)*0.2 }); }
+  else if(L >= 20){
+    // atop the floating castle, stirring the heavens
+    const x = c('hall'), y = gy - lift - 60;
+    const pan = window._arenaPan || 0, vw = window._arenaViewW || 240, tx = pan + vw/2 + Math.cos(now/2200)*30, ty = 34 + Math.sin(now/2200)*8;
+    ctx.save(); ctx.strokeStyle = '#8a6030'; ctx.lineWidth = 2.4; ctx.beginPath(); ctx.moveTo(x + 7, y - 10); ctx.lineTo(tx, ty); ctx.stroke();
+    ctx.fillStyle = '#fff2a0'; ctx.beginPath(); ctx.arc(tx, ty, 4 + Math.sin(now/200), 0, Math.PI*2); ctx.fill(); ctx.globalAlpha = 0.35; ctx.beginPath(); ctx.arc(tx, ty, 12, 0, Math.PI*2); ctx.fill(); ctx.restore();
+    spHeroSprite(ctx, x, y, L, now, { say: Math.sin(now/2600) > 0.7 ? 'BEHOLD: THE GRAND BREW!' : null });
+  }
+}
+
 function drawVikingSettlement(ctx, W, H, groundY, frame, tier, nightness, isDay){
-  const v = vkConf(), now = Date.now(), gy = groundY;
+  const v = vkConf(), now = vkNow(), gy = groundY;
   { const hp = v.heimdall ? vkHornPhase(now) : -1; window._vkHornOn = hp > 0.15 && hp < 0.95; }
   const lay = vkInland(v);
   const pan = window._arenaPan || 0, vw = window._arenaViewW || 240;
@@ -5081,11 +5953,12 @@ function drawVikingSettlement(ctx, W, H, groundY, frame, tier, nightness, isDay)
   ctx.save(); ctx.translate(lay.X0, 0);
   vkDrawMain(ctx, W - lay.X0, H, groundY, frame, v, nightness, isDay);
   ctx.restore();
+  vkHeroScene(ctx, v, lay, gy, gy + 3, now);
   if(v.thorRide && !v.ragnarok) vkThorChariot(ctx, pan, vw, now);   // at Ragnarök he's busy with the serpent
 }
 
 function vkDrawMain(ctx, W, H, groundY, frame, v, nightness, isDay){
-  const gy = groundY, waterY = gy + 3, now = Date.now();
+  const gy = groundY, waterY = gy + 3, now = vkNow();
   const R = (x,y,w,h,c)=>{ ctx.fillStyle=c; ctx.fillRect(x,y,w,h); };
   const night = nightness;
 
@@ -5209,10 +6082,11 @@ function vkDrawMain(ctx, W, H, groundY, frame, v, nightness, isDay){
   if(v.ships === 0){
     vkShip(ctx, shore + 12, gy + 1, 1, { small:true, beached:true }, now);
   }
+  window._vkShipPos = [];
   vkDocks(v).forEach((d, i)=>{
     const dockX = d.x;
     let x = dockX, dir = 1, st = { sail:false, crew:0, loot:0, oars:false };
-    if(v.raid){
+    if(v.raid && !(i === 0 && v.L >= 15)){   // from level 15 his flagship stays in harbour with him aboard
       const ph = ((now + i*VK_RAID_MS/v.ships*0.73) % VK_RAID_MS) / VK_RAID_MS;
       const out = W + 70*d.sc;
       if(ph < 0.18){ st.crew = ph/0.18; }
@@ -5223,6 +6097,7 @@ function vkDrawMain(ctx, W, H, groundY, frame, v, nightness, isDay){
       if(ph < 0.18) vkWalkers(ctx, (great||v.b[0])[1] + ((great||v.b[0])[2])/2, dockX, gy, ph/0.18, false, now);
     }
     st.sc = d.sc; st.gold = d.gold;
+    window._vkShipPos[i] = { x, y: waterY + 1 + Math.sin(now/600 + i)*0.8, dir, sc: d.sc, vis: x < W + 60*d.sc };
     if(x < W + 60*d.sc) vkShip(ctx, x, waterY + 1 + Math.sin(now/600 + i)*0.8, dir, st, now);
   });
 
@@ -5712,6 +6587,7 @@ function drawBrewery(ctx, W, H, frame){
   ctx.fillRect(0, groundY, W, 3);
 
   if(S && S.charId === 'tank'){ drawVikingSettlement(ctx, W, H, groundY, frame, tier, nightness, isDay); return; }
+  if(S && S.charId === 'wizard'){ drawSpire(ctx, W, H, groundY, frame, tier, nightness, isDay); return; }
 
   // buildings — stone base, timber cross-frame, peaked roof
   const bw = 54, gap = 7, startX = 16;
@@ -5983,12 +6859,81 @@ function drawBrewery(ctx, W, H, frame){
 const ARENA_ZOOM = 1.5;
 function breweryWorldWidth(tier){
   if(S && S.charId === 'tank') return vikingWorldWidth(tier);
+  if(S && S.charId === 'wizard') return spireWorldWidth();
   const bw = 54, gap = 7, startX = 16;
   let right = startX + tier.buildings*(bw+gap);
   if(tier.wheel) right += 34;
   if(tier.garden) right += 6 + 60;
   return right + 4;
 }
+const _cam = { dragging:false, manual:false, pan:0, vel:0, lastX:0, lastT:0, releasedAt:0, shown:null, k:1, maxPan:0, hintDone:false, inited:false };
+const CAM_IDLE_MS = 4000;
+function arenaCamera(autoPan, worldW, viewW, k, canvas){
+  _cam.k = k; _cam.maxPan = Math.max(0, worldW - viewW);
+  if(S && (S.charId === 'tank' || S.charId === 'wizard') && typeof vkRevealTick === 'function') vkRevealTick();
+  if(!_cam.inited) arenaInitDrag(canvas);
+  const now = performance.now();
+  const clamp = v => Math.max(0, Math.min(_cam.maxPan, v));
+  if(_cam.shown == null) _cam.shown = autoPan;
+  if(_cam.dragging){
+    _cam.shown = clamp(_cam.pan);
+  } else if(_cam.manual){
+    // momentum from the flick
+    const dt = Math.min(50, now - (_cam.lastFrame || now));
+    if(Math.abs(_cam.vel) > 0.002){ _cam.pan = clamp(_cam.pan + _cam.vel*dt); _cam.vel *= Math.pow(0.9, dt/16); if(_cam.pan <= 0 || _cam.pan >= _cam.maxPan) _cam.vel = 0; }
+    _cam.shown = _cam.pan;
+    if(now - _cam.releasedAt > CAM_IDLE_MS) _cam.manual = false;
+  } else if(window._vkFocus && now < window._vkFocus.until){
+    // a level-up just unlocked something — fly straight to it
+    _cam.shown += (clamp(window._vkFocus.x - viewW/2) - _cam.shown) * 0.14;
+  } else {
+    // ease toward wherever the automatic drift (or the Ragnarök fight) wants to be
+    _cam.shown += (autoPan - _cam.shown) * 0.035;
+    if(Math.abs(autoPan - _cam.shown) < 0.3) _cam.shown = autoPan;
+  }
+  _cam.lastFrame = now;
+  _cam.shown = clamp(_cam.shown);
+  arenaHint(worldW > viewW + 1);
+  return _cam.shown;
+}
+function arenaHint(wide){
+  const h = document.getElementById('arenaHint'); if(!h) return;
+  if(!_cam.hintDone){ try{ _cam.hintDone = store.get('as_swipehint') === '1'; }catch(e){} }
+  h.classList.toggle('hide', !wide || _cam.hintDone || _cam.dragging);
+}
+function arenaInitDrag(c){
+  _cam.inited = true;
+  const toWorld = dxCss => { const r = c.getBoundingClientRect(); return dxCss * (c.width / Math.max(1, r.width)) / _cam.k; };
+  const down = e => {
+    if(_cam.maxPan <= 0) return;
+    _cam.dragging = true; _cam.manual = true; _cam.vel = 0; window._vkFocus = null;
+    _cam.pan = _cam.shown == null ? 0 : _cam.shown;
+    _cam.lastX = e.clientX; _cam.lastT = performance.now();
+    c.classList.add('dragging');
+    try{ c.setPointerCapture(e.pointerId); }catch(_){}
+  };
+  const move = e => {
+    if(!_cam.dragging) return;
+    const now = performance.now(), dx = e.clientX - _cam.lastX, dt = Math.max(1, now - _cam.lastT);
+    const dw = -toWorld(dx);
+    _cam.pan = Math.max(0, Math.min(_cam.maxPan, _cam.pan + dw));
+    _cam.vel = _cam.vel*0.6 + (dw/dt)*0.4;          // smoothed world-px per ms, for the flick
+    _cam.lastX = e.clientX; _cam.lastT = now;
+    if(Math.abs(dx) > 4 && !_cam.hintDone){ _cam.hintDone = true; try{ store.set('as_swipehint','1'); }catch(_){} }
+  };
+  const up = () => {
+    if(!_cam.dragging) return;
+    _cam.dragging = false; _cam.releasedAt = performance.now();
+    if(performance.now() - _cam.lastT > 80) _cam.vel = 0;   // held still before letting go: no flick
+    c.classList.remove('dragging');
+  };
+  c.addEventListener('pointerdown', down);
+  c.addEventListener('pointermove', move);
+  c.addEventListener('pointerup', up);
+  c.addEventListener('pointercancel', up);
+  c.addEventListener('lostpointercapture', up);
+}
+
 function drawArena(){
   const c = document.getElementById('arena'); if(!c) return;
   const ctx = c.getContext('2d');
@@ -6007,13 +6952,14 @@ function drawArena(){
     pan = (worldW - viewW) * (u*u*(3 - 2*u));
   }
   if(S && S.charId === 'tank' && typeof vkLevel === 'function' && vkLevel() >= 20){
-    const ft = vkFightT(Date.now());
+    const ft = vkFightT(vkNow());
     if(ft >= 0){
       const w = Math.max(0, Math.min(1, ft/1200, (VK_FIGHT_D - ft)/1200)), e = w*w*(3-2*w);
       const target = Math.max(0, Math.min(worldW - viewW, vkFightFocusWorldX() - viewW/2));
       pan = pan + (target - pan)*e;
     }
   }
+  pan = arenaCamera(pan, worldW, viewW, k, c);
   ctx.setTransform(1,0,0,1,0,0);
   ctx.clearRect(0,0,c.width,c.height);
   ctx.imageSmoothingEnabled = false;
@@ -6215,6 +7161,7 @@ function startRun(){
   }
   S = freshState();
   S.name = nm; S.charId = selChar; S.startTime = Date.now();
+  if(selChar === 'tank' || selChar === 'wizard'){ window._vkPendingReveal = 1; window._vkRevealClearSince = 0; }   // his saga begins
   S.veteran = false; S.unlocksSeen = []; // everyone walks the Crawler's Path: features unlock with XP
   S.lastProdTs = Date.now();
   // SKIP THE TUTORIAL: a normal run (everything still unlocks with XP), minus the scripted first pull and the guide
@@ -6681,7 +7628,7 @@ function grantXP(amount, why, opts){
     levelsGained++;
     if(S.charId === 'tank' && S.level >= ((UNLOCK_BY_ID.tank_duel||{}).lv||7) && !hgDone()) S.hgTokens = (S.hgTokens|0) + 1;   // a new level = one more Holmgang
   }
-  if(levelsGained>0){ S.pendingLevelUps = (S.pendingLevelUps||0) + levelsGained; showLevelUp(); setTimeout(checkUnlocks, 300); }
+  if(levelsGained>0){ S.pendingLevelUps = (S.pendingLevelUps||0) + levelsGained; if(S.charId === 'tank' || S.charId === 'wizard'){ window._vkPendingReveal = S.level; window._vkRevealClearSince = 0; } showLevelUp(); setTimeout(checkUnlocks, 300); }
   checkAchievements();
   save(); syncHUD();
   return gained;
