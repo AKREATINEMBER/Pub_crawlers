@@ -2066,6 +2066,9 @@ body[data-char="machine"] #screen-shop{--si-bg:#1c253e;--si-bg2:#0c1120;--si-edg
   transition:transform .05s, box-shadow .05s;
 }
 .si-buy--item{background:linear-gradient(180deg,#a6fff0 0%,#4fd0bf 55%,#23867a 100%);color:#062a24}
+.si-buy--town{background:linear-gradient(180deg,#ffd9a0 0%,#e09a46 55%,#8a5420 100%);color:#2a1604}
+.si--town .si-art{display:flex;align-items:center;justify-content:center}
+.si--town .tw-ico{font-size:30px;line-height:1}
 .si-buy--xp{background:linear-gradient(180deg,#b8dcff 0%,#6aa8f0 55%,#2e5ea8 100%);color:#081a36}
 .si-buy .si-unit{font-size:7px;opacity:.7;letter-spacing:1px}
 .si-buy svg{filter:drop-shadow(0 1px 0 rgba(0,0,0,.35))}
@@ -4195,6 +4198,55 @@ const BREWERY_UPGRADES = [
   // unique — only one exists, absurd bonus
   { id:'phoenixstill',     n:'THE PHOENIX STILL',   icon:'🔥', d:'There is only one of these in the whole town. It burns gold, occasionally combusts out of pure enthusiasm, and rebuilds itself better every time. The fire department has given up and started a betting pool.', rate:3.20, visual:'phoenix', rarity:'unique' }
 ];
+/* ══ THE TOWN ══
+   What you buy is what you see. Every entry here is a building (or a beast, or a boat) that shows
+   up in your own world: the Tank-ard's Viking settlement, the Brew-zard's Spire, and the tavern
+   yard everyone else keeps. You get one free at every level-up — the chest — and you can buy the
+   rest outright with coin in the shop's TOWN section. `visual` is the tag the scene draws on.
+   Keep one entry per line, cheapest first inside each rarity. */
+const TOWN_SETS = {
+  tank: [
+    { id:'tk_turf',    n:'TURF ROOF',        icon:'🌱', d:'Grass on the roof. It insulates, it hides the leaks, and a goat gets up there roughly once a week.', rate:0.25, visual:'turf',       rarity:'common' },
+    { id:'tk_rack',    n:'THE DRYING RACK',  icon:'🐟', d:'Stockfish hung out to cure. The smell is part of the brand now. Visitors stop asking after the third day.', rate:0.30, visual:'fishrack',   rarity:'common' },
+    { id:'tk_wood',    n:'THE WOODPILE',     icon:'🪵', d:'Split, stacked, and arranged with a precision nobody in this village applies to anything else.', rate:0.30, visual:'woodpile',   rarity:'common' },
+    { id:'tk_well',    n:'THE WELL',         icon:'💧', d:'Fresh water for the mash. Also the only thing in the settlement that has never been set on fire.', rate:0.35, visual:'well',       rarity:'common' },
+    { id:'tk_smoke',   n:'THE SMOKEHOUSE',   icon:'💨', d:'Smoked meat, smoked fish, smoked everything. Somebody smoked a helmet once to see what would happen.', rate:0.50, visual:'smokehouse', rarity:'rare' },
+    { id:'tk_hives',   n:'THE MEAD HIVES',   icon:'🐝', d:'Your own bees, your own honey, your own mead. The bees have been described as "aggressively loyal".', rate:0.55, visual:'hives',      rarity:'rare' },
+    { id:'tk_banner',  n:'THE WAR BANNERS',  icon:'🚩', d:'Raven banners snapping over the yard. They are mostly decorative. Mostly.', rate:0.60, visual:'vkbanner',   rarity:'rare' },
+    { id:'tk_pen',     n:'THE PIGPEN',       icon:'🐖', d:'Spent grain goes in, excellent pork comes out. The pigs are living better than most of the raiders.', rate:0.65, visual:'pigpen',     rarity:'rare' },
+    { id:'tk_brew',    n:'THE BREWHOUSE',    icon:'🍺', d:'A proper brewhouse instead of a pot over the fire. Production up, mysterious injuries down.', rate:0.90, visual:'brewhouse',  rarity:'epic' },
+    { id:'tk_quay',    n:'THE STONE QUAY',   icon:'⚓', d:'Cut stone where the mud used to be. The ships stop sinking into the shore, which everyone agrees is an upgrade.', rate:1.00, visual:'quay',       rarity:'epic' },
+    { id:'tk_shrine',  n:'THE SHRINE',       icon:'🪨', d:'A carved stone to whoever is listening. Offerings are left nightly and taken nightly, by gods or by foxes.', rate:1.10, visual:'shrine',     rarity:'epic' },
+    { id:'tk_fire',    n:'THE WATCHFIRE',    icon:'🔥', d:'A beacon on the headland, lit to warn of raiders. Has also been lit to announce that the mead is ready.', rate:1.20, visual:'watchfire',  rarity:'epic' },
+    { id:'tk_hall',    n:'THE DRINKING HALL',icon:'🏛', d:'Long tables, high roof, a fire down the middle and absolutely no concept of closing time.', rate:1.80, visual:'drinkhall',  rarity:'legendary' },
+    { id:'tk_ship',    n:'THE DRAGONSHIP',   icon:'🐉', d:'A carved prow and a sail you can see from the next fjord. Built for raiding, used almost entirely for showing off.', rate:2.00, visual:'dragonship', rarity:'legendary' },
+    { id:'tk_anvil',   n:"THE SKY-ANVIL",    icon:'⚡', d:'An anvil struck by lightning and never moved since. The smith works to the rhythm of distant thunder, and the thunder keeps time.', rate:3.20, visual:'skyanvil',   rarity:'unique' }
+  ],
+  wizard: [
+    { id:'wz_pots',    n:'THE POTION SHELF', icon:'🧪', d:'Everything labelled, nothing trustworthy. The one marked "DEFINITELY WATER" is the reason for the ceiling stain.', rate:0.25, visual:'potshelf',  rarity:'common' },
+    { id:'wz_herbs',   n:'THE HERB BEDS',    icon:'🌿', d:'Mandrake, hops, and something that screams politely when picked. Yield is excellent.', rate:0.30, visual:'herbs',     rarity:'common' },
+    { id:'wz_owl',     n:'THE OWLERY',       icon:'🦉', d:'Post arrives by owl. Bills arrive by owl. The owls have begun editorialising about the bills.', rate:0.30, visual:'owlery',    rarity:'common' },
+    { id:'wz_lamps',   n:'THE FLOATING LAMPS',icon:'🕯', d:'Candles that hang in the air and follow you about. Mostly helpful. Occasionally judgmental.', rate:0.35, visual:'lamps',     rarity:'common' },
+    { id:'wz_green',   n:'THE GREENHOUSE',   icon:'🪴', d:'Glass panes and warm fog. Something in the back corner has started growing toward the door on purpose.', rate:0.50, visual:'greenhouse',rarity:'rare' },
+    { id:'wz_bells',   n:'THE SINGING BELLS',icon:'🔔', d:'They ring themselves when a brew is ready. Tuned by an apprentice with no ear and infinite confidence.', rate:0.55, visual:'bells',     rarity:'rare' },
+    { id:'wz_gate',    n:'THE RUNE GATE',    icon:'🚪', d:'A door that only opens for people who can hold their drink. It has rejected several faculty members.', rate:0.60, visual:'runegate',  rarity:'rare' },
+    { id:'wz_cat',     n:'THE CAULDRON CAT', icon:'🐈', d:'Arrived uninvited, stayed permanently, refuses to touch the ground. Production inexplicably improved.', rate:0.65, visual:'cat',       rarity:'rare' },
+    { id:'wz_still',   n:'THE GLASS STILLS', icon:'⚗️', d:'Spiral glassware running wall to wall, bubbling in a rhythm that is almost certainly a language.', rate:0.90, visual:'stills',    rarity:'epic' },
+    { id:'wz_lib',     n:'THE LIBRARY WING', icon:'📚', d:'Shelves to the ceiling and a ladder with opinions. Three books are overdue by about a century.', rate:1.00, visual:'library',   rarity:'epic' },
+    { id:'wz_tele',    n:'THE TELESCOPE',    icon:'🔭', d:'Points at the stars. The stars, increasingly, point back. The brewing schedule is now astrological.', rate:1.10, visual:'telescope', rarity:'epic' },
+    { id:'wz_clock',   n:'THE CLOCKWORK WING',icon:'⚙️', d:'Brass gears in the walls. Every so often time stops, and only the wizard and the brew keep moving.', rate:1.20, visual:'clockwing', rarity:'epic' },
+    { id:'wz_sky',     n:'THE SKY ISLAND',   icon:'☁️', d:'A chunk of the castle that got up and stayed up. Reachable only by potion-flask balloon, which is half the fun.', rate:1.80, visual:'skyisle',   rarity:'legendary' },
+    { id:'wz_dragon',  n:'THE SLEEPING DRAGON',icon:'🐲', d:'Coiled around the east tower, fast asleep, warming the mash for free. Nobody is brave enough to wake it. Everyone tiptoes.', rate:2.00, visual:'wzdragon',  rarity:'legendary' },
+    { id:'wz_portal',  n:'THE GRAND TRANSMUTATION',icon:'🌌', d:'The heavens themselves tipped into a cauldron and stirred. The brew it makes has no name, and the ones who drink it stop asking for one.', rate:3.20, visual:'transmute', rarity:'unique' }
+  ]
+};
+// the tavern yard everyone else keeps — the generic brewery scene already draws these
+function townSet(){ return (S && TOWN_SETS[S.charId]) || BREWERY_UPGRADES; }
+// a building's asking price in the shop. The chest gives them away; coin buys the rest.
+function townPrice(u){ return Math.max(20, Math.round((u.rate||0.25) * 110)); }
+function townOwned(id){ return (S && S.breweryUpgrades || []).some(u => u.id === id); }
+function townAvailable(){ return townSet().filter(u => !townOwned(u.id)); }
+
 function rollRarity(){
   const r = Math.random();
   let acc = 0;
@@ -4208,7 +4260,7 @@ function pickUpgradeForRarity(rarityId){
   // try the rolled rarity first, then cascade down through lower rarities if that pool is exhausted
   for(let d=0; d<order.length; d++){
     const idx = startIdx - d; if(idx<0) break;
-    const pool = BREWERY_UPGRADES.filter(u=>u.rarity===order[idx] && !takenIds.has(u.id));
+    const pool = townSet().filter(u=>u.rarity===order[idx] && !takenIds.has(u.id));
     if(pool.length) return pool[Math.floor(Math.random()*pool.length)];
   }
   // every real upgrade taken — the chest holds a TAVERN FAVOUR instead: coins and/or rerolls, scaled to the rolled rarity
@@ -4232,7 +4284,7 @@ function openOneChest(){
     addLog(`🍺 ${rarity.n} chest — ${u.n} (${favourChips(u).join(', ')})`);
   } else {
     S.breweryUpgrades.push({ id:u.id, n:u.n, icon:u.icon, rate:u.rate, visual:u.visual, rarity:rarity.id });
-    addLog(`🍺 ${rarity.n} brewery upgrade: ${u.n} (+${u.rate} beer/min)`);
+    addLog(`🏘 ${rarity.n} building raised: ${u.n} (+${u.rate} beer/min)`);
   }
   return { rarity, u };
 }
@@ -5913,6 +5965,153 @@ function spWizardParty(ctx, x0, x1, gy, now){
 }
 
 /* ── the whole scene ── */
+/* ── THE SPIRE'S GROUNDS ──
+   The Brew-zard's half of the town builder. Same idea as the Viking yard: fixed slots across the
+   grounds so nothing piles up, and everything here is something you bought or pulled from a chest. */
+const SP_TOWN_ORDER = ['potshelf','herbs','owlery','lamps','greenhouse','bells','runegate','cat','stills','library','telescope','clockwing','wzdragon'];
+function spTownProps(ctx, lay, gy, night, now){
+  const have = t => breweryUpgradeVisualCount(t) > 0;
+  const land = Math.max(140, lay.W - 40);
+  const slotX = tag => 16 + ((SP_TOWN_ORDER.indexOf(tag) + 0.5) / SP_TOWN_ORDER.length) * land;
+  const R = (x,y,w,h,c)=>{ ctx.fillStyle=c; ctx.fillRect(x,y,w,h); };
+
+  if(have('potshelf')){        // everything labelled, nothing trustworthy
+    const x = slotX('potshelf');
+    R(x-7, gy-13, 14, 13, '#3a2a18'); R(x-7, gy-13, 14, 1.2, '#5a4228');
+    [0,1,2].forEach(r => { R(x-6, gy-11+r*4, 12, 1, '#5a4228');
+      for(let i=0;i<3;i++) R(x-5+i*4, gy-13.5+r*4+1.5, 2.4, 3, ['#8aff9a','#c08aff','#ffe27a'][(i+r)%3]); });
+  }
+  if(have('herbs')){           // mandrake, hops, and something that screams politely
+    const x = slotX('herbs');
+    R(x-8, gy-2, 17, 2, '#3a2a18');
+    for(let i=0;i<5;i++){ const sw = Math.sin(now/800 + i)*0.7;
+      R(x-7+i*3.4+sw, gy-8, 1, 6, '#3e7a2e'); R(x-7.6+i*3.4+sw, gy-9.5, 2.4, 2, i%2 ? '#7aff6a' : '#c08aff'); }
+  }
+  if(have('owlery')){          // post arrives by owl, bills arrive by owl
+    const x = slotX('owlery');
+    R(x-5, gy-16, 10, 16, '#5a5468'); R(x-5, gy-16, 10, 1.2, '#7a7488');
+    ctx.fillStyle = '#3a3a5a'; ctx.beginPath(); ctx.moveTo(x-7, gy-16); ctx.lineTo(x, gy-23); ctx.lineTo(x+7, gy-16); ctx.closePath(); ctx.fill();
+    R(x-2.5, gy-13, 5, 5, '#1a1424');
+    const bob = Math.sin(now/700)*0.8;
+    R(x-1.6, gy-12+bob, 3.2, 3.4, '#d8cfc0'); R(x-1.2, gy-11.4+bob, 0.8, 0.8, '#2a1a0e'); R(x+0.4, gy-11.4+bob, 0.8, 0.8, '#2a1a0e');
+    const fly = (now/2400) % 1;
+    ctx.globalAlpha = Math.sin(fly*Math.PI); R(x + 6 + fly*16, gy-26 - fly*6, 2.4, 1.4, '#d8cfc0'); ctx.globalAlpha = 1;
+  }
+  if(have('lamps')){           // candles that follow you about, judgmentally
+    const x = slotX('lamps');
+    for(let i=0;i<3;i++){ const a = now/900 + i*2.1, lx = x + Math.cos(a)*8, ly = gy - 14 + Math.sin(a*1.3)*4;
+      const g = ctx.createRadialGradient(lx, ly, 0, lx, ly, 7);
+      g.addColorStop(0, 'rgba(255,220,140,.45)'); g.addColorStop(1, 'rgba(255,220,140,0)');
+      ctx.fillStyle = g; ctx.fillRect(lx-7, ly-7, 14, 14);
+      R(lx-0.7, ly-1, 1.4, 3.4, '#e8dcc0'); R(lx-0.5, ly-2.6, 1, 1.8, '#ffd24a'); }
+  }
+  if(have('greenhouse')){      // glass panes, warm fog, something growing toward the door
+    const x = slotX('greenhouse');
+    ctx.globalAlpha = 0.75; R(x-9, gy-13, 18, 13, '#2a4a44'); ctx.globalAlpha = 1;
+    ctx.fillStyle = '#1e3a36'; ctx.beginPath(); ctx.moveTo(x-10, gy-13); ctx.lineTo(x, gy-19); ctx.lineTo(x+10, gy-13); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#6a8a84'; ctx.lineWidth = 0.7;
+    for(let i=-6;i<=6;i+=4){ ctx.beginPath(); ctx.moveTo(x+i, gy-13); ctx.lineTo(x+i, gy); ctx.stroke(); }
+    ctx.beginPath(); ctx.moveTo(x-9, gy-7); ctx.lineTo(x+9, gy-7); ctx.stroke();
+    for(let i=0;i<4;i++) R(x-6+i*4, gy-5 - Math.abs(Math.sin(now/1000+i))*2, 1.6, 4, '#58c040');
+  }
+  if(have('bells')){           // tuned by an apprentice with no ear and infinite confidence
+    const x = slotX('bells');
+    R(x-8, gy-17, 17, 1.4, '#6a5a3a'); R(x-8, gy-17, 1.4, 17, '#5a4a30'); R(x+7.6, gy-17, 1.4, 17, '#5a4a30');
+    [-4, 0, 4].forEach((d,i) => { const sw = Math.sin(now/340 + i*1.1)*0.09;
+      ctx.save(); ctx.translate(x+d, gy-16); ctx.rotate(sw);
+      ctx.fillStyle = '#c8a24a'; ctx.beginPath(); ctx.moveTo(-2.4, 5); ctx.quadraticCurveTo(0, -1, 2.4, 5); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#ffd24a'; ctx.fillRect(-0.5, 5, 1, 1.4); ctx.restore(); });
+  }
+  if(have('runegate')){        // only opens for people who can hold their drink
+    const x = slotX('runegate');
+    R(x-7, gy-18, 2.4, 18, '#5a5468'); R(x+4.6, gy-18, 2.4, 18, '#5a5468'); R(x-7, gy-20, 14, 2.4, '#6a6478');
+    const pulse = 0.5 + 0.5*Math.sin(now/500);
+    ctx.globalAlpha = pulse;
+    [[-4.5,-15],[-4.5,-9],[-4.5,-4],[3,-15],[3,-9],[3,-4]].forEach(([dx,dy]) => R(x+dx, gy+dy, 1.6, 2, '#c08aff'));
+    ctx.globalAlpha = 0.18 + 0.12*pulse; R(x-4.6, gy-18, 9.2, 18, '#c08aff'); ctx.globalAlpha = 1;
+  }
+  if(have('cat')){             // refuses to touch the ground, improves production anyway
+    const x = slotX('cat'), y = gy - 9 - Math.sin(now/1100)*3;
+    R(x-3, y, 6, 3, '#2a2438'); R(x+2.4, y-2.4, 2.6, 2.8, '#2a2438');
+    R(x+2.6, y-3.2, 0.8, 1, '#2a2438'); R(x+4.4, y-3.2, 0.8, 1, '#2a2438');
+    R(x+3.2, y-1.8, 0.7, 0.7, '#8aff9a'); R(x+4.4, y-1.8, 0.7, 0.7, '#8aff9a');
+    const tl = Math.sin(now/400)*1.4; R(x-4.4, y - 1 + tl, 1.6, 1, '#2a2438');
+  }
+  if(have('stills')){          // spiral glassware bubbling in something like a language
+    const x = slotX('stills');
+    R(x-8, gy-1, 17, 1.4, '#4a4458');
+    [-5, 0, 5].forEach((d,i) => {
+      R(x+d-2, gy-6, 4, 5, '#2a3a4a'); ctx.globalAlpha = 0.8; R(x+d-1.6, gy-5.4, 3.2, 4.2, ['#8aff9a','#c08aff','#ffe27a'][i]); ctx.globalAlpha = 1;
+      ctx.strokeStyle = '#8aa8c0'; ctx.lineWidth = 0.8; ctx.beginPath();
+      for(let k=0;k<4;k++) ctx.arc(x+d, gy-9-k*2.4, 2, 0, Math.PI); ctx.stroke();
+      spBubbleSparks(ctx, x+d, gy-7, now + i*300, 2, ['#8aff9a','#c08aff','#ffe27a'][i]); });
+  }
+  if(have('library')){         // shelves to the ceiling, a ladder with opinions
+    const x = slotX('library');
+    R(x-9, gy-17, 18, 17, '#3a2a3e'); R(x-9, gy-17, 18, 1.2, '#5a4258');
+    for(let r=0;r<4;r++){ R(x-8, gy-15+r*4, 16, 0.9, '#5a4258');
+      for(let i=0;i<6;i++) R(x-7.6+i*2.6, gy-18.4+r*4+2.6, 1.8, 2.8, ['#7a2a3a','#2a4a7a','#6a5a2a','#3a6a4a'][(i+r)%4]); }
+    const bob = Math.sin(now/1200)*2;
+    ctx.strokeStyle = '#8a6a48'; ctx.lineWidth = 0.8;
+    ctx.beginPath(); ctx.moveTo(x+5+bob, gy); ctx.lineTo(x+3+bob, gy-16); ctx.stroke();
+  }
+  if(have('telescope')){       // the stars, increasingly, point back
+    const x = slotX('telescope');
+    R(x-4, gy-4, 8, 4, '#4a4458'); R(x-1, gy-9, 2, 6, '#5a5468');
+    ctx.save(); ctx.translate(x, gy-9); ctx.rotate(-0.85 + Math.sin(now/2600)*0.18);
+    R(0, -1.6, 13, 3.2, '#6a6478'); R(11.5, -2.4, 3, 4.8, '#8a84a0'); R(0, -1.6, 13, 0.9, '#8a84a0');
+    ctx.restore();
+    const tw = 0.4 + 0.6*Math.abs(Math.sin(now/600)); ctx.globalAlpha = tw;
+    R(x+12, gy-22, 1.2, 1.2, '#fff4d0'); ctx.globalAlpha = 1;
+  }
+  if(have('clockwing')){       // brass gears, and every so often time stops
+    const x = slotX('clockwing');
+    R(x-8, gy-15, 16, 15, '#4a3a2a'); R(x-8, gy-15, 16, 1.2, '#6a5438');
+    const cx = x, cy = gy - 8, a = now/1800;
+    ctx.save(); ctx.translate(cx, cy);
+    ctx.fillStyle = '#c8a24a'; ctx.beginPath(); ctx.arc(0, 0, 5, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#8a6a2a'; for(let i=0;i<8;i++){ const t = a + i*Math.PI/4; ctx.fillRect(Math.cos(t)*5.6-0.8, Math.sin(t)*5.6-0.8, 1.6, 1.6); }
+    ctx.fillStyle = '#2a1a0e'; ctx.beginPath(); ctx.arc(0, 0, 3.4, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#ffd24a'; ctx.lineWidth = 0.8;
+    ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(Math.cos(a*3)*2.6, Math.sin(a*3)*2.6); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(Math.cos(a)*1.6, Math.sin(a)*1.6); ctx.stroke();
+    ctx.restore();
+  }
+  if(have('wzdragon')){        // asleep around the tower, warming the mash for free
+    const x = slotX('wzdragon'), br = Math.sin(now/1700)*1.1;
+    ctx.fillStyle = '#2e6a3a'; ctx.beginPath();
+    ctx.moveTo(x-14, gy); ctx.quadraticCurveTo(x-10, gy-9-br, x-1, gy-9-br);
+    ctx.quadraticCurveTo(x+9, gy-9-br, x+13, gy); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#3e8a4a'; ctx.beginPath(); ctx.ellipse(x-1, gy-8-br, 9, 3.4, 0, Math.PI, 0); ctx.fill();
+    for(let i=0;i<5;i++) R(x-8+i*3.4, gy-11.5-br, 1.6, 2.4, '#1e4a28');
+    R(x+10, gy-8-br, 6, 4.4, '#2e6a3a'); R(x+14.4, gy-7.4-br, 1.8, 1, '#1e4a28');
+    R(x+11.4, gy-6.6-br, 2.2, 0.8, '#1a3a20');
+    ctx.globalAlpha = 0.5 + 0.3*Math.sin(now/900);
+    R(x+16, gy-7-br, 2.4, 1, '#ff9a3a'); ctx.globalAlpha = 1;
+  }
+  if(have('skyisle')){         // a chunk of the castle that got up and stayed up
+    const x = 40 + land*0.5, y = gy - 92 + Math.sin(now/1500)*3;
+    ctx.fillStyle = '#4a4658'; ctx.beginPath(); ctx.moveTo(x-18, y);
+    for(let i=-18;i<=18;i+=6) ctx.lineTo(x+i, y + 5 + ((i*7)%7) + Math.sin(i/9)*3);
+    ctx.lineTo(x+18, y); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#3e5a2e'; ctx.fillRect(x-18, y-1.4, 36, 2.4);
+    R(x-7, y-13, 14, 12, '#6a6478'); R(x-7, y-13, 14, 1.2, '#8a84a0');
+    ctx.fillStyle = '#5a3a7a'; ctx.beginPath(); ctx.moveTo(x-9, y-13); ctx.lineTo(x, y-21); ctx.lineTo(x+9, y-13); ctx.closePath(); ctx.fill();
+    spWin(ctx, x-4, y-10, 3, 4, night, '#ffcf6a'); spWin(ctx, x+1.4, y-10, 3, 4, night, '#ffcf6a');
+  }
+  if(have('transmute')){       // the heavens tipped into a cauldron and stirred
+    const pan = window._arenaPan || 0, vw = window._arenaViewW || 240;
+    const cx = pan + vw*0.72, cy = 30;
+    ctx.save();
+    for(let i=0;i<14;i++){ const a = now/2200 + i*Math.PI*2/14, r = 16 + Math.sin(now/700 + i)*4;
+      ctx.globalAlpha = 0.35 + 0.35*Math.sin(now/400 + i);
+      R(cx + Math.cos(a)*r, cy + Math.sin(a)*r*0.5, 1.4, 1.4, ['#c08aff','#8aff9a','#ffe27a','#8ae0ff'][i%4]); }
+    ctx.globalAlpha = 0.5;
+    ctx.strokeStyle = '#c08aff'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.ellipse(cx, cy, 20, 10, 0, 0, Math.PI*2); ctx.stroke();
+    ctx.restore();
+  }
+}
 function drawSpire(ctx, W, H, groundY, frame, tier, night, isDay){
   const L = spLevel(), lay = spLayout(L), s = lay.segs, gy = groundY;
   const realNow = vkNow();
@@ -5972,6 +6171,7 @@ function drawSpire(ctx, W, H, groundY, frame, tier, night, isDay){
   ctx.restore();
   let balloon = null; if(L >= 15 && isl) balloon = spBalloon(ctx, isl, now);
   // ── the Brew-zard himself ──
+  spTownProps(ctx, lay, gy, night, now);
   spHeroScene(ctx, L, lay, gy, realNow, now, { lift, lib, crystal, balloon, acad, frozen });
   // L16: frozen time — a cold blue hush over everything
   if(frozen){ ctx.save(); ctx.globalAlpha = 0.22; ctx.fillStyle = '#9ac8ff'; ctx.fillRect(pan, 0, vw, H); ctx.globalAlpha = 0.8; ctx.strokeStyle = '#e8f4ff'; ctx.lineWidth = 1;
@@ -6031,6 +6231,147 @@ function spHeroScene(ctx, L, lay, gy, realNow, now, ex){
   }
 }
 
+/* ── THE TOWN, BUILT BY HAND ──
+   Every building bought in the shop (or pulled out of a level-up chest) stands here in the yard.
+   They take fixed slots across the land so they never pile up on each other, and the slots spread
+   as the settlement's shore pushes out — so a crowded early village loosens into a proper town. */
+const VK_TOWN_ORDER = ['turf','fishrack','woodpile','well','smokehouse','hives','vkbanner','pigpen','brewhouse','quay','shrine','watchfire','drinkhall'];
+function vkTownProps(ctx, v, lay, gy, W, now){
+  const have = t => breweryUpgradeVisualCount(t) > 0;
+  const X0 = lay.X0, land = Math.max(120, v.shore - 24);
+  // slots are measured from the settlement's own origin, same as vkHeroScene
+  const slotX = tag => X0 + 12 + ((VK_TOWN_ORDER.indexOf(tag) + 0.5) / VK_TOWN_ORDER.length) * land;
+  const R = (x,y,w,h,c)=>{ ctx.fillStyle=c; ctx.fillRect(x,y,w,h); };
+
+  if(have('turf')){            // a grass patch with a goat-chewed look
+    const x = slotX('turf');
+    R(x-6, gy-3, 13, 3, '#2e4418'); R(x-6, gy-4, 13, 1.4, '#4a6a2a');
+    for(let i=0;i<4;i++) R(x-5+i*3, gy-6 - (i%2), 1, 2.4, '#62883a');
+  }
+  if(have('fishrack')){        // stockfish on a pole rack, swinging a little
+    const x = slotX('fishrack');
+    R(x-7, gy-14, 1.4, 14, '#6a4424'); R(x+6, gy-14, 1.4, 14, '#6a4424'); R(x-7, gy-14, 14, 1.2, '#7a5432');
+    for(let i=0;i<4;i++){ const sw = Math.sin(now/900 + i)*0.6; R(x-5+i*3 + sw, gy-12, 1.8, 5, '#c8b48a'); R(x-5+i*3 + sw, gy-12, 1.8, 1.4, '#8a7a58'); }
+  }
+  if(have('woodpile')){        // split logs, stacked with suspicious precision
+    const x = slotX('woodpile');
+    for(let r=0;r<3;r++) for(let c=0;c<4-r;c++){
+      const lx = x-6 + c*3.2 + r*1.6, ly = gy-3 - r*3;
+      R(lx, ly, 3, 3, r%2 ? '#6a4424' : '#7a5432'); R(lx+0.6, ly+0.8, 1.4, 1.4, '#c8a070');
+    }
+  }
+  if(have('well')){            // stone ring, little roof, bucket on a rope
+    const x = slotX('well');
+    R(x-5, gy-7, 10, 7, '#6a6678'); R(x-5, gy-7, 10, 1.4, '#8a8696');
+    R(x-6, gy-9, 1.4, 3, '#5a3a22'); R(x+4.6, gy-9, 1.4, 3, '#5a3a22');
+    ctx.fillStyle = '#4a2e1a'; ctx.beginPath(); ctx.moveTo(x-8, gy-9); ctx.lineTo(x, gy-14); ctx.lineTo(x+8, gy-9); ctx.closePath(); ctx.fill();
+    R(x-0.7, gy-9, 1.4, 3 + Math.sin(now/1100)*0.8, '#3a2a18');
+  }
+  if(have('smokehouse')){      // a squat smoker trailing smoke
+    const x = slotX('smokehouse');
+    R(x-6, gy-11, 12, 11, '#4a3020'); R(x-6, gy-11, 12, 1.4, '#6a4a2e'); R(x-2, gy-5, 4, 5, '#2a1a0e');
+    for(let i=0;i<3;i++){ const t = ((now/1400) + i/3) % 1; ctx.globalAlpha = (1-t)*0.5;
+      R(x-1 + Math.sin(t*6 + i)*2.5, gy-13 - t*12, 2.4, 2.4, '#b8a898'); }
+    ctx.globalAlpha = 1;
+  }
+  if(have('hives')){           // skeps with bees orbiting
+    const x = slotX('hives');
+    [-4, 4].forEach(d => { for(let r=0;r<3;r++) R(x+d-3+r*0.6, gy-3-r*2, 6-r*1.2, 2, r%2 ? '#c8a24a' : '#b8903a'); });
+    for(let i=0;i<3;i++){ const a = now/400 + i*2.1; R(x + Math.cos(a)*7, gy-9 + Math.sin(a)*3, 1, 1, '#ffd24a'); }
+  }
+  if(have('vkbanner')){        // raven banners on poles
+    const x = slotX('vkbanner');
+    [-4, 4].forEach((d,i) => { R(x+d, gy-18, 1.2, 18, '#5a3a22');
+      const wv = Math.sin(now/520 + i)*1.2;
+      R(x+d+1.2, gy-17, 6, 7, i ? '#2a2a3a' : '#7a1a24'); R(x+d+1.2+wv, gy-17, 6, 1.4, '#c8b48a');
+      R(x+d+3 + wv*0.5, gy-14.5, 2, 2, '#e8dcc0'); });
+  }
+  if(have('pigpen')){          // a fenced pen, pigs rooting about
+    const x = slotX('pigpen');
+    for(let i=0;i<5;i++) R(x-8+i*4, gy-5, 1.2, 5, '#7a5432');
+    R(x-8, gy-4, 17, 1.2, '#8a6440');
+    [0,1].forEach(k => { const px = x-5 + ((now/2600 + k*0.5) % 1) * 10;
+      R(px, gy-3.4, 5, 3, '#d8a0a8'); R(px+4.4, gy-3.8, 1.6, 1.6, '#e8b0b8'); R(px, gy-0.6, 1, 1, '#b8808a'); R(px+3.6, gy-0.6, 1, 1, '#b8808a'); });
+  }
+  if(have('brewhouse')){       // a proper brewhouse, steam off the roof vent
+    const x = slotX('brewhouse');
+    R(x-8, gy-14, 16, 14, '#5a3a22'); R(x-8, gy-14, 16, 1.4, '#6a4a2e');
+    for(let i=x-6;i<x+7;i+=4) R(i, gy-14, 1, 14, '#4a2e1a');
+    ctx.fillStyle = '#2e4418'; ctx.beginPath(); ctx.moveTo(x-10, gy-14); ctx.lineTo(x, gy-21); ctx.lineTo(x+10, gy-14); ctx.closePath(); ctx.fill();
+    R(x+3, gy-24, 2.4, 4, '#6a6678');
+    for(let i=0;i<3;i++){ const t = ((now/1200) + i/3) % 1; ctx.globalAlpha = (1-t)*0.45;
+      R(x+3 + Math.sin(t*5+i)*2, gy-25 - t*10, 2, 2, '#d8d0c8'); }
+    ctx.globalAlpha = 1;
+    R(x-3, gy-7, 6, 7, '#3a2414'); R(x-3, gy-7, 6, 1, '#e8a33d');
+  }
+  if(have('quay')){            // cut stone where the mud used to be
+    const x = X0 + v.shore - 14;
+    R(x, gy-1, 26, 5, '#6a6678'); R(x, gy-1, 26, 1.4, '#8a8696');
+    for(let i=0;i<5;i++) R(x+2+i*5, gy+0.6, 1, 3, '#55515f');
+    R(x+20, gy-6, 2, 5, '#4a3020'); R(x+19, gy-7, 4, 1.4, '#6a4a2e');
+  }
+  if(have('shrine')){          // a carved stone and a bowl of offerings
+    const x = slotX('shrine');
+    ctx.fillStyle = '#6a6a74'; ctx.beginPath(); ctx.moveTo(x-4, gy); ctx.lineTo(x-4, gy-13);
+    ctx.quadraticCurveTo(x, gy-19, x+4, gy-13); ctx.lineTo(x+4, gy); ctx.fill();
+    R(x-3, gy-12, 1.4, 11, '#8a8a96');
+    ctx.strokeStyle = `rgba(220,60,40,${0.6+0.4*Math.sin(now/600)})`; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x-1, gy-3); ctx.lineTo(x+2, gy-8); ctx.lineTo(x-1, gy-11); ctx.stroke();
+    R(x-7, gy-2, 5, 2, '#5a3a22'); R(x-6.4, gy-2.8, 3.8, 1, '#e8c070');
+  }
+  if(have('watchfire')){       // a beacon basket on a pole, burning
+    const x = slotX('watchfire');
+    R(x-1, gy-20, 2.4, 20, '#4a3020');
+    R(x-5, gy-24, 11, 5, '#55515f'); R(x-5, gy-24, 11, 1.2, '#7a7684');
+    for(let i=0;i<5;i++){ const f = Math.sin(now/160 + i*1.3);
+      R(x-4 + i*2.2, gy-26 - Math.abs(f)*3, 1.8, 3 + Math.abs(f)*2.5, i%2 ? '#ff8a1a' : '#ffd24a'); }
+    const g = ctx.createRadialGradient(x, gy-26, 0, x, gy-26, 22);
+    g.addColorStop(0, 'rgba(255,150,50,.30)'); g.addColorStop(1, 'rgba(255,150,50,0)');
+    ctx.fillStyle = g; ctx.fillRect(x-22, gy-48, 44, 44);
+  }
+  if(have('dragonship')){      // moored past the fleet, carved prow, sail you can see from the next fjord
+    const x = X0 + v.shore + 34, y = gy + 4 + Math.sin(now/700)*0.9;
+    ctx.save(); ctx.translate(x, y);
+    ctx.fillStyle = '#4a2e1a'; ctx.beginPath(); ctx.moveTo(-22, 0); ctx.quadraticCurveTo(0, 7, 22, 0); ctx.quadraticCurveTo(0, 3, -22, 0); ctx.fill();
+    ctx.strokeStyle = '#6a4424'; ctx.lineWidth = 1.6;
+    ctx.beginPath(); ctx.moveTo(-21, 0); ctx.quadraticCurveTo(-26, -8, -21, -12); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(21, 0); ctx.quadraticCurveTo(26, -8, 21, -12); ctx.stroke();
+    ctx.fillStyle = '#2e7a3a'; ctx.fillRect(-22.5, -14, 3.5, 3);     // the dragon head
+    ctx.fillStyle = '#6a4424'; ctx.fillRect(-0.8, -22, 1.6, 22);     // mast
+    const bil = Math.sin(now/600)*1.6;
+    ctx.fillStyle = '#b3203a'; ctx.beginPath(); ctx.moveTo(-9, -21); ctx.lineTo(9, -21);
+    ctx.quadraticCurveTo(9 + bil, -12, 9, -4); ctx.lineTo(-9, -4); ctx.quadraticCurveTo(-9 + bil, -12, -9, -21); ctx.fill();
+    ctx.fillStyle = '#f4ecd8'; for(let i=0;i<3;i++) ctx.fillRect(-9, -19 + i*5, 18, 1.6);
+    for(let i=0;i<6;i++) ctx.fillRect(-18 + i*6, -2, 3, 2.4);        // shields on the rail
+    ctx.restore();
+  }
+  if(have('skyanvil')){        // struck by lightning once and never moved since
+    const x = X0 + 40, y = gy - 66 + Math.sin(now/1300)*2;
+    ctx.save();
+    const g = ctx.createRadialGradient(x, y, 0, x, y, 26);
+    g.addColorStop(0, 'rgba(180,220,255,.22)'); g.addColorStop(1, 'rgba(180,220,255,0)');
+    ctx.fillStyle = g; ctx.fillRect(x-26, y-26, 52, 52);
+    R(x-9, y-3, 18, 5, '#55515f'); R(x-9, y-3, 18, 1.4, '#8a8696');
+    R(x-4, y+2, 8, 4, '#3e3a48'); R(x-7, y+6, 14, 2.4, '#55515f');
+    ctx.strokeStyle = `rgba(234,246,255,${0.45 + 0.45*Math.sin(now/170)})`; ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.moveTo(x-2, y-22); ctx.lineTo(x+2, y-14); ctx.lineTo(x-2, y-11); ctx.lineTo(x+2, y-4); ctx.stroke();
+    ctx.restore();
+  }
+  if(have('drinkhall')){       // long tables, high roof, a fire down the middle
+    const x = slotX('drinkhall');
+    R(x-11, gy-16, 22, 16, '#6a4424'); R(x-11, gy-16, 22, 1.4, '#8a5a2e');
+    for(let i=x-9;i<x+10;i+=4) R(i, gy-16, 1.2, 16, '#523218');
+    ctx.fillStyle = '#3a2414'; ctx.beginPath(); ctx.moveTo(x-14, gy-16); ctx.lineTo(x, gy-26); ctx.lineTo(x+14, gy-16); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#4a2e1a'; ctx.beginPath(); ctx.moveTo(x-14, gy-16); ctx.lineTo(x, gy-26); ctx.lineTo(x-10, gy-16); ctx.closePath(); ctx.fill();
+    [[-13,-16,-17,-21],[13,-16,17,-21]].forEach(([ax,ay,bx,by])=>{
+      ctx.strokeStyle='#5a3a22'; ctx.lineWidth=1.6; ctx.beginPath(); ctx.moveTo(x+ax,gy+ay); ctx.lineTo(x+bx,gy+by); ctx.stroke(); });
+    const flick = 0.75 + 0.25*Math.sin(now/180);
+    R(x-4, gy-9, 8, 9, '#2a1a0e');
+    ctx.globalAlpha = flick; R(x-3, gy-8, 6, 8, '#e8a33d'); ctx.globalAlpha = 1;
+    for(let i=0;i<2;i++){ const t = ((now/1500) + i/2) % 1; ctx.globalAlpha = (1-t)*0.4; R(x-1, gy-28 - t*8, 2, 2, '#d8d0c8'); }
+    ctx.globalAlpha = 1;
+  }
+}
 function drawVikingSettlement(ctx, W, H, groundY, frame, tier, nightness, isDay){
   const v = vkConf(), now = vkNow(), gy = groundY;
   { const hp = v.heimdall ? vkHornPhase(now) : -1; window._vkHornOn = hp > 0.15 && hp < 0.95; }
@@ -6051,6 +6392,7 @@ function drawVikingSettlement(ctx, W, H, groundY, frame, tier, nightness, isDay)
   ctx.save(); ctx.translate(lay.X0, 0);
   vkDrawMain(ctx, W - lay.X0, H, groundY, frame, v, nightness, isDay);
   ctx.restore();
+  vkTownProps(ctx, v, lay, gy, W, now);
   vkHeroScene(ctx, v, lay, gy, gy + 3, now);
   if(v.thorRide && !v.ragnarok) vkThorChariot(ctx, pan, vw, now);   // at Ragnarök he's busy with the serpent
 }
@@ -15574,6 +15916,42 @@ function loseXP(amount, why){
 /* ---------- shop ---------- */
 function openShop(){ go('shop'); }
 
+/* the TOWN section: every building you have not raised yet, cheapest first.
+   The level-up chest hands these out for free — this is the shortcut for coin. */
+function townSectionHTML(){
+  const avail = townAvailable().slice().sort((a,b)=> townPrice(a) - townPrice(b));
+  const built = (S.breweryUpgrades||[]).length;
+  const rate  = computeBreweryRate();
+  if(!avail.length) return `
+    <div class="shop-section">
+      <div class="shop-section__label"><span>◆ THE TOWN ◆</span></div>
+      <div class="shop-section__sub">Every building raised · ${rate.toFixed(1)} beer/min. There is nothing left to build and that is its own kind of problem.</div>
+    </div>`;
+  const cards = avail.map(u => {
+    const price = townPrice(u), afford = (S.coins||0) >= price;
+    const rar = RARITIES.find(r => r.id === u.rarity) || RARITIES[0];
+    return `<div class="shop-item si--town${afford ? '' : ' si--poor'}" data-item="${u.id}">
+      <div class="si-plaque">
+        <div class="si-art"><span class="tw-ico">${u.icon}</span></div>
+        <div class="si-kind">BUILDING</div>
+      </div>
+      <div class="shop-item__body">
+        <div class="shop-item__name">${u.n}</div>
+        <div class="si-chips"><span class="si-chip si-chip--brew">🍺 +${u.rate}/MIN</span><span class="si-chip" style="color:${rar.color};border-color:${rar.color}">${rar.n}</span></div>
+        <div class="si-flav">${u.d}</div>
+        <div class="shop-item__action">${afford ? '' : `<span class="si-need">NEED ${price - (S.coins||0)} MORE</span>`}
+          <button class="si-buy si-buy--town" onclick="buyTownBuilding('${u.id}')" ${afford ? '' : 'disabled'}>${ico('🪙',12)}<span class="si-price">${price}</span></button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  return `
+    <div class="shop-section">
+      <div class="shop-section__label"><span>◆ THE TOWN ◆</span></div>
+      <div class="shop-section__sub">${built} standing · ${rate.toFixed(1)} beer/min. Everything here appears in your world, and beer pays the smith.</div>
+      ${cards}
+    </div>`;
+}
 function renderShop(){
   const ch = CHARS.find(c=>c.id===S.charId);
   const charName = ch ? ch.name : '';
@@ -15655,6 +16033,7 @@ function renderShop(){
       <div class="shop-header__coins"><span class="shop-coins-num">${S.coins}</span><span class="shop-coins-label">SKÅL COINS</span></div>
     </div>
     ${exclusiveSection}
+    ${townSectionHTML()}
     <div class="shop-section">
       <div class="shop-section__label"><span>◆ RELICS ◆</span></div>
       <div class="shop-section__sub">Worn forever. Every relic also brews beer while you sleep.</div>
@@ -15674,6 +16053,20 @@ function tapGuard(key, ms){ const now = Date.now(); if(now - (_tapGuard[key]||0)
 // a Street Act…), the starter barrel costs whatever they have left and the brewery covers the rest
 function tutKegShort(r){ return !!(r && r.id === 'firstkeg' && S && S.tutStep === 'buy' && (S.coins||0) < r.price); }
 function relicPrice(r){ return tutKegShort(r) ? Math.max(0, S.coins||0) : r.price; }
+function buyTownBuilding(id){
+  if(!tapGuard('town:'+id)) return;
+  const u = townSet().find(x => x.id === id); if(!u) return;
+  if(townOwned(id)){ toast('ALREADY BUILT'); return; }
+  const price = townPrice(u);
+  if((S.coins||0) < price){ toast('NOT ENOUGH COINS'); return; }
+  S.coins -= price;
+  S.breweryUpgrades.push({ id:u.id, n:u.n, icon:u.icon, rate:u.rate, visual:u.visual, rarity:u.rarity });
+  breweryTierCache = null;                       // the yard changed: let the scene rebuild
+  addLog(`🏘 Built ${u.n} for ${price}🪙 (+${u.rate} beer/min)`);
+  epicToast(`🏘 ${u.n} RAISED — +${u.rate} BEER/MIN`);
+  buzz([20,30]);
+  checkAchievements(); save(); syncHUD(); renderShop();
+}
 function buyRelic(id){
   if(!tapGuard('buy:'+id)) return;
   const r = RELICS.find(x=>x.id===id); if(!r) return;
