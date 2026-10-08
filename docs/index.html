@@ -1585,6 +1585,10 @@ body[data-char="jester"] .shop-exclusive-label{color:#e8c34a;border-left-color:#
 .hm-stat .pips i{display:block;width:9px;height:4px;background:#2a1208;border:1px solid #4a2410}
 .hm-stat .pips i.on{background:linear-gradient(180deg,#ffe27a,#d89a20);border-color:#7a4a10;box-shadow:0 0 4px rgba(255,200,80,.5)}
 .hm-stat small{display:block;font-size:6px;letter-spacing:.5px;color:#c8a080;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hm-cellar{display:flex;flex-wrap:wrap;align-items:baseline;gap:5px;margin:6px 0 2px;padding:6px 8px;font-size:8px;letter-spacing:.5px;color:#e8c070;background:linear-gradient(90deg,rgba(232,178,58,.14),transparent);border-left:3px solid #e8b23a}
+.hm-cellar b{font-size:12px;color:#ffd24a}
+.hm-cellar span{color:#c8a080}
+.hm-cellar em{flex-basis:100%;font-style:normal;font-size:7px;color:#8a7060}
 .hm-mats{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
 .hm-mats span{text-align:center;padding:4px 1px;background:#130508;border:1px solid #3a1410;opacity:.5;font-size:14px;line-height:1.1}
 .hm-mats span.on{opacity:1;border-color:#8a5a2a}
@@ -3382,7 +3386,7 @@ function freshState(){
   return {
     name:'', charId:'tank', currentTile:null, pulls:0, xp:0, level:1, drinks:0, fails:0, wins:0,
     skips:2, pace:0, waters:0, laps:0, spins:0, gambleWins:0, respin:1, badLuckHeat:0,
-    doubleNext:false, startTime:Date.now(), log:[], ach:[], tkTierSeen:0,
+    doubleNext:false, startTime:Date.now(), log:[], ach:[], tkTierSeen:0, beerLifetime:0,
     flags:{}, resolved:false, secret:null, secretDone:false, secretBlown:false,
     secret2:null, secret2Available:false, secret2Declined:false, secret2Done:false, secret2Blown:false, karaokeDone:false, beerLogCount:0, bossMarks:{}, bossesAvenged:0,
     bounty:null, underdog:null, unlocksSeen:null, veteran:false, tutorialDone:false, tutStep:null, tutRate0:0, bountyStats:{ taken:0, survived:0, caught:0, failed:0, defended:0 },
@@ -4242,6 +4246,12 @@ function computeBreweryRate(){
   rate += dwBoonBrewAdd();           // Happy Hex Hour boons (Brew-zard)
   return rate * hmBoonBrewMult() * dwBoonBrewMult();
 }
+/* ── BEERS, THE CELLAR ──
+   What the settlement brews is a wallet, not a trophy: it pays the Forge. S.beerCoinsTotal is the
+   balance (it goes down when you spend), S.beerLifetime is the honest "you brewed this much tonight". */
+function beersHeld(){ return Math.floor((S && S.beerCoinsTotal) || 0); }
+function spendBeers(n){ if(!S) return; S.beerCoinsTotal = Math.max(0, (S.beerCoinsTotal||0) - (n||0)); }
+function earnBeers(n){ if(!S) return; S.beerCoinsTotal = (S.beerCoinsTotal||0) + n; S.beerLifetime = (S.beerLifetime||0) + n; }
 function breweryUpgradeVisualCount(tag){
   return (S && S.breweryUpgrades) ? S.breweryUpgrades.filter(u=>u.visual===tag).length : 0;
 }
@@ -4270,7 +4280,7 @@ function tickBreweryProduction(){
   if(whole>0){
     S.coinAccum -= whole;
     // brewery no longer funds S.coins — it's a pure score/prestige tracker
-    S.beerCoinsTotal = (S.beerCoinsTotal||0) + whole;
+    earnBeers(whole);
     if(!document.getElementById('screen-game').classList.contains('hide')) floatText('+'+whole+'🍺', '#e8b23a');
     save();
   }
@@ -7870,7 +7880,7 @@ function logBeer(){
   S.drinks++;
   if(S.beerLogCount > BEER_LOG_XP.length){
     // beer #9 and beyond: the brewery pays — brewed beers + coins, no XP
-    S.beerCoinsTotal = (S.beerCoinsTotal||0) + BEER_LOG_BREWERY_BEERS;
+    earnBeers(BEER_LOG_BREWERY_BEERS);
     S.coins = (S.coins||0) + BEER_LOG_BREWERY_COINS;
     addPace(10);
     addLog(`🍺 Logged beer #${S.beerLogCount} — the brewery pays: +${BEER_LOG_BREWERY_BEERS}🍺 brewed, +${BEER_LOG_BREWERY_COINS}🪙`);
@@ -8296,7 +8306,7 @@ function lhRenderTabs(){
    Race a foe to hammer your pin flush into the log. Matches are FREE and unlimited. Foes unlock with XP only
    (Old Ragnar at level 1 … Surtr at level 10), each much harder than the last: with skill a bare hammer can beat the
    Valkyrie, but nothing past her. Every win drops the foe's MATERIAL and a small purse; the FIRST win over a foe pays a
-   bounty and a permanent BOON for the whole night. Materials + coins forge the hammer at THE FORGE (Bag): five parts
+   bounty and a permanent BOON for the whole night. Materials + beer forge the hammer at THE FORGE (Bag): five parts
    (HEAD, HAFT, GRIP, WARD, PIN, GEM SETTING) and nine GEMS — some make you hit harder, some slow time, some make the foe hit softer.
    SURTR needs a near-masterwork hammer AND good hands; beating him sets the whole night on fire (see HM_BOONS). */
 const HM_TAP = 18;                     // width of each TAP band (the rest is SOLID, GOLD and MISS)
@@ -8508,11 +8518,13 @@ function hmFoe(){
 }
 function hmPurse(f, flawless){ return f.purse * (flawless ? 2 : 1); }
 function hmMatesHTML(mats){ return Object.entries(mats).map(([k,n]) => `${n}${HM_MATS[k].icon}`).join(' '); }
+/* The Forge drinks, it does not take coin. Beers brewed by your own settlement pay the smith;
+   coins stay for the town and the shop. See beersHeld()/spendBeers(). */
 function hmCanAfford(cost, mats){
-  if((S.coins||0) < (cost||0)) return false;
+  if(beersHeld() < (cost||0)) return false;
   const m = hmMats(); return Object.entries(mats||{}).every(([k,n]) => (m[k]||0) >= n);
 }
-function hmPay(cost, mats){ S.coins -= (cost||0); const m = hmMats(); Object.entries(mats||{}).forEach(([k,n]) => { m[k] = (m[k]||0) - n; }); }
+function hmPay(cost, mats){ spendBeers(cost||0); const m = hmMats(); Object.entries(mats||{}).forEach(([k,n]) => { m[k] = (m[k]||0) - n; }); }
 
 /* ── the swing ── */
 let _hm = null;        // live match
@@ -9561,7 +9573,7 @@ function hmForgeUpgrade(part){
   if(!tapGuard('forge:'+part)) return;
   const lv = hmLv(part), nx = HM_PARTS[part].lv[lv+1];
   if(!nx){ toast('ALREADY MASTERWORK'); return; }
-  if(!hmCanAfford(nx.cost, nx.mats)){ toast('NEED ' + nx.cost + '🪙 + ' + hmMatesHTML(nx.mats)); return; }
+  if(!hmCanAfford(nx.cost, nx.mats)){ toast('NEED ' + nx.cost + '🍺 + ' + hmMatesHTML(nx.mats)); return; }
   hmPay(nx.cost, nx.mats);
   hmForge()[part] = lv + 1;
   addLog(`⚒ Forged ${nx.n} — ${nx.d}`);
@@ -9572,7 +9584,7 @@ function hmCraftInlay(id){
   const r = HM_INLAY_BY_ID[id]; if(!r || !tapGuard('inlay:'+id)) return;
   S.hmInlays = Array.isArray(S.hmInlays) ? S.hmInlays : [];
   if(S.hmInlays.indexOf(id) >= 0) return;
-  if(!hmCanAfford(r.cost, r.mats)){ toast('NEED ' + r.cost + '🪙 + ' + hmMatesHTML(r.mats)); return; }
+  if(!hmCanAfford(r.cost, r.mats)){ toast('NEED ' + r.cost + '🍺 + ' + hmMatesHTML(r.mats)); return; }
   hmPay(r.cost, r.mats);
   S.hmInlays.push(id);
   addLog(`${r.icon} Cut the gem ${r.n}`);
@@ -9663,7 +9675,7 @@ function hmForgeHTML(){
   const parts = HM_PART_KEYS.map(k => {
     const P = HM_PARTS[k], lv = hmLv(k), cur = P.lv[lv], nx = P.lv[lv+1];
     const btn = !nx ? `<span class="wz-max">✦ MASTERWORK</span>`
-      : `<button class="btn gold sm" onclick="hmForgeUpgrade('${k}')" ${hmCanAfford(nx.cost, nx.mats) ? '' : 'disabled'}>FORGE · ${nx.cost}🪙 ${hmMatesHTML(nx.mats)}</button>`;
+      : `<button class="btn gold sm" onclick="hmForgeUpgrade('${k}')" ${hmCanAfford(nx.cost, nx.mats) ? '' : 'disabled'}>FORGE · ${nx.cost}🍺 ${hmMatesHTML(nx.mats)}</button>`;
     return `<div class="hm-part"><div class="g">${P.icon}</div><div class="t"><b>${P.n} · ${cur.n}</b> <span class="pips">${'◆'.repeat(lv)}${'◇'.repeat(P.max-lv)}</span><span class="what">${P.what}</span>
       <span>${cur.d}</span>${nx ? `<span class="nx">NEXT: <b>${nx.n}</b> — ${nx.d}</span>` : ''}</div>${btn}</div>`;
   }).join('');
@@ -9671,7 +9683,7 @@ function hmForgeHTML(){
     const has = owned.indexOf(r.id) >= 0, on = sock.indexOf(r.id) >= 0;
     const btn = on ? `<button class="btn ghost sm" onclick="hmToggleSocket('${r.id}')">REMOVE</button>`
       : has ? `<button class="btn purple sm" onclick="hmToggleSocket('${r.id}')">SET GEM</button>`
-      : `<button class="btn gold sm" onclick="hmCraftInlay('${r.id}')" ${hmCanAfford(r.cost, r.mats) ? '' : 'disabled'}>CUT · ${r.cost}🪙 ${hmMatesHTML(r.mats)}</button>`;
+      : `<button class="btn gold sm" onclick="hmCraftInlay('${r.id}')" ${hmCanAfford(r.cost, r.mats) ? '' : 'disabled'}>CUT · ${r.cost}🍺 ${hmMatesHTML(r.mats)}</button>`;
     return `<div class="hm-part inlay${on?' on':''}${has?'':' unowned'}"><div class="g">${r.icon}</div><div class="t"><b>${r.n}</b>${on ? ' <span class="pips">SET</span>' : ''}<span>${r.d}</span></div>${btn}</div>`;
   }).join('');
   const fins = HM_FINISHES.map(f => {
@@ -9684,7 +9696,7 @@ function hmForgeHTML(){
       <div><b>${open ? fo.n : '??? · LV ' + fo.lv}</b><span>${got ? '✓ ' : '🔒 '}${b.icon} ${b.n} — ${escapeHtml(b.d)}</span></div></div>`;
   }).join('');
   return `<h2>⚒ THE FORGE</h2>
-    <p class="small dim" style="margin:0 0 8px">Every Hammerschlagen win drops that foe's material. Coins + materials forge your hammer. A bare hammer stops at the Valkyrie; Surtr needs nearly everything below, plus good hands. Plan which foes to farm.</p>
+    <p class="small dim" style="margin:0 0 8px">Every Hammerschlagen win drops that foe's material. Beer from your own settlement + materials forge your hammer — the smith takes ale, not coin. A bare hammer stops at the Valkyrie; Surtr needs nearly everything below, plus good hands. Plan which foes to farm.</p>
     <div class="hm-show">
       <canvas id="hmForgeCan" width="600" height="264"></canvas>
       <div class="hm-plate" id="hmPlate">
@@ -9694,6 +9706,7 @@ function hmForgeHTML(){
       <div class="hm-show-sub">${HM_PARTS.head.lv[hmLv('head')].n} · ${hmFinishDef().n} · ${hmBeaten()}/${HM_FOES.length} FOES BEATEN</div>
     </div>
     <div class="hm-stats">${hmStatsHTML()}</div>
+    <div class="hm-cellar">🍺 <b>${beersHeld()}</b> IN THE CELLAR · <span>${computeBreweryRate().toFixed(1)}/min brewing</span><em>the smith takes ale, not coin</em></div>
     <div class="cw-sect">MATERIALS</div><div class="hm-mats">${mats}</div>
     <div class="cw-sect">THE HAMMER</div>${parts}
     <div class="cw-sect">GEMS · ${sock.length}/${sockets} SET · MORE SLOTS: FORGE THE GEM SETTING</div>${sockets < 4 ? `<p class="small dim" style="margin:0 0 6px">💍 Your ${HM_PARTS.setting.lv[hmLv('setting')].n} holds ${sockets} gem${sockets>1?'s':''}. Forge the ${HM_PARTS.setting.lv[hmLv('setting')+1].n} (above) to set ${sockets+1}.</p>` : ''}${inlays}
@@ -15976,12 +15989,12 @@ function renderBag(){
   if(upgEl){
     const ups = S.breweryUpgrades||[];
     const totalRate = computeBreweryRate();
-    const totalBrewed = ((S.beerCoinsTotal||0)+(S.coinAccum||0)).toFixed(1);
+    const totalBrewed = (S.beerLifetime||0).toFixed(0);
     if(ups.length){
       upgEl.innerHTML =
         `<div class="pill" style="margin-bottom:10px;display:block;padding:8px 10px;">` +
         `<span class="gold" style="font-size:13px;">🍺 ${totalRate.toFixed(1)} beer/min</span>` +
-        `<span class="dim" style="font-size:10px;margin-left:8px;">${totalBrewed} brewed lifetime</span></div>` +
+        `<span class="dim" style="font-size:10px;margin-left:8px;">🍺 ${beersHeld()} in the cellar · ${totalBrewed} brewed tonight</span></div>` +
         ups.map(u=>{
           const baseRate = u.rate ? `+${u.rate.toFixed(2)}/min` : '';
           return `<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;">
