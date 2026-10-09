@@ -2216,11 +2216,8 @@ body[data-char="gambler"]{--dim:#b8956a;--cyan:#e0605a}
 .pill-row .btn{width:auto;margin:0;padding:10px 16px;min-height:44px;font-size:11px}
 #btnLogBeer{margin:0}
 #barBanner{margin:10px 0 0;display:grid;gap:8px}
-.bar-rule,.bar-quest{border:1px dashed rgba(232,195,74,.45);border-radius:6px;padding:9px 11px;font-size:12px;line-height:1.5;color:var(--ink);background:rgba(0,0,0,.2)}
-.bar-rule span,.bar-quest span{display:block;font-size:10px;letter-spacing:1.5px;color:var(--gold);margin-bottom:3px}
-.bar-quest .btn{margin:8px 0 0}
-.bar-quest.done{opacity:.7}
-.bar-quest b{display:block;margin-top:6px;color:#8fd98a;font-size:11px;letter-spacing:1px}
+.bar-rule{border:1px dashed rgba(232,195,74,.45);border-radius:6px;padding:9px 11px;font-size:12px;line-height:1.5;color:var(--ink);background:rgba(0,0,0,.2)}
+.bar-rule span{display:block;font-size:10px;letter-spacing:1.5px;color:var(--gold);margin-bottom:3px}
 .bar-bounty{border:1px solid rgba(209,73,91,.6);border-radius:6px;padding:9px 11px;font-size:12px;line-height:1.5;color:var(--ink);background:linear-gradient(180deg,rgba(90,20,20,.35),rgba(0,0,0,.25))}
 .bar-bounty span{display:block;font-size:10px;letter-spacing:1.5px;color:#ff8a7a;margin-bottom:3px}
 .bar-bounty.me{border-color:#e8a33d;box-shadow:0 0 14px rgba(232,163,61,.25)}
@@ -2740,10 +2737,10 @@ html.spot-lock{overflow:hidden;overscroll-behavior:none} /* only the viewport: c
     </div>
     <div class="panel lock-panel gate-off" data-lockslot="secret"></div>
     <div class="panel" id="bagSecret" data-gate="secret">
-      <h2>🤫 SECRET MISSION</h2>
-      <p class="small dim">For your eyes only — nobody else on the squad can see this from their phone.</p>
-      <button class="btn purple sm" onclick="openSecret()">🤫 <span id="secretBtnLabel">VIEW MY MISSION</span></button>
-      <button class="btn red sm hide" id="secret2Btn" onclick="openSecret2()" style="margin-top:6px">🔥 <span id="secret2BtnLabel">HIGH RISK MISSION</span></button>
+      <h2>🤫 SECRET QUEST</h2>
+      <p class="small dim">Five stages, each one harder. For your eyes only — nobody else on the squad can see this from their phone.</p>
+      <div id="questTrack"></div>
+      <button class="btn purple sm" onclick="openQuest()">🤫 <span id="questBtnLabel">VIEW MY STAGE</span></button>
     </div>
   </section>
 
@@ -3326,29 +3323,56 @@ const CONSUMABLES = [
   { id:'xpchip', n:"THE BANKER'S CALL", icon:'🪙', char:'gambler', d:"The phone rings and the Banker makes an offer: deal, or no deal? Convert up to 100 XP into coins — one time, no questions, gone after. Only the Gambler knows who to call.", price:5, oneTime:true, discoverable:true }
 ];
 
-/* ---------- secret missions (one assigned privately per run) ---------- */
-const MISSIONS = [
-  { n:'THE FAKE TRADITION', d:'Invent a fake "tradition" right now (e.g. "you always down your drink when someone drops a coaster"). Get at least 2 others to actually follow it later, unprompted, like it\'s a real rule.', xp:90 },
-  { n:'THE COUNTERFEIT WORD', d:'Pick a totally made-up word right now (something dumb, like "grimbleton"). Slip it into conversation once yourself, then get 2 others to say it back later — unprompted, as if it\'s a real word.', xp:90 },
-  { n:'THE NAVIGATOR', d:'Silently pick a specific venue in your head right now. Get the squad to end up there next WITHOUT you naming it out loud first — someone else has to suggest it.', xp:95 },
-  { n:'SKÅL SIMON SAYS', d:'Secretly start a 10-minute timer. Get all 3 others to individually say "skål" before it runs out — without ever calling a group toast yourself.', xp:100 },
-  { n:'THE FALSE COMPLIMENT', d:'Pick one specific, slightly absurd compliment right now (e.g. "incredible taste in shoes"). Get 2 different people to say that exact compliment to one specific squad member tonight.', xp:85 },
-  { n:'MATCHING ORDERS', d:'Order a specific drink. Without telling anyone what it is, get all 3 others to independently order that exact same drink at some point tonight.', xp:95 },
-  { n:'THE FAKE EXCUSE', d:'Invent one specific fake reason right now (e.g. "that place looked closed") to skip a venue that was actually on the plan — and get the squad to actually skip it because of your excuse.', xp:85 },
-  { n:'THE PLANTED LIE', d:'Tell the squad one small, harmless, made-up "fact" about the city or one of them right now. Catch at least one of them repeating it to someone else later as if it\'s true.', xp:95 },
-  { n:'THE RELUCTANT ROUND', d:'Without asking directly or offering to pay yourself, get one specific person you pick right now to be the one who buys the next full round.', xp:80 },
-  { n:'ONE MORE FOR THE ROAD', d:'At the exact moment someone says "I think I\'m done," get the squad to do one more challenge or drink anyway — reverse the room without arguing about it.', xp:85 }
+/* ══ THE SECRET QUEST — one private five-stage line per run, for your eyes only ══
+   Five stages, each drawn from its own pool, each harder than the last. You only ever see the stage
+   you are on; clearing it unlocks the next. XP banks as you go, so where you get busted is what you
+   keep. Get busted and the whole line is dead for the night — no retries, no later stages, ever.
+   Clear all five and you get the completion bonus plus a building nobody can buy at any price.
+   Numbers from the economy model (peer session, Oct 2026): 300 banked back-weighted so a single
+   stage can't pop two level-ups at once, and the completion prize pays in COIN as well as beer,
+   because a building that lands this late brews into a pile the player already can't spend. */
+const QUEST_XP = [20, 35, 55, 80, 110];   // per stage — 300 banked if you clear all five
+const QUEST_BONUS_XP = 50;                // on top, only for clearing the whole line (350 total)
+const QUEST_BONUS_COINS = 120;            // coin is the scarce currency late; this is the part that's felt
+const QUEST_RATE = 2.40;                  // the reward building's beer/min — above legendary, under unique
+const QUEST_POOLS = [
+  [ // ── stage 1 — plant one thing, in one person
+    { n:'THE FIRST DOMINO',    d:'Pick one squadmate right now, silently. Before you leave this bar, get them to raise a toast — any toast — without you ever suggesting one.' },
+    { n:'THE BORROWED OPINION',d:'Say one specific thing about the drink in your hand. Get the person next to you to repeat that exact opinion to the table as if they thought of it.' },
+    { n:'THE SEEDED WORD',     d:'Pick a stupid made-up word right now ("grimbleton" is free). Work it into one sentence, once. Get one other person to say it before you leave this bar.' },
+    { n:'THE COPIED ORDER',    d:'Order something slightly unusual. Get exactly one other person to order the same thing next round — without ever recommending it to them.' },
+    { n:'THE PHANTOM RULE',    d:'Invent one tiny rule right now: coasters face-down, glasses in a line, whatever. Follow it yourself, in silence, until one other person copies you.' }
+  ],
+  [ // ── stage 2 — two people, unprompted, as if it were always real
+    { n:'THE FAKE TRADITION',  d:'Invent a "tradition" right now ("we always down a mouthful when someone drops a coaster"). Get at least 2 others to follow it later, unprompted, like it has always existed.' },
+    { n:'THE COUNTERFEIT WORD',d:'Your dumb word goes wide: get 2 others to say it back to you later, unprompted, as though it is a real word with a real meaning.' },
+    { n:'THE FALSE COMPLIMENT',d:'Pick one absurdly specific compliment now ("incredible taste in shoes"). Get 2 different people to pay that exact compliment to one squadmate you choose.' },
+    { n:'THE RELUCTANT ROUND', d:'Without asking anyone and without reaching for your own coin, get one specific person you pick right now to be the one who buys the next full round.' },
+    { n:'THE PLANTED LIE',     d:'Tell the squad one small, harmless, invented "fact" about this city. Catch at least one of them repeating it to someone else as if it were true.' }
+  ],
+  [ // ── stage 3 — the whole squad, or a stranger doing your work
+    { n:'SKÅL SIMON SAYS',     d:'Secretly start a 10-minute timer. Get every other squadmate to individually say "skål" before it runs out — without ever calling a group toast yourself.' },
+    { n:'THE NAVIGATOR',       d:'Pick a specific venue in your head right now. Get the squad to end up there next WITHOUT you naming it — somebody else has to be the one who suggests it out loud.' },
+    { n:'MATCHING ORDERS',     d:'Order a specific drink. Without telling anyone what it is, get every other squadmate to independently order that exact same drink before the night is over.' },
+    { n:'THE RECRUITED STRANGER',d:'Get a stranger to deliver your line to the table — a toast, a rule, a question you planted with them — with the squad never learning you set it up.' },
+    { n:'THE FAKE EXCUSE',     d:'Invent one specific fake reason right now ("that place looked shut") to skip a venue that was actually on the plan — and get the squad to genuinely skip it because of you.' }
+  ],
+  [ // ── stage 4 — misdirection: the credit has to land somewhere else
+    { n:'THE DOUBLE AGENT',    d:'Plant the same idea separately with TWO different squadmates. Get both of them to claim credit for it — to each other — without either realising where it came from.' },
+    { n:'THE SILENT MAJORITY', d:'Get the whole squad to agree unanimously on a decision — next venue, next drink, anything — while you never once state a preference out loud. Steer it entirely through questions.' },
+    { n:'THE IMPOSTER TOAST',  d:'Plant an exact toast phrase with one specific person. Get them to call that toast to the whole table in your exact words, believing it was their own idea.' },
+    { n:'THE RUMOR MILL',      d:'Start a small, harmless rumour about YOURSELF right now. Get it repeated back to you by somebody who heard it from someone else — not from you.' },
+    { n:'THE WRONG GENIUS',    d:'Take one of your own ideas from earlier tonight and get the table to credit it, out loud, to a different squadmate entirely. Then let them keep it.' }
+  ],
+  [ // ── stage 5 — the finale: everyone, more than once, and your name never comes up
+    { n:'THE LONG CON',        d:'Plant a specific running joke or callback line right now. Get every other squadmate to use it unprompted, on their own, at least twice each before the night is over.' },
+    { n:'THE FULL LOOP',       d:'In one unbroken stretch of the night: plant an idea, get someone to repeat it, and get a THIRD person to credit it to the wrong squadmate. All three, before anyone catches on.' },
+    { n:'THE PUPPET KING',     d:'Get the squad to appoint one specific person you choose right now as the one who decides the rest of the night — and get them to run it the way you would have. You never campaign for them.' },
+    { n:'THE WHOLE TABLE',     d:'Get every other squadmate to perform your invented ritual at the same time, on somebody else\'s count, while you are the only one at the table not doing it.' },
+    { n:'THE PERFECT CRIME',   d:'At closing time, get the squad to tell the story of tonight with you as a bystander — your tradition, your word, your plan, and not one of them names you.' }
+  ]
 ];
-
-/* ---------- tier 2: high risk / high reward — unlocks only after completing your first secret mission ---------- */
-const TIER2_MISSIONS = [
-  { n:'THE DOUBLE AGENT', d:'Plant the same idea separately with TWO different squad members. Get both of them to independently claim credit for it — to each other — without either realizing where it actually came from.', xp:180 },
-  { n:'THE RUMOR MILL', d:'Start a small, harmless rumor about YOURSELF right now. Get it repeated back to you by someone who heard it from someone else — not directly from you.', xp:170 },
-  { n:'THE LONG CON', d:'Plant a specific running joke or callback line right now. Get all 3 others to use it unprompted, on their own, at least twice each before the night is over.', xp:190 },
-  { n:'THE SILENT MAJORITY', d:'Get the whole squad to unanimously agree on a decision — next venue, next drink, whatever — while you never once state a preference out loud. Steer it entirely through questions.', xp:175 },
-  { n:'THE IMPOSTER TOAST', d:'Plant an exact toast phrase with one specific person. Get them to call the toast to the whole group using your exact words, believing it was their own idea.', xp:180 },
-  { n:'THE FULL LOOP', d:'In one continuous stretch of the night: plant an idea, get someone to repeat it, and get a THIRD person to credit it to the wrong squad member. All three, before anyone catches on.', xp:200 }
-];
+const QUEST_STAGE_NAMES = ['THE SEED', 'THE SPREAD', 'THE TABLE', 'THE MISDIRECTION', 'THE PERFECT NIGHT'];
 
 const ACHIEVEMENTS = [
   { id:'first',  n:'A NEW HOPS',      d:'Complete your first challenge',  test:s=>s.wins>=1 },
@@ -3358,7 +3382,8 @@ const ACHIEVEMENTS = [
   { id:'hydro',  n:'WATERWORLD',      d:'Drink water 3 times',            test:s=>s.waters>=3 },
   { id:'lucky',  n:'CASINO ROYALE-ALE',  d:'Win 3 gambles',                  test:s=>s.gambleWins>=3 },
   { id:'chaos',  n:'AN AGENT OF CHAOS',     d:'Spin the Wheel 5 times',         test:s=>s.spins>=5 },
-  { id:'secret', n:"MR. & MRS. SMITHWICK'S",      d:'Complete your secret mission',   test:s=>s.secretDone },
+  { id:'secret', n:"MR. & MRS. SMITHWICK'S",      d:'Clear a secret quest stage',     test:s=>(s.quest && s.quest.cleared>=1) || s.secretDone },
+  { id:'secret5',n:'THE USUAL SUSPECT',           d:'Clear all five secret quest stages', test:s=>(s.quest && s.quest.cleared>=QUEST_POOLS.length) || s.secret2Done },
   { id:'lv5',    n:'HALFWAY TO VALHALLA',   d:'Reach level 5',                  test:s=>s.level>=5 },
   { id:'lv10',   n:'THE LAST OF US (STANDING)', d:'Reach level 10',                 test:s=>s.level>=10 },
   { id:'fullset', n:"GOTTA DRINK 'EM ALL", d:'Collect every souvenir type', test:s=>Object.keys(SOUVENIRS).every(t=>(s.souvenirs&&s.souvenirs[t])>0) },
@@ -3390,8 +3415,7 @@ function freshState(){
     name:'', charId:'tank', currentTile:null, pulls:0, xp:0, level:1, drinks:0, fails:0, wins:0,
     skips:2, pace:0, waters:0, laps:0, spins:0, gambleWins:0, respin:1, badLuckHeat:0,
     doubleNext:false, startTime:Date.now(), log:[], ach:[], tkTierSeen:0, beerLifetime:0,
-    flags:{}, resolved:false, secret:null, secretDone:false, secretBlown:false,
-    secret2:null, secret2Available:false, secret2Declined:false, secret2Done:false, secret2Blown:false, karaokeDone:false, beerLogCount:0, bossMarks:{}, bossesAvenged:0,
+    flags:{}, resolved:false, quest:null, karaokeDone:false, beerLogCount:0, bossMarks:{}, bossesAvenged:0,
     bounty:null, underdog:null, unlocksSeen:null, veteran:false, tutorialDone:false, tutStep:null, tutRate0:0, bountyStats:{ taken:0, survived:0, caught:0, failed:0, defended:0 },
     coins:50, souvenirs:{}, relics:[], items:{}, hatUsedThisLap:false, denSpinsLeft:3, chugAttemptsLeft:1, chugRoundLeft:0,
     rage:0, bloodied:false, chugMisses:0, perfectChugs:0, rageActivations:0, haggleActive:false,
@@ -3404,7 +3428,7 @@ function freshState(){
     saga:0, sagaStones:[], duels:{ w:0, l:0, d:0 }, trophies:[], duelNames:[], duelLap:null, tankDuelBoost:false, hgTokens:0,
     wzSurge:0, wzPolyCount:0, wzLastForm:null, wzStardust:false, dwSeenRoles:[],
     lastBeerLogTs:0, pourStreak:0, steadyHand:false, wzElixir:false, squad:null, shopAlert:false, wzIngredients:[], wzRuneLv:[0,0,0,0,0], wzRuneV2:true, wzPolyArmed:false,
-    bar:1, barRule:null, barQuest:null, barQuestDone:false, bestMoment:null, crowned:null, closedAt:0,
+    bar:1, barRule:null, bestMoment:null, crowned:null, closedAt:0,
     dev:false, dwWins:{}, dwMats:{}, dwWand:{ core:0, wood:0, tip:0, charm:0, setting:0 }, dwBook:{}, dwDeck:[], dwGems:[], dwGemSet:[], dwFoe:'', dwPaid:0, dwFoesSeen:0, dwNew:[], dwBoonPending:null, dwName:'', dwPotions:[], dwStars:{}, hmPaidWins:0, hmBeaten:0, hmFoe:'', hmFoesSeen:0, hmMats:{}, hmForge:{ head:0, haft:0, grip:0, ward:0, pin:0, setting:0 }, hmNew:[], hmBoonPending:null, hmInlays:[], hmSocket:[], hmFinish:'iron', hmName:'', hmWins:{}
   };
 }
@@ -3448,6 +3472,18 @@ function migrate(p){
   const okTile = t => isObj(t) && typeof t.n === 'string' && typeof t.t === 'string' && typeof t.xp === 'number';
   if(p.currentTile != null && !okTile(p.currentTile)){ p.currentTile = null; p.resolved = true; }
   if(p.bounty != null && !isObj(p.bounty)) p.bounty = null;
+  // the secret quest: a malformed or out-of-range line is rebuilt, never left half-valid. A save from
+  // before the quest existed gets a fresh line and keeps its old secret* flags for the legend score.
+  if(!(isObj(p.quest) && Array.isArray(p.quest.picks) && p.quest.picks.length === QUEST_POOLS.length
+       && p.quest.picks.every(n => typeof n === 'number' && isFinite(n) && n >= 0))){
+    p.quest = p.name ? questNew() : null;
+  } else {
+    p.quest.cleared  = Math.max(0, Math.min(QUEST_POOLS.length, Math.floor(p.quest.cleared||0)));
+    p.quest.banked   = Math.max(0, Math.floor(p.quest.banked||0));
+    p.quest.blown    = !!p.quest.blown;
+    p.quest.rewarded = !!p.quest.rewarded;
+    p.quest.picks    = p.quest.picks.map((n,i) => Math.floor(n) % QUEST_POOLS[i].length);
+  }
   // saves from before the Crawler's Path belong to people who already know the whole game
   // older saves: count what their level/bar already reached as seen (no spotlight flood); no more veteran mode
   if(!Array.isArray(p.unlocksSeen)) p.unlocksSeen = UNLOCKS.filter(u => u.bar ? (p.bar||1) >= u.bar : (p.level||1) >= u.lv).map(u => u.id);
@@ -4174,7 +4210,12 @@ const RARITIES = [
   { id:'rare',      n:'RARE',      chance:0.30, color:'#38c2f2' },
   { id:'epic',      n:'EPIC',      chance:0.14, color:'#a45cff' },
   { id:'legendary', n:'LEGENDARY', chance:0.05, color:'#ffb62e' },
-  { id:'unique',    n:'UNIQUE',    chance:0.01, color:'#ff3ea5' }
+  { id:'unique',    n:'UNIQUE',    chance:0.01, color:'#ff3ea5' },
+  // RENDER-ONLY: the secret quest's reward building. chance:0 and last in this array, so rollRarity (whose
+  // accumulator already reaches 1.00 at 'unique') can never return it and pickUpgradeForRarity, which only
+  // cascades DOWNWARD from the rolled index, can never select it. It exists purely for the badge and colour.
+  // Do not give it a nonzero chance: it also outranks 'unique' in the order.indexOf "best of the batch" sort.
+  { id:'quest',     n:'QUEST',     chance:0,    color:'#e8a0ff' }
 ];
 const BREWERY_UPGRADES = [
   // common — small, steady
@@ -4195,6 +4236,7 @@ const BREWERY_UPGRADES = [
   // legendary — huge bonus, dramatic flair
   { id:'moltenforge',      n:'MOLTEN FORGE',        icon:'🔥', d:'Round-the-clock brewing heat, permanently set to "regrettable decision." Health and safety has stopped visiting.', rate:1.80, visual:'forge',        rarity:'legendary' },
   { id:'enchantedcauldron',n:'ENCHANTED CAULDRON',  icon:'✨', d:'Something in there is glowing, muttering prophecies, and asking to be called "Sir." Production is up, so nobody is arguing.', rate:2.00, visual:'glow',         rarity:'legendary' },
+  { id:'backroom',         n:'THE BACK ROOM',       icon:'🚪', d:'An unmarked door behind the taps. Every arrangement in this town gets made in there and nobody is ever seen going in — which is, of course, the entire point.', rate:QUEST_RATE, visual:'backroom', rarity:'quest', quest:true },
   // unique — only one exists, absurd bonus
   { id:'phoenixstill',     n:'THE PHOENIX STILL',   icon:'🔥', d:'There is only one of these in the whole town. It burns gold, occasionally combusts out of pure enthusiasm, and rebuilds itself better every time. The fire department has given up and started a betting pool.', rate:3.20, visual:'phoenix', rarity:'unique' }
 ];
@@ -4220,7 +4262,8 @@ const TOWN_SETS = {
     { id:'tk_fire',    n:'THE WATCHFIRE',    icon:'🔥', d:'A beacon on the headland, lit to warn of raiders. Has also been lit to announce that the mead is ready.', rate:1.20, visual:'watchfire',  rarity:'epic' },
     { id:'tk_hall',    n:'THE DRINKING HALL',icon:'🏛', d:'Long tables, high roof, a fire down the middle and absolutely no concept of closing time.', rate:1.80, visual:'drinkhall',  rarity:'legendary' },
     { id:'tk_ship',    n:'THE DRAGONSHIP',   icon:'🐉', d:'A carved prow and a sail you can see from the next fjord. Built for raiding, used almost entirely for showing off.', rate:2.00, visual:'dragonship', rarity:'legendary' },
-    { id:'tk_anvil',   n:"THE SKY-ANVIL",    icon:'⚡', d:'An anvil struck by lightning and never moved since. The smith works to the rhythm of distant thunder, and the thunder keeps time.', rate:3.20, visual:'skyanvil',   rarity:'unique' }
+    { id:'tk_anvil',   n:"THE SKY-ANVIL",    icon:'⚡', d:'An anvil struck by lightning and never moved since. The smith works to the rhythm of distant thunder, and the thunder keeps time.', rate:3.20, visual:'skyanvil',   rarity:'unique' },
+    { id:'tk_whisper', n:'THE WHISPER-HOUSE',icon:'🤫', d:'A low turf hall where nothing is ever said above a murmur. Every plan this settlement has ever made started in there, and nobody will admit to owning it. You own it.', rate:QUEST_RATE, visual:'whisperhouse', rarity:'quest', quest:true }
   ],
   wizard: [
     { id:'wz_pots',    n:'THE POTION SHELF', icon:'🧪', d:'Everything labelled, nothing trustworthy. The one marked "DEFINITELY WATER" is the reason for the ceiling stain.', rate:0.25, visual:'potshelf',  rarity:'common' },
@@ -4237,7 +4280,8 @@ const TOWN_SETS = {
     { id:'wz_clock',   n:'THE CLOCKWORK WING',icon:'⚙️', d:'Brass gears in the walls. Every so often time stops, and only the wizard and the brew keep moving.', rate:1.20, visual:'clockwing', rarity:'epic' },
     { id:'wz_sky',     n:'THE SKY ISLAND',   icon:'☁️', d:'A chunk of the castle that got up and stayed up. Reachable only by potion-flask balloon, which is half the fun.', rate:1.80, visual:'skyisle',   rarity:'legendary' },
     { id:'wz_dragon',  n:'THE SLEEPING DRAGON',icon:'🐲', d:'Coiled around the east tower, fast asleep, warming the mash for free. Nobody is brave enough to wake it. Everyone tiptoes.', rate:2.00, visual:'wzdragon',  rarity:'legendary' },
-    { id:'wz_portal',  n:'THE GRAND TRANSMUTATION',icon:'🌌', d:'The heavens themselves tipped into a cauldron and stirred. The brew it makes has no name, and the ones who drink it stop asking for one.', rate:3.20, visual:'transmute', rarity:'unique' }
+    { id:'wz_portal',  n:'THE GRAND TRANSMUTATION',icon:'🌌', d:'The heavens themselves tipped into a cauldron and stirred. The brew it makes has no name, and the ones who drink it stop asking for one.', rate:3.20, visual:'transmute', rarity:'unique' },
+    { id:'wz_frame',   n:'THE WHISPERING PORTRAIT',icon:'🖼', d:'A painted witch who hears every word spoken in the castle and repeats it to precisely one person. Um-Brew-dge has had the corridor sealed twice. It did not help.', rate:QUEST_RATE, visual:'whisperframe', rarity:'quest', quest:true }
   ]
 };
 // the tavern yard everyone else keeps — the generic brewery scene already draws these
@@ -4245,7 +4289,9 @@ function townSet(){ return (S && TOWN_SETS[S.charId]) || BREWERY_UPGRADES; }
 // a building's asking price in the shop. The chest gives them away; coin buys the rest.
 function townPrice(u){ return Math.max(20, Math.round((u.rate||0.25) * 110)); }
 function townOwned(id){ return (S && S.breweryUpgrades || []).some(u => u.id === id); }
-function townAvailable(){ return townSet().filter(u => !townOwned(u.id)); }
+function townAvailable(){ return townSet().filter(u => !townOwned(u.id) && !u.quest); }
+// the one building coin can't reach: the secret quest's reward for this character's town
+function questBuilding(){ return townSet().find(u => u.quest) || null; }
 
 function rollRarity(){
   const r = Math.random();
@@ -4260,7 +4306,7 @@ function pickUpgradeForRarity(rarityId){
   // try the rolled rarity first, then cascade down through lower rarities if that pool is exhausted
   for(let d=0; d<order.length; d++){
     const idx = startIdx - d; if(idx<0) break;
-    const pool = townSet().filter(u=>u.rarity===order[idx] && !takenIds.has(u.id));
+    const pool = townSet().filter(u=>u.rarity===order[idx] && !u.quest && !takenIds.has(u.id));
     if(pool.length) return pool[Math.floor(Math.random()*pool.length)];
   }
   // every real upgrade taken — the chest holds a TAVERN FAVOUR instead: coins and/or rerolls, scaled to the rolled rarity
@@ -5968,7 +6014,7 @@ function spWizardParty(ctx, x0, x1, gy, now){
 /* ── THE SPIRE'S GROUNDS ──
    The Brew-zard's half of the town builder. Same idea as the Viking yard: fixed slots across the
    grounds so nothing piles up, and everything here is something you bought or pulled from a chest. */
-const SP_TOWN_ORDER = ['potshelf','herbs','owlery','lamps','greenhouse','bells','runegate','cat','stills','library','telescope','clockwing','wzdragon'];
+const SP_TOWN_ORDER = ['potshelf','herbs','owlery','lamps','greenhouse','bells','runegate','cat','stills','library','telescope','clockwing','wzdragon','whisperframe'];
 function spTownProps(ctx, lay, gy, night, now){
   const have = t => breweryUpgradeVisualCount(t) > 0;
   const land = Math.max(140, lay.W - 40);
@@ -6088,6 +6134,38 @@ function spTownProps(ctx, lay, gy, night, now){
     R(x+11.4, gy-6.6-br, 2.2, 0.8, '#1a3a20');
     ctx.globalAlpha = 0.5 + 0.3*Math.sin(now/900);
     R(x+16, gy-7-br, 2.4, 1, '#ff9a3a'); ctx.globalAlpha = 1;
+  }
+  if(have('whisperframe')){    // ── THE WHISPERING PORTRAIT — the secret quest's reward. Hung on the outside
+                               //    wall, gilt frame, one painted witch who leans out and tells only you.
+    const x = slotX('whisperframe'), y = gy - 26;
+    R(x-9, y-11, 18, 22, '#3a2c18');                                   // gilt frame
+    R(x-9, y-11, 18, 1.4, '#e8c34a'); R(x-9, y+9.6, 18, 1.4, '#9a7c22');
+    R(x-9, y-11, 1.4, 22, '#e8c34a'); R(x+7.6, y-11, 1.4, 22, '#9a7c22');
+    R(x-7, y-9, 14, 18, '#241a30');                                    // the canvas, mostly shadow
+    // she leans out of the paint when nobody official is looking
+    const lean = Math.sin(now/1300) * 1.1;
+    R(x-3.4 + lean, y-1.5, 7, 10.5, '#4a3568');                        // robe, filling the lower frame
+    R(x-3.4 + lean, y-1.5, 7, 1.2, '#5e4480');                         // shoulders catching the light
+    R(x-2 + lean, y-5.6, 4.2, 4.4, '#d8b48a');                         // face
+    R(x-2 + lean, y-5.6, 4.2, 1, '#b08e6a');                           // brow shadow under the hat
+    R(x-4.2 + lean, y-7.2, 8.6, 1.8, '#2e2142');                       // the pointed hat, brim first
+    ctx.fillStyle = '#2e2142'; ctx.beginPath();                        // and the point, leaning with her
+    ctx.moveTo(x-2.6 + lean, y-7.2); ctx.lineTo(x + lean + 0.6, y-12.4); ctx.lineTo(x+2.6 + lean, y-7.2);
+    ctx.closePath(); ctx.fill();
+    ctx.globalAlpha = 0.55 + 0.4*Math.sin(now/420);
+    R(x-1.2 + lean, y-4.2, 1, 1, '#e8a0ff'); R(x+0.5 + lean, y-4.2, 1, 1, '#e8a0ff');   // eyes, on you
+    ctx.globalAlpha = 1;
+    // the whisper leaving the frame, aimed at exactly one listener
+    for(let i=0;i<3;i++){
+      const t = ((now/1900) + i/3) % 1;
+      ctx.globalAlpha = (1-t) * 0.55;
+      ctx.fillStyle = '#e8a0ff';
+      ctx.fillRect(x + 9 + t*7, y - 4 - Math.sin(t*Math.PI)*5, 1.6, 1.6);
+    }
+    ctx.globalAlpha = 1;
+    const g = ctx.createRadialGradient(x, y, 0, x, y, 20);
+    g.addColorStop(0, 'rgba(232,160,255,.14)'); g.addColorStop(1, 'rgba(232,160,255,0)');
+    ctx.fillStyle = g; ctx.fillRect(x-20, y-20, 40, 40);
   }
   if(have('skyisle')){         // a chunk of the castle that got up and stayed up
     const x = 40 + land*0.5, y = gy - 92 + Math.sin(now/1500)*3;
@@ -6235,7 +6313,7 @@ function spHeroScene(ctx, L, lay, gy, realNow, now, ex){
    Every building bought in the shop (or pulled out of a level-up chest) stands here in the yard.
    They take fixed slots across the land so they never pile up on each other, and the slots spread
    as the settlement's shore pushes out — so a crowded early village loosens into a proper town. */
-const VK_TOWN_ORDER = ['turf','fishrack','woodpile','well','smokehouse','hives','vkbanner','pigpen','brewhouse','quay','shrine','watchfire','drinkhall'];
+const VK_TOWN_ORDER = ['turf','fishrack','woodpile','well','smokehouse','hives','vkbanner','pigpen','brewhouse','quay','shrine','watchfire','drinkhall','whisperhouse'];
 function vkTownProps(ctx, v, lay, gy, W, now){
   const have = t => breweryUpgradeVisualCount(t) > 0;
   const X0 = lay.X0, land = Math.max(120, v.shore - 24);
@@ -6370,6 +6448,38 @@ function vkTownProps(ctx, v, lay, gy, W, now){
     ctx.globalAlpha = flick; R(x-3, gy-8, 6, 8, '#e8a33d'); ctx.globalAlpha = 1;
     for(let i=0;i<2;i++){ const t = ((now/1500) + i/2) % 1; ctx.globalAlpha = (1-t)*0.4; R(x-1, gy-28 - t*8, 2, 2, '#d8d0c8'); }
     ctx.globalAlpha = 1;
+  }
+  if(have('whisperhouse')){     // ── THE WHISPER-HOUSE — the secret quest's reward. Low, turfed, windowless,
+                                //    one door ajar, and two hooded figures outside who never stop muttering.
+    const x = slotX('whisperhouse');
+    R(x-10, gy-11, 20, 11, '#4a3a2a'); R(x-10, gy-11, 20, 1.2, '#5e4a36');   // squat timber walls, sunk low
+    for(let i=x-8;i<x+9;i+=4) R(i, gy-10, 1, 10, '#3a2c1e');                 // staves, no windows anywhere
+    // a turf roof grown over, deliberately unremarkable from a distance
+    ctx.fillStyle = '#2e4418'; ctx.beginPath(); ctx.moveTo(x-13, gy-11); ctx.lineTo(x, gy-18); ctx.lineTo(x+13, gy-11); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#4a6a2a'; ctx.beginPath(); ctx.moveTo(x-13, gy-11); ctx.lineTo(x, gy-18); ctx.lineTo(x+1, gy-11); ctx.closePath(); ctx.fill();
+    for(let i=0;i<5;i++) R(x-9 + i*4, gy-13 - (i%2), 1, 2, '#62883a');
+    // the door, open just enough. Warm light inside, and it never opens any wider than this.
+    R(x-2, gy-8, 4, 8, '#1a1208');
+    const slit = 0.55 + 0.3*Math.sin(now/900);
+    ctx.globalAlpha = slit; R(x-0.6, gy-7.5, 1.4, 7.5, '#e8a33d'); ctx.globalAlpha = 1;
+    // two hooded figures outside the door, heads together, swaying as they trade whatever they trade
+    [[-16.6, 1], [-12.8, -1]].forEach(([dx, dir], i) => {
+      const lean = Math.sin(now/1100 + i*2.1) * 0.6 * dir;
+      R(x + dx + lean, gy-5, 2.6, 5, '#453a56');                             // cloak, lifted off the wall colour
+      R(x + dx + lean + 0.2, gy-7.2, 2.2, 2.4, '#241c30');                   // hood, the face lost inside it
+      R(x + dx + lean + (dir>0 ? 1.4 : 0.4), gy-6.6, 0.8, 1, '#8a7aa0');     // the one lit cheek, turned inward
+    });
+    // the whisper itself, drifting off the roof — the one tell that this building is not a storehouse
+    for(let i=0;i<3;i++){
+      const t = ((now/2100) + i/3) % 1;
+      ctx.globalAlpha = (1-t) * 0.5;
+      ctx.fillStyle = '#e8a0ff';
+      ctx.fillRect(x + 3 + Math.sin((now/600) + i*1.7) * 2.2, gy-19 - t*11, 1.6, 1.6);
+    }
+    ctx.globalAlpha = 1;
+    const g = ctx.createRadialGradient(x, gy-10, 0, x, gy-10, 18);           // a faint violet hush over the yard
+    g.addColorStop(0, 'rgba(232,160,255,.13)'); g.addColorStop(1, 'rgba(232,160,255,0)');
+    ctx.fillStyle = g; ctx.fillRect(x-18, gy-28, 36, 28);
   }
 }
 function drawVikingSettlement(ctx, W, H, groundY, frame, tier, nightness, isDay){
@@ -7221,6 +7331,21 @@ function drawBrewery(ctx, W, H, frame){
     ctx.fillStyle = '#2a2028';
     for(let b=0;b<4;b++){ ctx.fillRect(gx0+b*4, gy0, 2, 22); }
   }
+  // THE BACK ROOM — the secret quest's reward. An unmarked door, never seen opening, always warm inside.
+  if(breweryUpgradeVisualCount('backroom')>0){
+    const dx = startX - 14, dy = groundY - 20;
+    ctx.fillStyle = '#1a1218'; ctx.fillRect(dx, dy, 10, 20);
+    ctx.fillStyle = '#2e2230'; ctx.fillRect(dx+0.8, dy+0.8, 8.4, 18.4);
+    ctx.fillStyle = '#e8c34a'; ctx.fillRect(dx+7.4, dy+10, 1.2, 1.2);          // the handle, no sign, no name
+    const slit = 0.4 + 0.35*Math.sin(frame/22);
+    ctx.globalAlpha = slit; ctx.fillStyle = '#e8a33d'; ctx.fillRect(dx+9, dy+1, 1, 18); ctx.globalAlpha = 1;
+    for(let i=0;i<3;i++){                                                       // something being agreed in there
+      const t = ((frame/90) + i/3) % 1;
+      ctx.globalAlpha = (1-t)*0.5; ctx.fillStyle = '#e8a0ff';
+      ctx.fillRect(dx + 4 + Math.sin(frame/20 + i*1.7)*2, dy - 2 - t*10, 1.6, 1.6);
+    }
+    ctx.globalAlpha = 1;
+  }
   if(breweryUpgradeVisualCount('glow')>0){
     const pulse = 0.35 + 0.25*Math.sin(frame/12);
     ctx.globalAlpha = pulse; ctx.fillStyle = '#a45cff';
@@ -7623,12 +7748,12 @@ function startRun(){
   if(squad.length >= 2){
     S.squad = { names: squad, seat: squad.indexOf(nm), code: sqCodeFor(squad), seed: sqHash(squad.join('|')) };
     try{ localStorage.setItem('pc_squad', JSON.stringify(squad)); }catch(e){}
-    // the same seed deals every seat a different mission — no two phones share one
-    S.secret = MISSIONS[sqShuffle(MISSIONS.length, S.squad.seed)[S.squad.seat % MISSIONS.length]];
+    // the same seed deals every seat a different quest line — no two phones share a stage
+    S.quest = questNew(S.squad.seed, S.squad.seat);
   } else {
-    S.secret = MISSIONS[Math.floor(Math.random()*MISSIONS.length)];
+    S.quest = questNew();
   }
-  { const pk = barPick(); S.bar = 1; S.barRule = pk.rule; S.barQuest = pk.quest; S.barQuestDone = false; } // bar 1 gets its house rule too
+  { const pk = barPick(); S.bar = 1; S.barRule = pk.rule; } // bar 1 gets its house rule too
   addLog(`${nm} hit the town as ${CHARS.find(c=>c.id===selChar).name}${S.dev ? ' (🛠 developer run)' : skipTut ? ' (tutorial skipped)' : ''}`);
   save(); syncHUD(); go('game');
   if(S.dev) toast('🛠 DEVELOPER RUN — EVERYTHING UNLOCKED · 100,000🪙');
@@ -7654,9 +7779,10 @@ function computeEpicTitle(){
   else if(avenged===1) parts.push('AVENGER OF ONE BOSS');
   const cursesSurvived = (S.souvenirs && S.souvenirs[T.BADLUCK]) || 0;
   if(cursesSurvived>=1) parts.push(`SURVIVOR OF ${cursesSurvived} CURSE${cursesSurvived>1?'S':''}`);
-  if(S.secret2Done) parts.push('MASTER MANIPULATOR');
-  else if(S.secretDone) parts.push('KEEPER OF SECRETS');
-  if(S.secretBlown || S.secret2Blown) parts.push('ONCE CAUGHT, NEVER DETERRED');
+  if(questAllDone()) parts.push('MASTER MANIPULATOR');
+  else if(qCleared() >= 3) parts.push('PUPPETEER');
+  else if(questAnyDone()) parts.push('KEEPER OF SECRETS');
+  if(questEverBlown()) parts.push('ONCE CAUGHT, NEVER DETERRED');
   if(S.karaokeDone) parts.push('VOICE OF THE NIGHT');
   const tier = breweryTierFor(S.level);
   parts.push(`KEEPER OF ${breweryTierName(tier)}`);
@@ -7671,7 +7797,7 @@ const UNLOCKS = [
   { id:'jk_tricks', cls:'jester', lv:3, icon:'🎭', n:'TRICKS', d:'When you draw, spend a Trick to PEEK at a face-down card or SHUFFLE the hand. More every lap.', where:'your draws' },
   { id:'wz_carve',  cls:'wizard', lv:1, icon:'🔮', n:'THE RUNE CIRCLE', d:'Every kind of challenge you win teaches a RECIPE, and each recipe climbs its own runes. Carve the runes you like with coins + duel ingredients: they make your potions stronger and your brews safer, and power you in Happy Hex Hour.', where:'BAG' },
   { id:'kn_toast',  cls:'machine', lv:3, icon:'🏆', n:"THE KNIGHT'S TOAST", d:'Pour three PERFECT pints in a row and the third one pays ×5.', where:'the tap' },
-  { id:'secret',    lv:4, icon:'🤫', n:'YOUR SECRET MISSION', d:'You now have a secret mission. Pull it off without the squad noticing for big XP.', t:'A sealed envelope with your name on it. Pull off what is inside without the squad noticing, for big XP.', where:'BAG' },
+  { id:'secret',    lv:4, icon:'🤫', n:'YOUR SECRET QUEST', d:'Five secret stages, each harder than the last. Clear them without the squad noticing — and never get caught.', t:'Five sealed envelopes with your name on them, and you only ever get to open the next one. Pull them all off without the squad noticing.', where:'BAG' },
   { id:'tank_rage', cls:'tank', lv:5, icon:'🔥', n:'BERSERKER RAGE', d:'Flawless wager wins fill Rage, and a full bar makes your next wager win pay ×2.25. Three lost wagers in a row give War Wounds.', where:'your Longhouse' },
   { id:'gb_ledger', cls:'gambler', lv:5, icon:'📜', n:"THE HIGH ROLLER'S LEDGER", d:'Coins you win at the tables fill the ledger. Fill a page to claim a gambling artifact.', where:'the Den' },
   { id:'jk_act',    cls:'jester', lv:5, icon:'🤹', n:'THE STREET ACT', d:'Between tiles, stake coins and juggle cards from your own deck. Bow out before a curse drops the lot.', where:'your Jester panel' },
@@ -7680,7 +7806,7 @@ const UNLOCKS = [
   { id:'tank_duel', cls:'tank', lv:7, icon:'⚔', n:'HOLMGANG', d:'The headhunt begins. Every level from now on earns one Holmgang: call out a squadmate, you both chug blind to the same target time. Win and their head goes on your wall. Collect every head for a legendary prize.', where:'your Longhouse' },
   { id:'gb_bj',     cls:'gambler', lv:6, icon:'🃏', n:'BLACKJACK', d:'The 21 table opens in the Den. Every hand costs one of your spins.', where:'the Den' },
   { id:'jk_court',  cls:'jester', lv:6, icon:'🔔', n:'THE COURT', d:'Party games and the Wheel fill Mirth; at 100% your next draw is a Grand Jest with every card face-up. Arcana also come with decrees to read out.', where:'your Jester panel' },
-  { id:'rules',     bar:2, icon:'📜', n:'HOUSE RULES & BAR QUESTS', d:'Every NEW BAR brings a house rule for everyone and a quest the squad does together.', where:'under NEW BAR' },
+  { id:'rules',     bar:2, icon:'📜', n:'HOUSE RULES', d:'Every NEW BAR brings a house rule the whole table has to live by until the next one.', where:'under NEW BAR' },
   { id:'bounty',    bar:3, icon:'🎯', n:'BOUNTIES & UNDERDOGS', d:'Every NEW BAR the highest level gets a price on their head and the lowest becomes the Underdog.', where:'under NEW BAR' }
 ];
 const UNLOCK_BY_ID = {}; UNLOCKS.forEach(u => { UNLOCK_BY_ID[u.id] = u; });
@@ -14751,7 +14877,7 @@ function leverPendingLabel(){
   return null;
 }
 
-/* ══ NEW BAR — every bar gets a HOUSE RULE and a BAR QUEST. With a squad roster every phone draws the SAME pair
+/* ══ NEW BAR — every bar gets a HOUSE RULE. With a squad roster every phone draws the SAME rule
    (seed = squad + bar number), so the whole table shares the moment without a network. ══ */
 const HOUSE_RULES = [
   'No first names. Everyone is "m\'lord" or "m\'lady" until the next bar.',
@@ -14772,20 +14898,10 @@ const HOUSE_RULES = [
   'Nobody may say anyone\'s name. Use titles. Make them good.'
 ];
 let _barArm = false;
-const BAR_QUESTS = [
-  'Get a photo of the whole squad with a stranger in it.',
-  'Learn the bartender\'s name and use it, warmly, at least once.',
-  'Find something in this bar older than the squad combined.',
-  'Build a coaster tower ten high before you leave.',
-  'Get the bar to play a song the squad picks.',
-  'Agree on ONE word that describes this bar, in 30 seconds, no vetoes.',
-  'Every squadmate names their best moment of the night so far.',
-  'Teach a stranger your squad toast, and do it together.'
-];
 function barPick(){
   const seed = sqOn() ? (S.squad.seed ^ Math.imul(S.bar||1, 2654435761)) >>> 0 : (Math.random()*4294967296) >>> 0;
   const r = sqRng(seed);
-  return { rule: Math.floor(r()*HOUSE_RULES.length), quest: Math.floor(r()*BAR_QUESTS.length) };
+  return { rule: Math.floor(r()*HOUSE_RULES.length) };
 }
 function newBar(){
   if(!S) return;
@@ -14799,31 +14915,20 @@ function newBar(){
   bountySettle();
   S.bar = (S.bar||1) + 1;
   checkUnlocks();
-  const pk = barPick(); S.barRule = pk.rule; S.barQuest = pk.quest; S.barQuestDone = false;
+  const pk = barPick(); S.barRule = pk.rule;
   addLog(`🚪 BAR ${S.bar} — house rule: ${HOUSE_RULES[pk.rule]}`);
   save(); syncHUD();
   const b = document.getElementById('btnNewBar'); if(b){ b.textContent = '🚪 NEW BAR'; b.classList.remove('armed'); }
   showCard({
     cls:'chaos', tag:`🚪 BAR ${S.bar} — THE TAVERN WELCOMES YOU`, title:'📜 HOUSE RULE',
     body: HOUSE_RULES[pk.rule] + (sqOn() ? '\n\nEvery phone in the squad shows this same rule.' : ''),
-    raw: `<div class="ci-win">🏆 BAR QUEST: ${escapeHtml(BAR_QUESTS[pk.quest])}<br><span style="font-weight:normal;font-size:11px">Do it together before you leave. Everyone who taps DONE gets +20 XP.</span></div>`,
     buttons: `<button class="btn gold" onclick="closeCard(); setTimeout(bountyCard, 250)">🍻 SO DECREED</button>`
   });
   buzz([30,40,30]);
 }
-function barQuestDone(){
-  if(!S || S.barQuest==null || S.barQuestDone) return;
-  S.barQuestDone = true;
-  addLog('🏆 Bar quest done: '+BAR_QUESTS[S.barQuest]);
-  grantXP(20, 'bar quest', { tile:false });
-  toast('🏆 BAR QUEST DONE — +20 XP');
-  save(); syncHUD();
-}
 function barBannerHTML(){
   if(!S || S.barRule==null || !unlocked('rules')) return '';
   return `<div class="bar-rule"><span>📜 BAR ${S.bar} · HOUSE RULE</span>${escapeHtml(HOUSE_RULES[S.barRule]||'')}</div>` +
-    (S.barQuest!=null ? `<div class="bar-quest${S.barQuestDone?' done':''}"><span>🏆 BAR QUEST</span>${escapeHtml(BAR_QUESTS[S.barQuest]||'')}
-      ${S.barQuestDone ? '<b>✓ DONE</b>' : `<button class="btn ghost sm" onclick="barQuestDone()">✓ WE DID IT · +20 XP</button>`}</div>` : '') +
     bountyBannerHTML();
 }
 
@@ -14976,14 +15081,18 @@ function bountyBannerHTML(){
 
 /* ══ CLOSING TIME — the end-of-night recap: your night in numbers, an award, the secret-mission reveal,
    the legend score (phones in the middle), the crown, and a share card to save. ══ */
-const LEGEND_W = { level:100, win:40, boss:60, secret:100, secret2:150, ach:20 };
+const LEGEND_W = { level:100, win:40, boss:60, stage:50, allfive:100, ach:20 };
 function legendScore(s){
   const bosses = ['gsplit','bouncer'].filter(k => s.flags && s.flags[k]).length + (s.bossesAvenged||0);
+  // the quest pays per stage cleared, so busting late still scores — plus a bonus for the whole line
+  const stages = (s.quest && s.quest.cleared) || (s.secretDone ? 1 : 0) + (s.secret2Done ? 1 : 0);
+  const allFive = (s.quest && s.quest.cleared >= QUEST_POOLS.length) || s.secret2Done;
   return s.level*LEGEND_W.level + (s.xp||0) + (s.wins||0)*LEGEND_W.win + bosses*LEGEND_W.boss
-       + (s.secretDone?LEGEND_W.secret:0) + (s.secret2Done?LEGEND_W.secret2:0) + (s.ach||[]).length*LEGEND_W.ach;
+       + stages*LEGEND_W.stage + (allFive?LEGEND_W.allfive:0) + (s.ach||[]).length*LEGEND_W.ach;
 }
 const NIGHT_AWARDS = [ // first match wins — rarest first
-  { n:'THE MASTERMIND',        d:'Pulled off BOTH secret missions. Nobody saw a thing.',   test:s => s.secret2Done },
+  { n:'THE MASTERMIND',        d:'Cleared all five stages of the secret quest. Nobody saw a thing.', test:s => (s.quest && s.quest.cleared >= QUEST_POOLS.length) || s.secret2Done },
+  { n:'THE PUPPETEER',         d:'Three stages deep into the secret quest and still invisible.',     test:s => (s.quest && s.quest.cleared >= 3) },
   { n:'VOICE OF THE NIGHT',    d:'Sang when the reels demanded it.',                       test:s => s.karaokeDone },
   { n:"THE KNIGHT'S TOAST",    d:'Three perfect pints in a row. The tavern stood.',         test:s => ((s.pintStats||{}).toasts||0) >= 1 },
   { n:'GRAND ELIXIR',          d:'Pushed the cauldron all the way to ×5. Madness. Genius.', test:s => ((s.wizStats||{}).elixirs||0) >= 1 },
@@ -15016,8 +15125,8 @@ function closingTime(step){
   const st = nightStats(), ch = CHARS.find(c => c.id===S.charId) || CHARS[0];
   const nx = (lbl) => `<button class="btn gold" onclick="closingTime(${(step||0)+1})">${lbl||'NEXT ▶'}</button>`;
   const hm = `${Math.floor(st.mins/60)}h ${st.mins%60}m`;
-  const sec = S.secret ? `${S.secret.d}\n\n${S.secretDone ? '✓ …AND I PULLED IT OFF.' : S.secretBlown ? '✗ …AND YOU CAUGHT ME.' : '…AND NONE OF YOU NOTICED. YET.'}` : 'No secret mission tonight.';
-  const sec2 = S.secret2 ? `\n\n🔥 HIGH RISK: ${S.secret2.d}\n${S.secret2Done ? '✓ PULLED IT OFF.' : S.secret2Blown ? '✗ CAUGHT.' : '…STILL IN PROGRESS.'}` : '';
+  // the confession: every stage they actually got to, in order. Stages they never reached stay sealed forever.
+  const sec = questConfession();
   const pages = [
     () => showCard({ cls:'boss', tag:'🔔 CLOSING TIME', title:`THE NIGHT OF ${escapeHtml(S.name)}`,
       raw:`<div class="ct-grid">
@@ -15028,7 +15137,7 @@ function closingTime(step){
       </div>
       ${st.best ? `<div class="ci-win">⚡ BEST MOMENT: +${st.best.xp} XP on ${escapeHtml(st.best.n)}</div>` : ''}`, buttons: nx() }),
     () => showCard({ cls:'rarity-legendary', tag:'🏅 YOUR AWARD', title: st.award.n, body: st.award.d, buttons: nx('THE CONFESSION ▶') }),
-    () => showCard({ cls:'boss', tag:'🤫 READ THIS OUT LOUD', title:'I WAS SECRETLY TRYING TO…', body: sec + sec2, buttons: nx('PHONES IN THE MIDDLE ▶') }),
+    () => showCard({ cls:'boss', tag:'🤫 READ THIS OUT LOUD', title:'I WAS SECRETLY TRYING TO…', body: sec, buttons: nx('PHONES IN THE MIDDLE ▶') }),
     () => showCard({ cls:'chaos', tag:'👑 PHONES IN THE MIDDLE', title:'LEGEND SCORE',
       raw:`<div class="ct-score">${st.score}</div>
         <p class="small center">Everyone flips their phone on three. Highest score takes the crown.</p>
@@ -15771,138 +15880,148 @@ function showCard(o){
 }
 function closeCard(){ const e=document.getElementById('cardOverlay'); if(e) e.remove(); }
 
-/* ---------- secret mission (private, local-only, never shown to others) ---------- */
-function openSecret(){
-  if(!S.secret) return;
-  const m = S.secret;
-  let buttons, tag, chips;
-  if(S.secretBlown){
-    buttons = `<button class="btn ghost" onclick="closeCard()">◀ CLOSE</button>`;
-    tag = '🤫 SECRET MISSION — BLOWN';
-    chips = ['✗ THEY FIGURED IT OUT'];
-  } else if(S.secretDone){
-    buttons = `<button class="btn ghost" onclick="closeCard()">◀ CLOSE</button>`;
-    tag = '🤫 SECRET MISSION — COMPLETE';
-    chips = ['✓ DONE'];
-  } else {
-    buttons = `<button class="btn purple" onclick="completeSecret()">✓ MISSION COMPLETE (+${m.xp} XP)</button>
-       <button class="btn red sm btn-destructive" onclick="armConfirm(this, failSecret)">✗ THEY FIGURED IT OUT</button>
-       <button class="btn ghost sm" onclick="closeCard()">KEEP IT GOING</button>`;
-    tag = '🤫 SECRET MISSION — FOR YOUR EYES ONLY';
-    chips = [`+${m.xp} XP IF YOU PULL IT OFF`];
-  }
-  showCard({
-    cls:'boss',
-    tag,
-    title: m.n,
-    venue:'',
-    body: m.d,
-    chips,
-    extra:`<p class="small dim">Nobody else in the squad can see this. If they ever realize what you're doing, the mission is blown for good — there's no retry.</p>`,
-    buttons
+/* ---------- the secret quest (private, local-only, never shown to others) ----------
+   S.quest = { picks:[5 pool indices], cleared:0..5, banked:XP so far, blown:false, rewarded:false }
+   Everything mid-flow lives in here, so a reload can never reroll a stage or lose a cleared one. */
+function questNew(seed, seat){
+  const picks = QUEST_POOLS.map((pool, i) => {
+    if(seed == null) return Math.floor(Math.random()*pool.length);
+    // squad play: the same seed deals every seat a different line, and a different one per stage
+    return sqShuffle(pool.length, (seed ^ Math.imul(i+1, 0x9e3779b1)) >>> 0)[(seat||0) % pool.length];
   });
+  return { picks, cleared:0, banked:0, blown:false, rewarded:false };
 }
-function completeSecret(){
-  if(!S.secret || S.secretDone || S.secretBlown) return;
-  S.secretDone = true;
-  const gained = grantXP(S.secret.xp, 'secret', { tile:false });
-  addLog(`🤫 SECRET MISSION COMPLETE — ${S.secret.n} — +${gained} XP`);
-  toast('MISSION COMPLETE. NOBODY SUSPECTS A THING.');
-  checkAchievements(); save(); syncHUD(); renderBag();
-  closeCard();
-  setTimeout(()=>offerRiskyMission(), 500);
-}
-function failSecret(){
-  if(!S.secret || S.secretDone || S.secretBlown) return;
-  S.secretBlown = true;
-  addLog(`🤫 SECRET MISSION BLOWN — ${S.secret.n}`);
-  toast('BUSTED. THEY KNOW.');
-  save(); syncHUD(); renderBag();
-  closeCard();
-}
+function qst(){ return (S && S.quest) || null; }
+function qStageCount(){ return QUEST_POOLS.length; }
+function qCleared(){ const q = qst(); return q ? q.cleared : 0; }
+function qBlown(){ const q = qst(); return !!(q && q.blown); }
+function qComplete(){ return qCleared() >= qStageCount(); }
+function qLive(){ return !!qst() && !qBlown() && !qComplete(); }
+function qStageMission(i){ const q = qst(); return (q && QUEST_POOLS[i]) ? QUEST_POOLS[i][q.picks[i] % QUEST_POOLS[i].length] : null; }
+function qCurrent(){ return qLive() ? qStageMission(qCleared()) : null; }
+function qBanked(){ const q = qst(); return q ? (q.banked||0) : 0; }
+function qTotalXP(){ return QUEST_XP.reduce((a,b)=>a+b, 0) + QUEST_BONUS_XP; }
+// legacy saves carry secretDone / secret2Done — honour them so achievements and the legend score don't reset
+function questAnyDone(){ return qCleared() >= 1 || !!(S && S.secretDone); }
+function questAllDone(){ return qComplete() || !!(S && S.secret2Done); }
+function questEverBlown(){ return qBlown() || !!(S && (S.secretBlown || S.secret2Blown)); }
 
-/* ---------- tier 2: high risk mission, unlocked only after tier 1 succeeds ---------- */
-function offerRiskyMission(){
-  if(S.secret2Available || S.secret2Declined) return; // already offered once — no repeats
-  const m = sqOn() ? TIER2_MISSIONS[sqShuffle(TIER2_MISSIONS.length, S.squad.seed ^ 0x9e37)[S.squad.seat % TIER2_MISSIONS.length]]
-                   : TIER2_MISSIONS[Math.floor(Math.random()*TIER2_MISSIONS.length)];
-  showCard({
-    cls:'boss',
-    tag:'🔥 HIGH RISK MISSION AVAILABLE',
-    title: '🔥 '+m.n,
-    venue:'',
-    body: m.d,
-    chips:[`+${m.xp} XP IF YOU PULL IT OFF`, `LOSE UP TO ${m.xp} XP IF YOU GET CAUGHT`],
-    extra:`<p class="small dim">This one is harder, and it bites back. Get caught and you lose up to the XP you would have gained — it eats your progress bar, but it can't knock you down a level. Decide now: there's no changing your mind later.</p>`,
-    buttons:`<button class="btn red" onclick="acceptRiskyMission('${m.n.replace(/'/g,"\\'")}')">🔥 ACCEPT THE RISK</button>
-             <button class="btn ghost sm" onclick="declineRiskyMission()">PLAY IT SAFE</button>`
-  });
-  window._pendingRiskyMission = m;
+// closing time: read the whole line out loud. Only the stages they actually reached get revealed.
+function questConfession(){
+  const q = qst();
+  if(!q){
+    // a save from before the quest line existed
+    return S.secret ? `${S.secret.d}\n\n${S.secretDone ? '✓ …AND I PULLED IT OFF.' : S.secretBlown ? '✗ …AND YOU CAUGHT ME.' : '…AND NONE OF YOU NOTICED. YET.'}` : 'No secret quest tonight.';
+  }
+  const shown = Math.min(qStageCount(), q.cleared + ((q.blown || qLive()) ? 1 : 0));
+  if(!shown) return 'I never even started. Not one stage. You were all completely safe from me.';
+  const lines = [];
+  for(let i=0; i<shown; i++){
+    const m = qStageMission(i);
+    const mark = i < q.cleared ? '✓' : (q.blown ? '✗ …AND YOU CAUGHT ME HERE.' : '…AND NONE OF YOU NOTICED. YET.');
+    lines.push(`${i+1}. ${m.n}\n${m.d}\n${i < q.cleared ? '✓ PULLED OFF.' : mark}`);
+  }
+  const tail = qComplete() ? `\n\nAll five. +${q.banked} XP, and not one of you knew.`
+    : q.blown ? `\n\nStage ${q.cleared+1} of ${qStageCount()} is where it died. I kept ${q.banked} XP.`
+    : `\n\n${q.cleared} of ${qStageCount()} cleared, ${q.banked} XP banked, and the rest of the line never got opened.`;
+  return lines.join('\n\n') + tail;
 }
-function acceptRiskyMission(){
-  const m = window._pendingRiskyMission;
-  if(!m) return;
-  S.secret2 = m;
-  S.secret2Available = true;
-  addLog(`🔥 Accepted the high risk mission: ${m.n}`);
-  toast('🔥 ACCEPTED. NO TURNING BACK.');
-  save(); syncHUD(); renderBag();
-  closeCard();
+function questProgressHTML(){
+  const q = qst(); if(!q) return '';
+  return `<div class="q-track">` + QUEST_POOLS.map((_, i) => {
+    const st = i < q.cleared ? 'done' : (i === q.cleared && !q.blown ? 'now' : (q.blown ? 'dead' : 'locked'));
+    const mark = st==='done' ? '✓' : (st==='dead' ? '✗' : (i+1));
+    return `<span class="q-pip q-pip--${st}" title="STAGE ${i+1}">${mark}</span>`;
+  }).join('') + `</div>`;
 }
-function declineRiskyMission(){
-  S.secret2Declined = true;
-  addLog('Declined the high risk mission — played it safe');
-  toast('PLAYED IT SAFE.');
-  save(); syncHUD(); renderBag();
-  closeCard();
-}
-function openSecret2(){
-  if(!S.secret2) return;
-  const m = S.secret2;
-  let buttons, tag, chips;
-  if(S.secret2Blown){
+function openQuest(){
+  const q = qst(); if(!q) return;
+  const n = qStageCount(), i = q.cleared;
+  let tag, title, body, chips, buttons, extra;
+  if(q.blown){
+    tag   = '🤫 SECRET QUEST — BLOWN';
+    title = 'THEY FIGURED YOU OUT';
+    body  = `You got as far as stage ${i+1} of ${n}. The line is dead for the night — there is no stage ${i+2}, and there never will be.\n\nYou keep every point you banked on the way up. That part they can't take back.`;
+    chips = [`${i} / ${n} STAGES CLEARED`, `+${q.banked} XP BANKED`];
     buttons = `<button class="btn ghost" onclick="closeCard()">◀ CLOSE</button>`;
-    tag = '🔥 HIGH RISK MISSION — BLOWN';
-    chips = ['✗ THEY FIGURED IT OUT', `-${m.xp} XP TAKEN`];
-  } else if(S.secret2Done){
+  } else if(qComplete()){
+    tag   = '🤫 SECRET QUEST — ALL FIVE';
+    title = '👑 MASTER MANIPULATOR';
+    body  = 'Five stages. Nobody ever caught on. The whole night ran the way you decided it would, and not one of them knows it.';
+    chips = [`${n} / ${n} STAGES CLEARED`, `+${q.banked} XP TOTAL`];
     buttons = `<button class="btn ghost" onclick="closeCard()">◀ CLOSE</button>`;
-    tag = '🔥 HIGH RISK MISSION — COMPLETE';
-    chips = ['✓ DONE'];
   } else {
-    buttons = `<button class="btn red" onclick="completeSecret2()">✓ MISSION COMPLETE (+${m.xp} XP)</button>
-       <button class="btn red sm btn-destructive" onclick="armConfirm(this, failSecret2)">✗ THEY FIGURED IT OUT (LOSE UP TO ${m.xp} XP)</button>
+    const m = qStageMission(i), xp = QUEST_XP[i], last = i === n-1;
+    tag   = `🤫 SECRET QUEST · STAGE ${i+1} OF ${n} — FOR YOUR EYES ONLY`;
+    title = m.n;
+    body  = m.d;
+    chips = [`${QUEST_STAGE_NAMES[i]}`, `+${xp} XP`, ...(q.banked ? [`+${q.banked} XP BANKED`] : [])];
+    buttons = `<button class="btn purple" onclick="questClear()">✓ STAGE ${i+1} DONE (+${xp} XP)</button>
+       <button class="btn red sm btn-destructive" onclick="armConfirm(this, questBust)">✗ THEY FIGURED IT OUT</button>
        <button class="btn ghost sm" onclick="closeCard()">KEEP IT GOING</button>`;
-    tag = '🔥 HIGH RISK MISSION — FOR YOUR EYES ONLY';
-    chips = [`+${m.xp} XP IF YOU PULL IT OFF`, `LOSE UP TO ${m.xp} XP IF YOU GET CAUGHT`];
+    extra = `<p class="small dim">Nobody else on the squad can see this. Clear this stage and the next one opens — ${last
+      ? `and this is the last one: all five means <b>+${QUEST_BONUS_XP} XP</b>, <b>+${QUEST_BONUS_COINS}🪙</b> and a building for your town that coin cannot buy at any price.`
+      : `they get harder as you climb.`} If they ever work out what you're doing, the whole line is blown for good — you keep what you banked and there is no retry.</p>`;
   }
   showCard({
-    cls:'boss',
-    tag,
-    title: m.n,
-    venue:'',
-    body: m.d,
-    chips,
-    extra:`<p class="small dim">Same rule as before, but it costs you this time — if they ever figure out what you're doing, you lose up to the full XP reward on the spot (never a whole level).</p>`,
+    cls:'boss', tag, title, venue:'', body, chips,
+    raw: questProgressHTML(),
+    extra,
     buttons
   });
 }
-function completeSecret2(){
-  if(!S.secret2 || S.secret2Done || S.secret2Blown) return;
-  S.secret2Done = true;
-  const gained = grantXP(S.secret2.xp, 'secret2', { tile:false });
-  addLog(`🔥 HIGH RISK MISSION COMPLETE — ${S.secret2.n} — +${gained} XP`);
-  toast('PULLED IT OFF. THAT WAS THE RISKY ONE.');
+function questClear(){
+  const q = qst(); if(!qLive()) return;
+  const i = q.cleared, m = qStageMission(i), xp = QUEST_XP[i];
+  q.cleared = i + 1;
+  q.banked  = (q.banked||0) + xp;
+  const gained = grantXP(xp, 'secret quest', { tile:false });
+  addLog(`🤫 SECRET QUEST stage ${i+1}/${qStageCount()} — ${m.n} — +${gained} XP`);
+  closeCard();
+  if(qComplete()){ questFinish(); }
+  else {
+    toast(`STAGE ${i+1} CLEARED. NOBODY SUSPECTS A THING.`);
+    checkAchievements(); save(); syncHUD(); renderBag();
+    // the next stage, straight away — it only exists now. Tracked so a fast follow-up tap can't
+    // let this fire over the top of the completion card.
+    clearTimeout(window._questNextT);
+    window._questNextT = setTimeout(() => { if(qLive()) openQuest(); }, 700);
+  }
+}
+function questBust(){
+  const q = qst(); if(!qLive()) return;
+  clearTimeout(window._questNextT);
+  q.blown = true;
+  addLog(`🤫 SECRET QUEST BLOWN at stage ${q.cleared+1} — kept ${q.banked} XP`);
+  toast('BUSTED. THE LINE IS DEAD.');
   checkAchievements(); save(); syncHUD(); renderBag();
   closeCard();
+  setTimeout(openQuest, 400);
 }
-function failSecret2(){
-  if(!S.secret2 || S.secret2Done || S.secret2Blown) return;
-  S.secret2Blown = true;
-  const lost = loseXP(S.secret2.xp, 'secret2 blown');
-  addLog(`🔥 HIGH RISK MISSION BLOWN — ${S.secret2.n} — -${lost} XP`);
-  toast('BUSTED. THAT ONE COST YOU.');
-  save(); syncHUD(); renderBag();
-  closeCard();
+// all five cleared: the bonus, the coin, and the one building nobody can buy
+function questFinish(){
+  const q = qst(); if(!q || q.rewarded) return;
+  q.rewarded = true;
+  const bonus = grantXP(QUEST_BONUS_XP, 'secret quest complete', { tile:false });
+  q.banked += QUEST_BONUS_XP;
+  S.coins = (S.coins||0) + QUEST_BONUS_COINS;
+  const b = questBuilding();
+  if(b && !townOwned(b.id)){
+    S.breweryUpgrades.push({ id:b.id, n:b.n, icon:b.icon, rate:b.rate, visual:b.visual, rarity:'quest' });
+    breweryTierCache = null;
+  }
+  addLog(`🤫 SECRET QUEST COMPLETE — all ${qStageCount()} stages — +${bonus} XP · +${QUEST_BONUS_COINS}🪙 · ${b ? b.n : ''}`);
+  checkAchievements(); save(); syncHUD(); renderBag();
+  epicToast('🤫 ALL FIVE STAGES — NOBODY EVER KNEW');
+  showCard({
+    cls:'rarity-quest',
+    tag:'✨✨✨ SECRET QUEST COMPLETE ✨✨✨',
+    title: b ? `${b.icon} ${b.n}` : '👑 MASTER MANIPULATOR',
+    body: (b ? b.d + '\n\n' : '') + 'It stands in your town from now on. Nobody can buy one — there is only one way to get it, and you are the one who did it.',
+    chips: [`+${QUEST_BONUS_XP} XP`, `+${QUEST_BONUS_COINS}🪙`, ...(b ? [`🍺 +${b.rate}/MIN`] : [])],
+    raw: `<div style="text-align:center;margin:8px 0"><span class="rarityBadge" style="background:#e8a0ff22;color:#e8a0ff;border:1px solid #e8a0ff">QUEST · UNBUYABLE</span></div>` + questProgressHTML(),
+    buttons:`<button class="btn gold" onclick="closeCard()">👑 NOBODY KNEW</button>`
+  });
 }
 // XP penalties eat into your progress bar but never take a level away — returns what was actually lost
 function loseXP(amount, why){
@@ -16369,14 +16488,11 @@ function renderBag(){
   if(coinsEl) coinsEl.textContent = S.coins;
   const bagSkipsEl = document.getElementById('bagSkips');
   if(bagSkipsEl) bagSkipsEl.textContent = S.skips;
-  const secretLabel = document.getElementById('secretBtnLabel');
-  if(secretLabel) secretLabel.textContent = S.secretBlown ? 'MY MISSION — BLOWN ✗' : (S.secretDone ? 'MY MISSION — COMPLETE ✓' : 'VIEW MY MISSION');
-  const secret2Btn = document.getElementById('secret2Btn');
-  const secret2Label = document.getElementById('secret2BtnLabel');
-  if(secret2Btn){
-    secret2Btn.classList.toggle('hide', !S.secret2Available);
-    if(secret2Label) secret2Label.textContent = S.secret2Blown ? 'HIGH RISK — BLOWN ✗' : (S.secret2Done ? 'HIGH RISK — COMPLETE ✓' : 'HIGH RISK MISSION');
-  }
+  const questLabel = document.getElementById('questBtnLabel');
+  if(questLabel) questLabel.textContent = qBlown() ? `BLOWN AT STAGE ${qCleared()+1} ✗`
+    : (qComplete() ? 'ALL FIVE STAGES ✓' : `VIEW STAGE ${qCleared()+1} OF ${qStageCount()}`);
+  const questTrack = document.getElementById('questTrack');
+  if(questTrack) questTrack.innerHTML = questProgressHTML();
   // Brewery upgrades — show each with rate contribution and description
   const upgEl = document.getElementById('bagUpgradeList');
   if(upgEl){
@@ -16482,10 +16598,10 @@ function openRules(){
       Sometimes the reels just hate you — most of the time that's an order to drink water, but occasionally a Ceres you didn't ask for, drinking alone, or sitting a round out. Keep failing challenges and bad luck starts showing up a lot more often, so maybe stop losing.<br><br>
       <b class="purple">🎲 PARTY GAMES</b><br>
       Some SOCIAL outcomes are full group games — Never Have I Ever, Ride the Bus, the Number Game, Which Is More Popular, and a few more. Everyone plays, whoever loses the game takes the tile's outcome.<br><br>
-      <b class="purple">🤫 SECRET MISSION</b><br>
-      Everyone gets one privately assigned mission only they can see, tucked in the <b>BAG</b> tab — and if you typed in the squad on the start screen, every seat gets a different one. Each mission is about getting the WHOLE squad to do something, without them realizing you're behind it. Pull it off for bonus XP. But if they ever catch on, tap "THEY FIGURED IT OUT" — the mission is blown for good, no retries.<br><br>
-      <b class="red">🔥 HIGH RISK MISSION</b><br>
-      Complete your first secret mission and a second, harder one unlocks — bigger XP, but if you get caught this time you lose up to the XP you would have gained (it can't knock you down a level). You choose once whether to accept the risk; no changing your mind after.<br><br>
+      <b class="purple">🤫 SECRET QUEST</b><br>
+      A five-stage quest line only you can see, tucked in the <b>BAG</b> tab — and if you typed in the squad on the start screen, every seat gets a different line. Each stage is about getting the squad to do something without them realizing you're behind it, and each one is harder than the last: stage 1 is one person doing one small thing, stage 5 is the whole table, twice, with your name never coming up.<br><br>
+      You only ever see the stage you're on. Clear it and the next one opens — and the XP banks as you go, so where you get to is what you keep. If they ever catch on, tap "THEY FIGURED IT OUT": the whole line dies on the spot, there is no stage after that one, and there are no retries for the rest of the night. You keep everything you banked.<br><br>
+      Clear all five and you get a completion bonus, a pile of coin, and one building for your town that <b>coin cannot buy at any price</b> — the only way into it is to pull off all five.<br><br>
       <b class="orange">🪙 LOOT & SHOP</b><br>
       Winning tiles earns Skål Coins and a silly souvenir (coasters, bottle caps, poker chips...) — check the <b>BAG</b> tab to see your stash. A shop pops up every lap and after boss fights — spend coins on <b>relics</b> (personal buffs that also permanently boost your brewery's beer output, like the Snorting Hat that saves your first fail each lap) or one-time <b>items</b>. Collect one of every souvenir type for a secret completionist bonus.<br><br>
       <b class="cyan">THE BREWERY</b><br>

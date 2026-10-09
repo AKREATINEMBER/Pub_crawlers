@@ -71,3 +71,10 @@ air, and the Grand Transmutation turns in the sky above wherever the camera is l
   on the Spire's grounds. Before this, a Tank's upgrades rendered nothing at all — the generic
   brewery drew the visual tags, but `drawBrewery` returns early into `drawVikingSettlement` for
   him, so every chest he opened was invisible.
+
+## v2 — the quest building
+
+One building per set is no longer for sale: the Secret Quest's reward (`quest:true`) is filtered
+out of both the shop (`townAvailable`) and the level-up chest (`pickUpgradeForRarity`). It is the
+only route into a town that doesn't go through the shop. Tags: `whisperhouse` (Viking settlement),
+`whisperframe` (the Spire), `backroom` (tavern yard). See `design/secret-quest.md`.
