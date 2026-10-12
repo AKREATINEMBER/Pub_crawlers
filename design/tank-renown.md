@@ -81,3 +81,23 @@ a pixel diff of all five characters against the previous version.
   storm. The horned/crowned/runed/storm tiers share the existing war-helm art; the crown band is
   now gated so THE JARL has horns without the crown.
 - New save field `tkTierSeen` (simple scalar, covered by the generic `migrate` validation).
+
+## v2 — rescaled for the fifteen cap
+
+The Tank now caps at level 15, not 20 (see [tank-levels.md](tank-levels.md)). Renown is
+`level + 2 per achievement` and 19 achievements are open to him, so the ceiling moved **58 → 53**
+and the rungs were rescaled by 53/58:
+
+| tier | was | now |
+|---|---|---|
+| THE FARMHAND | 0 | 0 |
+| THE RAIDER | 6 | 5 |
+| THE HUSCARL | 13 | 12 |
+| THE JARL | 20 | 18 |
+| THE BREW-KING | 28 | 26 |
+| THE GOD-TOUCHED | 38 | 35 |
+| THOR'S EQUAL | 48 | 44 |
+
+THOR'S EQUAL at 44 still wants near-total completion — level 15 plus about fifteen achievements —
+which is the intent: the top skin belongs to the run that finished everything. Verified in the
+browser: a level-15 Tank holding every achievement open to him reads renown 53 and THOR'S EQUAL.
