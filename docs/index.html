@@ -2392,10 +2392,14 @@ html.spot-lock{overflow:hidden;overscroll-behavior:none} /* only the viewport: c
    rounded wood-and-brass panels, serif titles; the pixel-mono body text stays.
    Each class keeps its own accent through var(--gold).
    ════════════════════════════════════════════════════════════════════════ */
-html body.cozy.cozy{
+html body.cozy.cozy[data-char]:not([data-char=""]){
   --cz-ink:#f8eacb; --cz-dim:#cfae80; --cz-wood:#2c1b10; --cz-wood2:#3d2817; --cz-edge:#7a5530; --cz-edge2:#a8783e;
   --cz-honey:#f2b65a; --cz-ember:#e2692c; --cz-shadow:rgba(8,4,2,.55);
   --ink:var(--cz-ink); --dim:var(--cz-dim);
+}
+/* the walnut-and-candlelight backdrop is for the run itself: the title and character screens keep their tavern
+   brick wall (go() clears data-char on 'boot' and 'char', so these only match once a class is in play) */
+html body.cozy.cozy[data-char]:not([data-char=""]){
   background-color:#1c1109;
   background-image:
     radial-gradient(900px 520px at 50% -8%, rgba(255,170,80,.20) 0%, transparent 62%),
@@ -2406,92 +2410,92 @@ html body.cozy.cozy{
   background-size:auto,auto,auto,auto,auto;
   background-repeat:no-repeat,no-repeat,repeat,repeat,no-repeat;
 }
-html body.cozy.cozy::after{                     /* a candle vignette round the edges of the screen */
+html body.cozy.cozy[data-char]:not([data-char=""])::after{   /* a candle vignette round the edges of the screen */
   content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
   background:radial-gradient(ellipse at 50% 45%, transparent 55%, rgba(10,4,0,.45) 100%);
 }
 /* titles in a warm storybook serif */
-html body.cozy.cozy h1, html body.cozy.cozy h2, html body.cozy.cozy .cardTitle, html body.cozy.cozy .logo, html body.cozy.cozy .cw-sect{
+html body.cozy.cozy[data-char]:not([data-char=""]) h1, html body.cozy.cozy[data-char]:not([data-char=""]) h2, html body.cozy.cozy[data-char]:not([data-char=""]) .cardTitle, html body.cozy.cozy[data-char]:not([data-char=""]) .logo, html body.cozy.cozy[data-char]:not([data-char=""]) .cw-sect{
   font-family:Georgia,'Palatino Linotype','Book Antiqua',Palatino,serif; -webkit-font-smoothing:antialiased; font-weight:700;
 }
-html body.cozy.cozy h2{ font-size:14px; letter-spacing:2px; color:var(--cz-honey); text-shadow:0 2px 0 rgba(0,0,0,.5), 0 0 14px rgba(255,170,70,.25); }
-html body.cozy.cozy .cardTitle{ font-size:19px; letter-spacing:1.5px; color:var(--cz-honey); text-shadow:0 2px 0 rgba(0,0,0,.55), 0 0 18px rgba(255,170,70,.3); }
+html body.cozy.cozy[data-char]:not([data-char=""]) h2{ font-size:14px; letter-spacing:2px; color:var(--cz-honey); text-shadow:0 2px 0 rgba(0,0,0,.5), 0 0 14px rgba(255,170,70,.25); }
+html body.cozy.cozy[data-char]:not([data-char=""]) .cardTitle{ font-size:19px; letter-spacing:1.5px; color:var(--cz-honey); text-shadow:0 2px 0 rgba(0,0,0,.55), 0 0 18px rgba(255,170,70,.3); }
 /* panels: wood with a brass edge and a warm inner glow */
-html body.cozy.cozy .panel, html body.cozy.cozy .panel.tight{
+html body.cozy.cozy[data-char]:not([data-char=""]) .panel, html body.cozy.cozy[data-char]:not([data-char=""]) .panel.tight{
   background:linear-gradient(180deg,#402a18 0%, #2e1d10 70%, #28180d 100%);
   border:2px solid var(--cz-edge); border-radius:12px;
   box-shadow:0 0 0 2px rgba(14,7,3,.85), 0 8px 18px var(--cz-shadow), inset 0 1px 0 rgba(255,220,160,.16), inset 0 0 26px rgba(255,160,70,.08);
 }
 /* buttons: rounded, chunky, lit from above */
-html body.cozy.cozy .btn{
+html body.cozy.cozy[data-char]:not([data-char=""]) .btn{
   border-radius:12px; border:2px solid rgba(20,10,4,.9);
   background:linear-gradient(180deg,#8c5e33 0%,#5e3a1c 100%); color:var(--cz-ink);
   box-shadow:0 4px 0 #1a0d05, 0 7px 14px rgba(0,0,0,.35), inset 0 2px 0 rgba(255,232,190,.28), inset 0 -3px 0 rgba(0,0,0,.18);
   text-shadow:0 1px 0 rgba(0,0,0,.45);
 }
-html body.cozy.cozy .btn:active{ transform:translateY(3px); box-shadow:0 1px 0 #1a0d05, 0 3px 6px rgba(0,0,0,.3), inset 0 2px 0 rgba(255,232,190,.2); }
-html body.cozy.cozy .btn.primary{ background:linear-gradient(180deg,#f2924a 0%,#c4551e 55%,#9c3a12 100%); }
-html body.cozy.cozy .btn.gold{ background:linear-gradient(180deg,#ffe0a0 0%,#f2b65a 45%,#c98424 100%); color:#3a1e04; text-shadow:0 1px 0 rgba(255,240,200,.5); }
-html body.cozy.cozy .btn.green{ background:linear-gradient(180deg,#a8b866 0%,#6a7c34 100%); }
-html body.cozy.cozy .btn.red{ background:linear-gradient(180deg,#e0604a 0%,#9a2a1c 100%); }
-html body.cozy.cozy .btn.purple{ background:linear-gradient(180deg,#a87ab0 0%,#5e3c64 100%); }
-html body.cozy.cozy .btn.cyan{ background:linear-gradient(180deg,#6cc8b4 0%,#2a7a68 100%); }
-html body.cozy.cozy .btn.ghost{ background:linear-gradient(180deg,#3e2818 0%,#2a1a0e 100%); color:var(--cz-dim); border-color:rgba(122,85,48,.7); }
-html body.cozy.cozy .btn.big{ border-radius:14px; box-shadow:0 5px 0 #1a0d05, 0 10px 22px rgba(0,0,0,.4), 0 0 24px rgba(255,150,60,.18), inset 0 2px 0 rgba(255,232,190,.32), inset 0 -3px 0 rgba(0,0,0,.2); }
+html body.cozy.cozy[data-char]:not([data-char=""]) .btn:active{ transform:translateY(3px); box-shadow:0 1px 0 #1a0d05, 0 3px 6px rgba(0,0,0,.3), inset 0 2px 0 rgba(255,232,190,.2); }
+html body.cozy.cozy[data-char]:not([data-char=""]) .btn.primary{ background:linear-gradient(180deg,#f2924a 0%,#c4551e 55%,#9c3a12 100%); }
+html body.cozy.cozy[data-char]:not([data-char=""]) .btn.gold{ background:linear-gradient(180deg,#ffe0a0 0%,#f2b65a 45%,#c98424 100%); color:#3a1e04; text-shadow:0 1px 0 rgba(255,240,200,.5); }
+html body.cozy.cozy[data-char]:not([data-char=""]) .btn.green{ background:linear-gradient(180deg,#a8b866 0%,#6a7c34 100%); }
+html body.cozy.cozy[data-char]:not([data-char=""]) .btn.red{ background:linear-gradient(180deg,#e0604a 0%,#9a2a1c 100%); }
+html body.cozy.cozy[data-char]:not([data-char=""]) .btn.purple{ background:linear-gradient(180deg,#a87ab0 0%,#5e3c64 100%); }
+html body.cozy.cozy[data-char]:not([data-char=""]) .btn.cyan{ background:linear-gradient(180deg,#6cc8b4 0%,#2a7a68 100%); }
+html body.cozy.cozy[data-char]:not([data-char=""]) .btn.ghost{ background:linear-gradient(180deg,#3e2818 0%,#2a1a0e 100%); color:var(--cz-dim); border-color:rgba(122,85,48,.7); }
+html body.cozy.cozy[data-char]:not([data-char=""]) .btn.big{ border-radius:14px; box-shadow:0 5px 0 #1a0d05, 0 10px 22px rgba(0,0,0,.4), 0 0 24px rgba(255,150,60,.18), inset 0 2px 0 rgba(255,232,190,.32), inset 0 -3px 0 rgba(0,0,0,.2); }
 /* bars: rounded, sunk into the wood, filled with honey */
-html body.cozy.cozy .bar{ height:14px; border-radius:999px; background:#1a0e06; border:2px solid rgba(14,7,3,.9); box-shadow:inset 0 2px 4px rgba(0,0,0,.6), 0 0 0 1px var(--cz-edge); }
-html body.cozy.cozy .bar i{ border-radius:999px; box-shadow:inset 0 2px 0 rgba(255,255,255,.28); }
-html body.cozy.cozy .bar span{ line-height:14px; font-size:8px; }
+html body.cozy.cozy[data-char]:not([data-char=""]) .bar{ height:14px; border-radius:999px; background:#1a0e06; border:2px solid rgba(14,7,3,.9); box-shadow:inset 0 2px 4px rgba(0,0,0,.6), 0 0 0 1px var(--cz-edge); }
+html body.cozy.cozy[data-char]:not([data-char=""]) .bar i{ border-radius:999px; box-shadow:inset 0 2px 0 rgba(255,255,255,.28); }
+html body.cozy.cozy[data-char]:not([data-char=""]) .bar span{ line-height:14px; font-size:8px; }
 /* chips and small tags: little brass-edged pills */
-html body.cozy.cozy .chip{ border-radius:999px; background:linear-gradient(180deg,#3a2616,#24160b); border:1.5px solid var(--cz-edge2); padding:5px 10px; box-shadow:inset 0 1px 0 rgba(255,220,160,.15); }
+html body.cozy.cozy[data-char]:not([data-char=""]) .chip{ border-radius:999px; background:linear-gradient(180deg,#3a2616,#24160b); border:1.5px solid var(--cz-edge2); padding:5px 10px; box-shadow:inset 0 1px 0 rgba(255,220,160,.15); }
 /* the modal card: a lantern-lit board */
-html body.cozy.cozy .overlay{ background:radial-gradient(ellipse at 50% 40%, rgba(40,20,8,.78), rgba(6,3,1,.94)); }
-html body.cozy.cozy .card{
+html body.cozy.cozy[data-char]:not([data-char=""]) .overlay{ background:radial-gradient(ellipse at 50% 40%, rgba(40,20,8,.78), rgba(6,3,1,.94)); }
+html body.cozy.cozy[data-char]:not([data-char=""]) .card{
   border-radius:16px; border-width:2px;
   background:linear-gradient(180deg,#46301b 0%, #2e1d10 60%, #24160b 100%);
   box-shadow:0 0 0 3px rgba(14,7,3,.9), 0 18px 40px rgba(0,0,0,.6), 0 0 50px rgba(255,160,60,.22), inset 0 1px 0 rgba(255,220,160,.18), inset 0 0 40px rgba(255,170,80,.08);
 }
-html body.cozy.cozy .cardTag{ letter-spacing:2px; color:var(--cz-dim); }
+html body.cozy.cozy[data-char]:not([data-char=""]) .cardTag{ letter-spacing:2px; color:var(--cz-dim); }
 /* the bottom bar: a plank shelf of rounded tabs, the open one glows like a lantern */
-html body.cozy.cozy #nav{
+html body.cozy.cozy[data-char]:not([data-char=""]) #nav{
   background:linear-gradient(180deg,#3a2414 0%,#24150b 100%);
   border-top:2px solid var(--cz-edge); box-shadow:0 -8px 20px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,220,160,.14);
   border-radius:16px 16px 0 0; padding:7px 7px calc(7px + env(safe-area-inset-bottom)); gap:6px;
 }
-html body.cozy.cozy #nav button{
+html body.cozy.cozy[data-char]:not([data-char=""]) #nav button{
   border-radius:11px; background:linear-gradient(180deg,#4a301c,#33200f); color:var(--cz-dim);
   border:1.5px solid rgba(14,7,3,.9); box-shadow:0 3px 0 #140a04, inset 0 1px 0 rgba(255,220,160,.12);
 }
-html body.cozy.cozy #nav button.on{ background:linear-gradient(180deg,#ffd58a 0%,#f2a246 55%,#cf7424 100%); color:#3a1c04; text-shadow:0 1px 0 rgba(255,236,190,.5); box-shadow:0 3px 0 #140a04, 0 0 16px rgba(255,170,70,.45), inset 0 1px 0 rgba(255,250,220,.6); }
-html body.cozy.cozy #nav button.nav-alert{ background:linear-gradient(180deg,#ffe6a8,#e8b04a); color:#3a1c04; }
+html body.cozy.cozy[data-char]:not([data-char=""]) #nav button.on{ background:linear-gradient(180deg,#ffd58a 0%,#f2a246 55%,#cf7424 100%); color:#3a1c04; text-shadow:0 1px 0 rgba(255,236,190,.5); box-shadow:0 3px 0 #140a04, 0 0 16px rgba(255,170,70,.45), inset 0 1px 0 rgba(255,250,220,.6); }
+html body.cozy.cozy[data-char]:not([data-char=""]) #nav button.nav-alert{ background:linear-gradient(180deg,#ffe6a8,#e8b04a); color:#3a1c04; }
 /* toasts: a warm note */
-html body.cozy.cozy .toast{ border-radius:12px; border:2px solid var(--cz-honey); background:linear-gradient(180deg,#3e2716,#26170c); color:var(--cz-ink); box-shadow:0 10px 24px rgba(0,0,0,.5), 0 0 22px rgba(255,170,70,.3); }
+html body.cozy.cozy[data-char]:not([data-char=""]) .toast{ border-radius:12px; border:2px solid var(--cz-honey); background:linear-gradient(180deg,#3e2716,#26170c); color:var(--cz-ink); box-shadow:0 10px 24px rgba(0,0,0,.5), 0 0 22px rgba(255,170,70,.3); }
 /* section labels inside class widgets */
-html body.cozy.cozy .cw-sect{ font-size:9px; letter-spacing:2.5px; border-left:none; padding-left:0; color:var(--cz-honey); }
-html body.cozy.cozy .cw-sect::before{ content:'✦ '; opacity:.7; }
+html body.cozy.cozy[data-char]:not([data-char=""]) .cw-sect{ font-size:9px; letter-spacing:2.5px; border-left:none; padding-left:0; color:var(--cz-honey); }
+html body.cozy.cozy[data-char]:not([data-char=""]) .cw-sect::before{ content:'✦ '; opacity:.7; }
 /* the brewery window: a framed picture with rounded corners */
-html body.cozy.cozy #arenaWrap, html body.cozy.cozy .arenaWrap{ border-radius:14px; overflow:hidden; }
-html body.cozy.cozy #arena{ border-radius:12px 12px 0 0; }
+html body.cozy.cozy[data-char]:not([data-char=""]) #arenaWrap, html body.cozy.cozy[data-char]:not([data-char=""]) .arenaWrap{ border-radius:14px; overflow:hidden; }
+html body.cozy.cozy[data-char]:not([data-char=""]) #arena{ border-radius:12px 12px 0 0; }
 /* inputs */
-html body.cozy.cozy input, html body.cozy.cozy textarea, html body.cozy.cozy select{ border-radius:10px; }
+html body.cozy.cozy[data-char]:not([data-char=""]) input, html body.cozy.cozy[data-char]:not([data-char=""]) textarea, html body.cozy.cozy[data-char]:not([data-char=""]) select{ border-radius:10px; }
 
 /* cozy: the smaller boxes inside panels get the same soft wood-and-brass treatment */
-html body.cozy.cozy .shop-item{ border-radius:14px; background:linear-gradient(180deg,#43301c 0%,#2c1c10 100%); box-shadow:0 0 0 2px rgba(14,7,3,.85), 0 6px 14px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,220,160,.16); }
-html body.cozy.cozy .si-art{ border-radius:12px; }
-html body.cozy.cozy .si-chip, html body.cozy.cozy .cw-tag, html body.cozy.cozy .pill{ border-radius:999px; }
-html body.cozy.cozy .dd-opt{ border-radius:11px; background:linear-gradient(180deg,#36231380,#1e1209); border-color:rgba(122,85,48,.8); box-shadow:inset 0 1px 0 rgba(255,220,160,.1); }
-html body.cozy.cozy .dd-opt.on{ background:linear-gradient(180deg,#5a3c1c,#36220e); border-color:var(--cz-honey); box-shadow:0 0 14px rgba(255,170,70,.25), inset 0 1px 0 rgba(255,236,190,.25); }
-html body.cozy.cozy .reel{ border-radius:12px; background:radial-gradient(circle at 50% 35%, #2e1d10, #140b05); border-color:var(--cz-edge2); box-shadow:inset 0 3px 8px rgba(0,0,0,.6), 0 0 0 2px rgba(14,7,3,.8), 0 0 14px rgba(255,170,70,.15); }
-html body.cozy.cozy .cw{ border-radius:14px; border-width:2px; box-shadow:0 0 0 2px rgba(14,7,3,.85), 0 8px 18px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,220,160,.12); }
-html body.cozy.cozy #challengeInline, html body.cozy.cozy .ci-expanded{ border-radius:12px; }
-html body.cozy.cozy .hm-foe{ border-radius:9px; }
-html body.cozy.cozy .shop-section{ border-radius:14px; }
-html body.cozy.cozy .hm-part, html body.cozy.cozy .hm-stat, html body.cozy.cozy .hm-cellar, html body.cozy.cozy .hm-hard, html body.cozy.cozy .hm-boonline, html body.cozy.cozy .hm-trophy, html body.cozy.cozy .hm-show{ border-radius:10px; }
+html body.cozy.cozy[data-char]:not([data-char=""]) .shop-item{ border-radius:14px; background:linear-gradient(180deg,#43301c 0%,#2c1c10 100%); box-shadow:0 0 0 2px rgba(14,7,3,.85), 0 6px 14px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,220,160,.16); }
+html body.cozy.cozy[data-char]:not([data-char=""]) .si-art{ border-radius:12px; }
+html body.cozy.cozy[data-char]:not([data-char=""]) .si-chip, html body.cozy.cozy[data-char]:not([data-char=""]) .cw-tag, html body.cozy.cozy[data-char]:not([data-char=""]) .pill{ border-radius:999px; }
+html body.cozy.cozy[data-char]:not([data-char=""]) .dd-opt{ border-radius:11px; background:linear-gradient(180deg,#36231380,#1e1209); border-color:rgba(122,85,48,.8); box-shadow:inset 0 1px 0 rgba(255,220,160,.1); }
+html body.cozy.cozy[data-char]:not([data-char=""]) .dd-opt.on{ background:linear-gradient(180deg,#5a3c1c,#36220e); border-color:var(--cz-honey); box-shadow:0 0 14px rgba(255,170,70,.25), inset 0 1px 0 rgba(255,236,190,.25); }
+html body.cozy.cozy[data-char]:not([data-char=""]) .reel{ border-radius:12px; background:radial-gradient(circle at 50% 35%, #2e1d10, #140b05); border-color:var(--cz-edge2); box-shadow:inset 0 3px 8px rgba(0,0,0,.6), 0 0 0 2px rgba(14,7,3,.8), 0 0 14px rgba(255,170,70,.15); }
+html body.cozy.cozy[data-char]:not([data-char=""]) .cw{ border-radius:14px; border-width:2px; box-shadow:0 0 0 2px rgba(14,7,3,.85), 0 8px 18px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,220,160,.12); }
+html body.cozy.cozy[data-char]:not([data-char=""]) #challengeInline, html body.cozy.cozy[data-char]:not([data-char=""]) .ci-expanded{ border-radius:12px; }
+html body.cozy.cozy[data-char]:not([data-char=""]) .hm-foe{ border-radius:9px; }
+html body.cozy.cozy[data-char]:not([data-char=""]) .shop-section{ border-radius:14px; }
+html body.cozy.cozy[data-char]:not([data-char=""]) .hm-part, html body.cozy.cozy[data-char]:not([data-char=""]) .hm-stat, html body.cozy.cozy[data-char]:not([data-char=""]) .hm-cellar, html body.cozy.cozy[data-char]:not([data-char=""]) .hm-hard, html body.cozy.cozy[data-char]:not([data-char=""]) .hm-boonline, html body.cozy.cozy[data-char]:not([data-char=""]) .hm-trophy, html body.cozy.cozy[data-char]:not([data-char=""]) .hm-show{ border-radius:10px; }
 
 /* ── THE DARING STONES (Oct 2026): four carved runestones, each its own rock ── */
-html body.cozy.cozy #dareDial{ border-radius:14px; }
-html body.cozy.cozy .dd-grid{ gap:9px; }
-html body.cozy.cozy .dd-opt.dd-stone{
+html body.cozy.cozy[data-char]:not([data-char=""]) #dareDial{ border-radius:14px; }
+html body.cozy.cozy[data-char]:not([data-char=""]) .dd-grid{ gap:9px; }
+html body.cozy.cozy[data-char]:not([data-char=""]) .dd-opt.dd-stone{
   position:relative; min-height:76px; padding:8px 6px 7px; gap:3px; align-items:center;
   border-radius:44% 44% 10px 10px / 26% 26% 10px 10px;                 /* a standing stone: domed top, square foot */
   border:2px solid rgba(10,8,8,.85);
@@ -2500,44 +2504,44 @@ html body.cozy.cozy .dd-opt.dd-stone{
   box-shadow:0 4px 0 rgba(10,6,4,.9), 0 7px 12px rgba(0,0,0,.45), inset 0 2px 0 rgba(255,255,255,.18), inset 0 -6px 10px rgba(0,0,0,.28);
   transition:transform .12s ease, box-shadow .12s ease, filter .12s ease;
 }
-html body.cozy.cozy .dd-opt.dd-stone b{ font-size:10px; letter-spacing:1px; }
-html body.cozy.cozy .dd-opt.dd-stone span{ font-size:8px; color:rgba(30,26,22,.85); text-shadow:0 1px 0 rgba(255,255,255,.22); }
-html body.cozy.cozy .dd-carve{ width:22px; height:22px; fill:rgba(20,16,14,.78); filter:drop-shadow(0 1px 0 rgba(255,255,255,.3)); }
+html body.cozy.cozy[data-char]:not([data-char=""]) .dd-opt.dd-stone b{ font-size:10px; letter-spacing:1px; }
+html body.cozy.cozy[data-char]:not([data-char=""]) .dd-opt.dd-stone span{ font-size:8px; color:rgba(30,26,22,.85); text-shadow:0 1px 0 rgba(255,255,255,.22); }
+html body.cozy.cozy[data-char]:not([data-char=""]) .dd-carve{ width:22px; height:22px; fill:rgba(20,16,14,.78); filter:drop-shadow(0 1px 0 rgba(255,255,255,.3)); }
 /* 1 — SEATED: soft mossy granite */
-html body.cozy.cozy .dd-opt.dd-stone.dd-s1{ background:
+html body.cozy.cozy[data-char]:not([data-char=""]) .dd-opt.dd-stone.dd-s1{ background:
   radial-gradient(circle at 22% 78%, rgba(96,140,60,.55) 0 7px, transparent 8px), radial-gradient(circle at 80% 20%, rgba(96,140,60,.4) 0 5px, transparent 6px),
   repeating-radial-gradient(circle at 30% 40%, rgba(255,255,255,.05) 0 1px, transparent 1px 4px),
   linear-gradient(180deg,#a8aca0 0%,#7e8478 100%); }
 /* 2 — AT THE BAR: warm sandstone, layered */
-html body.cozy.cozy .dd-opt.dd-stone.dd-s2{ background:
+html body.cozy.cozy[data-char]:not([data-char=""]) .dd-opt.dd-stone.dd-s2{ background:
   repeating-linear-gradient(180deg, rgba(120,70,30,.14) 0 3px, transparent 3px 9px),
   repeating-radial-gradient(circle at 60% 30%, rgba(255,240,210,.06) 0 1px, transparent 1px 4px),
   linear-gradient(180deg,#d8b484 0%,#a87c4c 100%); }
 /* 3 — ON YOUR FEET: cold blue slate, split along its grain */
-html body.cozy.cozy .dd-opt.dd-stone.dd-s3{ background:
+html body.cozy.cozy[data-char]:not([data-char=""]) .dd-opt.dd-stone.dd-s3{ background:
   linear-gradient(115deg, transparent 46%, rgba(0,0,0,.18) 47%, transparent 49%), linear-gradient(70deg, transparent 70%, rgba(255,255,255,.08) 71%, transparent 73%),
   repeating-linear-gradient(160deg, rgba(255,255,255,.05) 0 1px, transparent 1px 5px),
   linear-gradient(180deg,#8a98a8 0%,#5a6676 100%); }
 /* 4 — OUT THE DOOR: black basalt with embers in the cracks */
-html body.cozy.cozy .dd-opt.dd-stone.dd-s4{ color:#d8c8b8; text-shadow:0 1px 0 rgba(0,0,0,.8), 0 0 6px rgba(255,120,40,.35);
+html body.cozy.cozy[data-char]:not([data-char=""]) .dd-opt.dd-stone.dd-s4{ color:#d8c8b8; text-shadow:0 1px 0 rgba(0,0,0,.8), 0 0 6px rgba(255,120,40,.35);
   background:
   linear-gradient(125deg, transparent 30%, rgba(255,110,30,.55) 31%, transparent 32.5%), linear-gradient(60deg, transparent 62%, rgba(255,150,50,.45) 63%, transparent 64.2%),
   repeating-radial-gradient(circle at 40% 60%, rgba(255,255,255,.04) 0 1px, transparent 1px 4px),
   linear-gradient(180deg,#4a4246 0%,#262024 100%); }
-html body.cozy.cozy .dd-opt.dd-stone.dd-s4 span{ color:rgba(230,200,170,.85); text-shadow:0 1px 0 rgba(0,0,0,.8); }
-html body.cozy.cozy .dd-opt.dd-stone.dd-s4 .dd-carve{ fill:rgba(255,150,60,.85); filter:drop-shadow(0 0 3px rgba(255,120,40,.6)); }
+html body.cozy.cozy[data-char]:not([data-char=""]) .dd-opt.dd-stone.dd-s4 span{ color:rgba(230,200,170,.85); text-shadow:0 1px 0 rgba(0,0,0,.8); }
+html body.cozy.cozy[data-char]:not([data-char=""]) .dd-opt.dd-stone.dd-s4 .dd-carve{ fill:rgba(255,150,60,.85); filter:drop-shadow(0 0 3px rgba(255,120,40,.6)); }
 /* the chosen stone wakes: it stands up a little, its carving fills with firelight, a warm halo behind it */
-html body.cozy.cozy .dd-opt.dd-stone.on{ transform:translateY(-3px); border-color:#ffcf7a; color:#3a1a02;
+html body.cozy.cozy[data-char]:not([data-char=""]) .dd-opt.dd-stone.on{ transform:translateY(-3px); border-color:#ffcf7a; color:#3a1a02;
   box-shadow:0 7px 0 rgba(10,6,4,.9), 0 10px 20px rgba(0,0,0,.5), 0 0 0 2px rgba(255,190,90,.55), 0 0 22px rgba(255,170,70,.55), inset 0 2px 0 rgba(255,255,255,.25), inset 0 -6px 10px rgba(0,0,0,.25); }
-html body.cozy.cozy .dd-opt.dd-stone.on span{ color:#ffe2a8; text-shadow:0 1px 0 rgba(0,0,0,.7); }
-html body.cozy.cozy .dd-opt.dd-stone.on b{ color:#ffd68a; text-shadow:0 1px 0 rgba(0,0,0,.65), 0 0 8px rgba(255,170,60,.9); }
-html body.cozy.cozy .dd-opt.dd-stone.on .dd-carve{ fill:#ffc35a; filter:drop-shadow(0 0 4px rgba(255,160,50,.95)); animation:ddGlow 2.4s ease-in-out infinite; }
+html body.cozy.cozy[data-char]:not([data-char=""]) .dd-opt.dd-stone.on span{ color:#ffe2a8; text-shadow:0 1px 0 rgba(0,0,0,.7); }
+html body.cozy.cozy[data-char]:not([data-char=""]) .dd-opt.dd-stone.on b{ color:#ffd68a; text-shadow:0 1px 0 rgba(0,0,0,.65), 0 0 8px rgba(255,170,60,.9); }
+html body.cozy.cozy[data-char]:not([data-char=""]) .dd-opt.dd-stone.on .dd-carve{ fill:#ffc35a; filter:drop-shadow(0 0 4px rgba(255,160,50,.95)); animation:ddGlow 2.4s ease-in-out infinite; }
 @keyframes ddGlow{ 0%,100%{ filter:drop-shadow(0 0 3px rgba(255,160,50,.8)); } 50%{ filter:drop-shadow(0 0 7px rgba(255,190,90,1)); } }
-html body.cozy.cozy .dd-opt.dd-stone:active{ transform:translateY(1px); }
+html body.cozy.cozy[data-char]:not([data-char=""]) .dd-opt.dd-stone:active{ transform:translateY(1px); }
 /* while a challenge is running the other stones sleep */
-html body.cozy.cozy #dareDial.locked .dd-opt.dd-stone:not(.on){ opacity:.45; filter:grayscale(.6) brightness(.8); }
-html body.cozy.cozy .dd-lock{ color:var(--cz-dim); }
-@media (prefers-reduced-motion: reduce){ html body.cozy.cozy .dd-opt.dd-stone.on .dd-carve{ animation:none; } }
+html body.cozy.cozy[data-char]:not([data-char=""]) #dareDial.locked .dd-opt.dd-stone:not(.on){ opacity:.45; filter:grayscale(.6) brightness(.8); }
+html body.cozy.cozy[data-char]:not([data-char=""]) .dd-lock{ color:var(--cz-dim); }
+@media (prefers-reduced-motion: reduce){ html body.cozy.cozy[data-char]:not([data-char=""]) .dd-opt.dd-stone.on .dd-carve{ animation:none; } }
 </style>
 </head>
 <body class="cozy">
