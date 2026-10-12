@@ -159,3 +159,6 @@ green, click-through and three screenshots at 390×844 with no page errors.
   - ON YOUR FEET: split blue slate, a boot
   - OUT THE DOOR: black basalt with ember-lit cracks and a glowing door
   - Letters are cut into the stone. The chosen stone stands up a little, its carving and name fill with firelight, and it gets a warm halo. While a challenge runs the other stones go grey and dim.
+
+## v3 — wooden signs instead of stones (12 Oct 2026)
+David didn't like the runestones next to the cosy skin. The notches are now wooden tavern signs in the same wood-and-brass style: two brass nails each, and a darker wood per notch (birch, oak, walnut, charred bog-oak with an ember glow), with the same burned-in pictures. The chosen sign is lit honey-gold like the open bottom-bar tab. The header now reads "PICK ONE · CHANGE IT AFTER ANY CHALLENGE". The change-after-any-challenge rule from v2 is unchanged.
