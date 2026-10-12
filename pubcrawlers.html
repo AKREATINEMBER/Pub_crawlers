@@ -1395,6 +1395,33 @@ body[data-char="jester"] .shop-exclusive-label{color:#e8c34a;border-left-color:#
 .hm-foe.unseen{opacity:.55}
 .hm-foe.dim{opacity:.4}
 .hm-foeinfo{font-size:9px;line-height:1.5;color:#f2e2bd;margin:0 2px 6px;text-align:center}
+.hm-fi-name{font-size:10px;letter-spacing:.6px}
+.hm-fi-chips{display:flex;gap:6px;justify-content:center;margin-top:4px}
+.hm-fi-chip{position:relative;min-height:36px;padding:4px 18px 4px 10px;max-width:62%;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;overflow:hidden;font-size:10px;letter-spacing:.6px;color:#e0c8a8;background:rgba(0,0,0,.35);border:1px solid var(--cw-border);border-radius:999px}
+.hm-fi-chip span{overflow:hidden;text-overflow:ellipsis}
+.hm-fi-chip::after,.lh-chip::after{content:'?';position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:8px;opacity:.5}
+.hm-fi-chip.pin{color:#a8c890}
+.hm-fi-chip.pin.bad{color:#ff6a5a;border-color:rgba(255,106,90,.6)}
+.hm-fi-chip.boon{color:#ffd24a;border-style:dashed;border-color:rgba(255,210,74,.45)}
+.hm-fi-chip.boon.got{border-style:solid;border-color:rgba(88,192,64,.55);background:rgba(88,192,64,.1)}
+.hm-fi-chip.boon.surtr{border-color:rgba(255,106,26,.7);box-shadow:0 0 10px rgba(255,90,20,.25)}
+.lh-titlerow{display:flex;justify-content:space-between;align-items:center;gap:6px}
+.lh-chips{display:flex;gap:5px;margin-top:6px}
+.lh-chip{position:relative;flex:1;min-width:0;min-height:44px;padding:5px 12px 5px 6px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:2px;background:rgba(0,0,0,.35);border:1px solid var(--cw-border);border-radius:9px;color:var(--cw-sub);text-align:left;overflow:hidden}
+.lh-chip-rank{flex:1.35}
+.lh-chip .v{font-size:10px;letter-spacing:.5px;color:#f4e6d0;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.lh-chip .v b{color:inherit}
+.lh-chip .l{font-size:8.5px;letter-spacing:1px;opacity:.8;white-space:nowrap}
+.lh-chip:active{transform:translateY(1px);filter:brightness(1.2)}
+.lh-chipbar{position:absolute;left:0;right:0;bottom:0;height:3px;background:#07050a}
+.lh-chipbar i{display:block;height:100%;transition:width .5s cubic-bezier(.2,.9,.3,1)}
+.lh-chip-rage.full{border-color:#d4841a;box-shadow:0 0 10px rgba(212,132,26,.45)}
+.lh-chip-rage.full .v{color:#ffb050}
+.card .hm-hard,.card .hm-boonline{font-size:10px;line-height:1.5;padding:6px 8px}
+.lh-tiers{margin:8px 0 4px;font-size:10px;letter-spacing:.6px;text-align:left}
+.lh-tier{display:flex;justify-content:space-between;padding:4px 6px;opacity:.55}
+.lh-tier.done{opacity:.8}
+.lh-tier.on{opacity:1;color:#ffd24a;background:rgba(255,210,74,.08);border-radius:6px}
 .hm-foeinfo .k{font-size:7px;letter-spacing:1px;color:#c08a6a}
 .hm-foeinfo .t{font-size:7.5px;color:#d4a070}
 .hm-gear{display:flex;align-items:center;justify-content:space-between;gap:6px;margin:8px 2px 0;padding:5px 6px;border:1px dashed rgba(255,160,70,.3);font-size:7.5px;color:#d4b0a0}
@@ -2657,18 +2684,14 @@ html body.cozy.cozy[data-char]:not([data-char=""]) .dd-lock{ color:var(--cz-dim)
         <div class="cw-head">
           <canvas class="cw-portrait" data-char="tank" width="60" height="70"></canvas>
           <div class="cw-headtxt">
-            <div class="cw-title">🛡 THE LONGHOUSE</div>
-            <div class="cw-rankrow">
-              <span class="cw-rank" id="chugRankLbl" data-gate="tank_duel">💀 HEADS · <b>0 / 3</b></span>
-              <span class="cw-tag" id="chugModeLbl">THE STUMP AWAITS</span>
+            <div class="cw-title lh-titlerow"><span>🛡 THE LONGHOUSE</span><span class="cw-tag lh-stump hide" id="chugModeLbl">🔨 XP ON THE STUMP</span></div>
+            <!-- tappable stat chips: each opens its explainer card (lhInfo) -->
+            <div class="lh-chips">
+              <button type="button" class="lh-chip" data-gate="tank_duel" onclick="lhInfo('heads')"><span class="v" id="chugRankLbl">💀 0/3</span><span class="l">HEADS</span></button>
+              <button type="button" class="lh-chip lh-chip-rage" data-gate="tank_rage" onclick="lhInfo('rage')"><span class="v">🔥 <b id="chugRagePct">0%</b></span><span class="l">RAGE</span><span class="lh-chipbar lh-rage"><i id="chugRageFill" style="width:0%"></i></span></button>
             </div>
-            <div class="cw-meter-lbl" data-gate="tank_rage"><span>🔥 BERSERKER RAGE</span><span id="chugRagePct">0%</span></div>
-            <div class="cw-meter lh-rage" data-gate="tank_rage"><i id="chugRageFill" style="width:0%"></i></div>
-            <div class="cw-substat" id="tkRenownLbl">⚔ <b>THE FARMHAND</b></div>
-            <div class="cw-substat" id="chugRankStats" data-gate="tank_rage">⚡ 0 flawless · 🔥 0 rage activations</div>
           </div>
         </div>
-        <div id="chugBloodied" data-gate="tank_rage" class="lh-wounds" style="display:none">🩸 WAR WOUNDS — -30% XP<small>WIN A FLAWLESS WAGER TO RECOVER</small></div>
         <div class="cw-sect" style="margin-top:6px">🔨 HAMMERSCHLAGEN</div>
         <!-- ── HAMMERSCHLAGEN — the gauntlet: Old Ragnar → Surtr (driven by hm* functions) ── -->
         <div id="lhHammerPane">
@@ -2693,8 +2716,6 @@ html body.cozy.cozy[data-char]:not([data-char=""]) .dd-lock{ color:var(--cz-dim)
         <div class="cw-sect" data-gate="tank_duel">💀 HOLMGANG · THE HEADHUNT</div>
         <div id="duelBox" class="lh-duel" data-gate="tank_duel"></div>
         <div data-lockrow="1" class="gate-off"></div>
-        <div class="cw-sect">🔨 WAGER TRIES</div>
-        <div id="chugUpgrades" class="lh-modes"></div>
       </div>
     </div>
 
@@ -3462,9 +3483,9 @@ const RELICS = [
   { id:'loadeddice', n:"THE JUMANJI DICE", icon:'🎲', char:'gambler', d:"Roll them and a stampede of rhinos heads straight for the bar. An extra +25% XP on gambling tiles AND unlocks Dice game in The Den — rigged in your favour, allegedly. Also +0.3 beer/min.", price:60, brewBonus:0.3 },
   { id:'tarotdeck',  n:"GAMBIT'S STICKY DECK",            icon:'🃏', char:'gambler', d:"Charged with kinetic energy and, frankly, spilled lager. Unlocks Cards in The Den — pure 50/50, 2 spins per challenge. Also +0.4 beer/min.", price:75, brewBonus:0.4 },
   { id:'horseshoe',  n:"BOJACK'S HORSESHOE",        icon:'🧲', char:'gambler', d:"Prised off a washed-up sitcom horse who never once said no to another round. Unlocks the Horseshoe game in The Den — 60/40 odds in your favour, 1 golden spin per challenge. Also +0.5 beer/min.", price:100, brewBonus:0.5 },
-  { id:'ironthroat',  n:"THE IRON THROAT OF THE SEVEN KEGS",           icon:'🫗', char:'tank', d:"Forged from a thousand surrendered bottle caps, because winter is coming and so is the next round. 2 tries on every Hammerschlagen XP wager: lose the match and the XP stays on the stump for a rematch. Also +0.3 beer/min.", price:55, brewBonus:0.3 },
-  { id:'vikinghorn',  n:"THE HORN OF GONDRINK", icon:'📯', char:'tank', d:"Sound it and every squadmate in earshot must ride to the aid of the bar. 3 tries on every Hammerschlagen XP wager. Also +0.4 beer/min.", price:75, brewBonus:0.4 },
-  { id:'meadaltar',   n:"THE HOLY ALE",           icon:'⚗️', char:'tank', d:"Found by four knights and a coconut — it's only a model, but it pours like the real thing. 4 tries on every Hammerschlagen XP wager, and every flawless wager win pays +1× more. Also +0.5 beer/min.", price:140, brewBonus:0.5 },
+  { id:'ironthroat', retired:true, n:"THE IRON THROAT OF THE SEVEN KEGS",           icon:'🫗', char:'tank', d:"Forged from a thousand surrendered bottle caps, because winter is coming and so is the next round. 2 tries on every Hammerschlagen XP wager: lose the match and the XP stays on the stump for a rematch. Also +0.3 beer/min.", price:55, brewBonus:0.3 },
+  { id:'vikinghorn', retired:true,  n:"THE HORN OF GONDRINK", icon:'📯', char:'tank', d:"Sound it and every squadmate in earshot must ride to the aid of the bar. 3 tries on every Hammerschlagen XP wager. Also +0.4 beer/min.", price:75, brewBonus:0.4 },
+  { id:'meadaltar', retired:true,   n:"THE HOLY ALE",           icon:'⚗️', char:'tank', d:"Found by four knights and a coconut — it's only a model, but it pours like the real thing. 4 tries on every Hammerschlagen XP wager, and every flawless wager win pays +1× more. Also +0.5 beer/min.", price:140, brewBonus:0.5 },
   { id:'skullcup', artifact:'legend', n:"THE SKULL CUP OF SKÅL", icon:'💀', char:'tank', d:"Every head of the squad on your wall, and the old way of saying cheers comes back to you: you drink from the cup of the fallen. +1 try on every Hammerschlagen XP wager and +0.5 beer/min. Not for sale. Earned at the bar.", price:0, brewBonus:0.5 },
   { id:'jokerscap', n:"THE WHY-SO-SOBER CAP", icon:'🔔', char:'jester', d:'Somewhere a man in purple asks the eternal question: why so sober? +25% XP on party games and the Wheel, and every source of 🔔 Mirth fills 50% faster. Also +0.3 beer/min — permanently.', price:60, brewBonus:0.3 },
   { id:'markedcards', n:'RAIN MAN\'S DECK', icon:'🎴', char:'jester', d:'Definitely, definitely counted — the pinpricks only make sense to your thumb. One card in every draw is dealt FACE-UP. Also +0.3 beer/min — permanently.', price:70, brewBonus:0.3 },
@@ -3609,7 +3630,7 @@ function freshState(){
     jkStats:{ draws:0, kings:0, curses:0, grand:0, peeks:0, shuffles:0 },
     jkDeck:null, jkFreeBurns:0, jkExtraNext:0, jkHermitNext:0, jkLastCard:null,
     gbLedger:0, gbTier:0, gbPending:[], gbHouseUsed:false, gbWonTotal:0,
-    saga:0, sagaStones:[], duels:{ w:0, l:0, d:0 }, trophies:[], duelNames:[], duelLap:null, tankDuelBoost:false, hgTokens:0,
+    saga:0, sagaStones:[], duels:{ w:0, l:0, d:0 }, trophies:[], duelNames:[], duelLap:null, tankDuelBoost:false, hgTokens:0, hgPlayers:0,
     wzSurge:0, wzPolyCount:0, wzLastForm:null, wzStardust:false, dwSeenRoles:[],
     lastBeerLogTs:0, pourStreak:0, steadyHand:false, wzElixir:false, squad:null, shopAlert:false, wzIngredients:[], wzRuneLv:[0,0,0,0,0], wzRuneV2:true, wzPolyArmed:false,
     bar:1, barRule:null, bestMoment:null, crowned:null, closedAt:0,
@@ -3726,6 +3747,8 @@ function migrate(p){
   p.hmInlays = p.hmInlays.filter((x,i,a) => HM_INLAY_BY_ID[x] && a.indexOf(x) === i);
   p.hmSocket = p.hmSocket.filter((x,i,a) => p.hmInlays.indexOf(x) >= 0 && a.indexOf(x) === i).slice(0, 1 + p.hmForge.setting);
   if(!HM_FINISHES.some(f => f.id === p.hmFinish)) p.hmFinish = 'iron';
+  p.bloodied = false; p.tankDuelBoost = false;   // War Wounds and Holmgang spoils are retired
+  if(!(p.hgPlayers >= 0 && p.hgPlayers <= 8)) p.hgPlayers = 0; p.hgPlayers = p.hgPlayers|0;
   // Happy Hex Hour (Brew-zard) — the first cast was Norse; map their ids and ingredients onto the new school
   { const OM = { nettle:'cork', moon:'tea', dust:'ash' };
     Object.keys(OM).forEach(k => { if(p.dwMats[k]){ p.dwMats[OM[k]] = (p.dwMats[OM[k]]||0) + p.dwMats[k]; delete p.dwMats[k]; } });
@@ -5709,10 +5732,7 @@ function tkCheckTierUp(){
   const now = tkTierIdx();
   if(now <= (S.tkTierSeen|0)) return;
   S.tkTierSeen = now;
-  const t = TK_TIERS[now];
-  addLog('⚔ THE SAGA GROWS — you are now ' + t.n);
-  floatText('⚔ ' + t.n, '#d4841a');
-  setTimeout(()=>epicToast('⚔ ' + t.n + ' — THE VILLAGE SEES YOU DIFFERENTLY'), 450);
+  // silent: the outfit on the portrait and in the village changes, nothing announces it
 }
 function vkSay(ctx, x, y, text){
   ctx.save(); ctx.font = 'bold 5px monospace'; ctx.textAlign = 'center';
@@ -8519,7 +8539,7 @@ function computeEpicTitle(){
   if(!S || !S.charId) return '';
   const ch = CHARS.find(c=>c.id===S.charId);
   const parts = [];
-  if(S.charId === 'tank') parts.push((ch ? ch.name : '') + ' — ' + tankTierName() + ((S.relics||[]).includes('skullcup') ? ' · HEADHUNTER' : ''));
+  if(S.charId === 'tank') parts.push((ch ? ch.name : '') + ((S.relics||[]).includes('skullcup') ? ' · HEADHUNTER' : ''));
   else parts.push(CHAR_TITLE_BASE[S.charId] || (ch ? ch.name : ''));
   const avenged = S.bossesAvenged||0;
   if(avenged>=2) parts.push(`SLAYER OF ${avenged} BOSSES`);
@@ -8545,7 +8565,7 @@ const UNLOCKS = [
   { id:'wz_carve',  cls:'wizard', lv:1, icon:'🔮', n:'THE RUNE CIRCLE', d:'Every kind of challenge you win teaches a RECIPE, and each recipe climbs its own runes. Carve the runes you like with coins + duel ingredients: they make your potions stronger and your brews safer, and power you in Happy Hex Hour.', where:'BAG' },
   { id:'kn_toast',  cls:'machine', lv:3, icon:'🏆', n:"THE KNIGHT'S TOAST", d:'Pour three PERFECT pints in a row and the third one pays ×5.', where:'the tap' },
   { id:'secret',    lv:4, icon:'🤫', n:'YOUR SECRET QUEST', d:'Five secret stages, each harder than the last. Clear them without the squad noticing — and never get caught.', t:'Five sealed envelopes with your name on them, and you only ever get to open the next one. Pull them all off without the squad noticing.', where:'BAG' },
-  { id:'tank_rage', cls:'tank', lv:5, icon:'🔥', n:'BERSERKER RAGE', d:'Flawless wager wins fill Rage, and a full bar makes your next wager win pay ×2.25. Three lost wagers in a row give War Wounds.', where:'your Longhouse' },
+  { id:'tank_rage', cls:'tank', lv:5, icon:'🔥', n:'BERSERKER RAGE', d:'Flawless wager wins fill Rage, and a full bar makes your next wager win pay ×2.25.', where:'your Longhouse' },
   { id:'gb_ledger', cls:'gambler', lv:5, icon:'📜', n:"THE HIGH ROLLER'S LEDGER", d:'Coins you win at the tables fill the ledger. Fill a page to claim a gambling artifact.', where:'the Den' },
   { id:'jk_act',    cls:'jester', lv:5, icon:'🤹', n:'THE STREET ACT', d:'Between tiles, stake coins and juggle cards from your own deck. Bow out before a curse drops the lot.', where:'your Jester panel' },
   { id:'wz_shift',  cls:'wizard', lv:5, icon:'🌀', n:'THE SHIFTING RUNE', d:'Chaos fills the Surge. Once it is full (and you know 3 ingredients), invoke it and your next win plays out as another class.', where:'the Cauldron' },
@@ -8860,7 +8880,7 @@ function syncHUD(){
   const titleEl = document.getElementById('hudTitle');
   if(titleEl){
     const title = computeEpicTitle();
-    const wounded = S.charId==='tank' && S.bloodied;
+    const wounded = false;   // War Wounds retired
     titleEl.textContent = wounded ? '🩸 WAR WOUNDS · '+title : title;
     titleEl.style.color = wounded ? '#c03028' : '';
   }
@@ -9575,12 +9595,7 @@ function chugPickTarget(){
   return min + Math.floor(Math.random() * (max - min + 1));
 }
 
-function chugGetMode(){
-  if(S.relics && S.relics.includes('meadaltar'))  return CHUG_MODES.legend;
-  if(S.relics && S.relics.includes('vikinghorn')) return CHUG_MODES.horn;
-  if(S.relics && S.relics.includes('ironthroat')) return CHUG_MODES.iron;
-  return CHUG_MODES.basic;
-}
+function chugGetMode(){ return CHUG_MODES.basic; }   // the goblet ladder (Iron Throat / Gondrink / Holy Ale) is retired: every wager is one shot
 function chugGetMaxAttempts(){ return chugGetMode().attempts + ((S.relics||[]).includes('skullcup') ? 1 : 0); }
 function chugResetAttempts(){ S.chugAttemptsLeft = chugGetMaxAttempts(); save(); }   // the loss streak (War Wounds) carries across wagers
 
@@ -9871,7 +9886,7 @@ function hmFoeBeaten(f){ return !!S.dev || hmWinsOf(f) > 0; }
 function hmBeaten(){ return HM_FOES.filter(f => hmWinsOf(f) > 0).length; }   // how many different foes you've beaten
 function hmFoeOpen(f){ return !!S.dev || (S.level||1) >= f.lv; }                // foes unlock with XP, nothing else
 function hmChampion(){ let c = HM_FOES[0]; HM_FOES.forEach(f => { if(hmFoeOpen(f)) c = f; }); return c; }
-function hmFinishDef(){ return HM_FINISHES.find(f => f.id === S.hmFinish && hmFinishOK(f)) || HM_FINISHES[0]; }
+function hmFinishDef(){ return HM_FINISHES.filter(hmFinishOK).pop() || HM_FINISHES[0]; }   // automatic: the newest finish you've earned
 function hmFinishOK(f){ return !f.need || hmFoeBeaten(HM_FOE_BY_ID[f.need]); }
 function hmHammerName(){ return (S.hmName || '').trim() || 'YOUR HAMMER'; }
 // the foe you'll face: whoever you picked (an XP wager pays that foe's multiplier)
@@ -10141,10 +10156,7 @@ function hmApplyWin(mult, flawless, foe, loot, rageReady){
   const { t, xpAmount, isRevenge } = pw;
   const boosts = [];
   if(mult > 0){
-    if(flawless && chugGetMode().tripleXP){ mult += 1; boosts.push('⚗️ HOLY ALE +1×'); }
     if(rageReady && unlocked('tank_rage')){ mult *= TANK_RAGE_MULT; boosts.push('🔥 RAGE ×'+TANK_RAGE_MULT); S.rage = 0; S.rageActivations = (S.rageActivations||0) + 1; floatText('🔥 BERSERKER RAGE!', '#d4841a'); }
-    if(S.bloodied){ mult *= 0.7; boosts.push('🩸 WOUNDS −30%'); }
-    if(S.tankDuelBoost){ mult *= 2; S.tankDuelBoost = false; boosts.push('⚔ HOLMGANG SPOILS ×2'); addLog('⚔ Holmgang spoils — this challenge paid double'); }
     mult = Math.round(mult*100)/100;
   } else if(hmBoon('fenrir')){ mult = 0.5; boosts.push("🐺 THE WOLF'S THROAT"); }
   const finalXP = Math.round(xpAmount * mult);
@@ -10253,10 +10265,13 @@ function hmRefresh(){
     if(lad._html !== html){ lad.innerHTML = html; lad._html = html; const on = lad.querySelector('.hm-foe.on'); if(on && on.scrollIntoView) on.scrollIntoView({ block:'nearest', inline:'center' }); }
   }
   const fi = document.getElementById('hmFoeInfo');
-  if(fi){ const b = HM_BOONS[foe.id], got = hmFoeBeaten(foe);
-    fi.innerHTML = `<b>${foe.n}</b> <span class="k">${foe.kind}</span><br><span class="t">${foe.td}</span>
-      <div class="hm-hard${hmTooHard(foe) ? ' bad' : ''}">📌 PIN: <b>${HM_HARD_N[foe.hard||0]}</b> ${'◆'.repeat(foe.hard||0)}${'◇'.repeat(3-(foe.hard||0))} · YOUR POWER ${hmPower()}${hmTooHard(foe) ? ` — ⚠ YOUR HITS WILL BOUNCE. FORGE THE ${HM_PARTS.head.lv[foe.hard].n}` : ' ✓'}</div>
-      <div class="hm-boonline${got ? ' got' : ''}${foe.id === 'surtr' ? ' surtr' : ''}">${got ? '✓ BOON' : '🏆 BEAT THEM ONCE'}: <b>${b.icon} ${b.n}</b> — ${escapeHtml(b.d)}</div>`; }
+  if(fi){ const b = HM_BOONS[foe.id], got = hmFoeBeaten(foe), hard = hmTooHard(foe);
+    const html = `<div class="hm-fi-name"><b>${foe.n}</b> <span class="k">${foe.kind}</span></div>
+      <div class="hm-fi-chips">
+        <button type="button" class="hm-fi-chip pin${hard ? ' bad' : ''}" onclick="hmFoeDetail()">📌 ${HM_HARD_N[foe.hard||0]} ${hard ? '⚠' : '✓'}</button>
+        <button type="button" class="hm-fi-chip boon${got ? ' got' : ''}${foe.id === 'surtr' ? ' surtr' : ''}" onclick="hmFoeDetail()">${got ? '✓' : '🏆'} ${b.icon} <span>${b.n}</span></button>
+      </div>`;
+    if(fi._html !== html){ fi.innerHTML = html; fi._html = html; } }
   const gear = document.getElementById('hmGear'); if(gear) gear.innerHTML = hmGearLine();
   const btn = document.getElementById('hmBtn');
   if(btn){
@@ -10278,8 +10293,6 @@ function hmRefresh(){
   if(wt){ const tags = [];
     if(xpMode) tags.push(`🔨 TRIES LEFT · <b>${S.chugAttemptsLeft ?? 1}</b>`);
     if(S.charId === 'tank' && unlocked('tank_rage')) tags.push((S.rage||0) >= 100 ? '<b>🔥 RAGE FULL · NEXT WIN ×'+TANK_RAGE_MULT+'</b>' : '🔥 FULL RAGE = <b>×'+TANK_RAGE_MULT+'</b> ON A WAGER WIN');
-    if(S.tankDuelBoost) tags.push('<b>⚔ HOLMGANG SPOILS ×2</b>');
-    if(S.bloodied) tags.push('🩸 WOUNDS −30%');
     const h = tags.map(x => `<span class="cw-tag">${x}</span>`).join('');
     if(wt.innerHTML !== h) wt.innerHTML = h; }
   const rw = document.getElementById('hmReward');
@@ -11211,11 +11224,35 @@ function hmForgeHTML(){
     ${hmForgeBuilt() ? '' : `<div class="hm-hard bad" style="margin:0 0 8px">⚒ THERE IS NO FORGE IN YOUR TOWN YET. Raise it in the SHOP under THE TOWN for 80🪙 — then the smith will take your ale. Keep winning in the meantime: every foe you beat unlocks his material for good.</div>`}
     <div class="cw-sect">MATERIALS · ♾ = UNLOCKED FOR GOOD</div><div class="hm-mats">${mats}</div>
     <div class="cw-sect">THE HAMMER</div>${parts}
-    <div class="cw-sect">GEMS · ${sock.length}/${sockets} SET · MORE SLOTS: FORGE THE GEM SETTING</div>${sockets < 4 ? `<p class="small dim" style="margin:0 0 6px">💍 Your ${HM_PARTS.setting.lv[hmLv('setting')].n} holds ${sockets} gem${sockets>1?'s':''}. Forge the ${HM_PARTS.setting.lv[hmLv('setting')+1].n} (above) to set ${sockets+1}.</p>` : ''}${inlays}
-    <div class="cw-sect">FINISH</div><div class="hm-fins">${fins}</div>
-    <div class="cw-sect">🏆 TROPHY HALL · ${HM_FOES.filter(hmFoeBeaten).length}/${HM_FOES.length} · FIRST WIN OVER EACH FOE GRANTS A BOON</div>${trophies}`;
+    <div class="cw-sect">GEMS · ${sock.length}/${sockets} SET · MORE SLOTS: FORGE THE GEM SETTING</div>${sockets < 4 ? `<p class="small dim" style="margin:0 0 6px">💍 Your ${HM_PARTS.setting.lv[hmLv('setting')].n} holds ${sockets} gem${sockets>1?'s':''}. Forge the ${HM_PARTS.setting.lv[hmLv('setting')+1].n} (above) to set ${sockets+1}.</p>` : ''}${inlays}`;
 }
 
+
+// ── Longhouse explainer cards: the header chips and foe chips stay terse, the rules live one tap away ──
+const _lhOk = `<button class="btn primary" onclick="closeCard()">GOT IT</button>`;
+function lhInfo(k){
+  if(!S) return;
+  if(k === 'heads'){
+    const heads = hgHeads(), left = hgLeft();
+    showCard({ tag:'💀 HOLMGANG · THE HEADHUNT', title: hgDone() ? 'HEADHUNTER' : 'HEADS ' + heads.length + ' / ' + hgNeed(),
+      body:'Every level-up earns one Holmgang. Call out a mate and you both chug blind to the same target time. Win and their head goes on your wall. One head per other player wins THE SKULL CUP OF SKÅL.',
+      chips:[heads.length ? '💀 ' + heads.map(escapeHtml).join(' · ') : '💀 NO HEADS YET', left && left.length ? '🎯 ' + left.map(escapeHtml).join(' · ') : ''].filter(Boolean),
+      buttons:(hgGoal() || hgDone() ? '' : `<button class="btn ghost sm" onclick="hgAskPlayers(false)">👥 ${S.hgPlayers ? S.hgPlayers + ' OTHER PLAYERS · CHANGE' : 'HOW MANY OF YOU?'}</button>`) + _lhOk });
+  } else if(k === 'rage'){
+    const r = S.rage||0;
+    showCard({ tag:'🔥 BERSERKER RAGE', title: r >= 100 ? 'RAGE FULL' : 'RAGE ' + r + '%',
+      body:'Win an XP wager on the stump to fill it: flawless +34, a normal win +8, a loss −20.\nFull Rage makes your next wager win pay ×' + TANK_RAGE_MULT + '.',
+      buttons:_lhOk });
+  }
+}
+function hmFoeDetail(){
+  const foe = (_hm && _hm.on) ? _hm.foe : hmFoe(); if(!foe) return;
+  const b = HM_BOONS[foe.id], got = hmFoeBeaten(foe), h = foe.hard||0, hard = hmTooHard(foe);
+  showCard({ tag:'🔨 ' + foe.kind, title: foe.n, body: foe.td,
+    raw:`<div class="hm-hard${hard ? ' bad' : ''}" style="margin:8px 0 0">📌 PIN: <b>${HM_HARD_N[h]}</b> ${'◆'.repeat(h)}${'◇'.repeat(3-h)} · YOUR POWER ${hmPower()}${hard ? ` — ⚠ YOUR HITS WILL BOUNCE. FORGE THE ${HM_PARTS.head.lv[h].n}` : ' ✓'}</div>
+      <div class="hm-boonline${got ? ' got' : ''}${foe.id === 'surtr' ? ' surtr' : ''}">${got ? '✓ BOON' : '🏆 BEAT THEM ONCE'}: <b>${b.icon} ${b.n}</b> — ${escapeHtml(b.d)}</div>`,
+    buttons:_lhOk });
+}
 
 function refreshChug(){
   if(S.charId !== 'tank') return;
@@ -11225,16 +11262,7 @@ function refreshChug(){
   if(el) el.classList.remove('hide');
   const mode = chugGetMode(), pw = S._tankPendingWin;
   const modeLbl = document.getElementById('chugModeLbl');
-  if(modeLbl) modeLbl.textContent = pw ? '🔨 XP ON THE STUMP' : 'THE STUMP AWAITS';
-  const rankStatEl = document.getElementById('chugRankStats');
-  if(rankStatEl) rankStatEl.textContent = '⚡ '+(S.perfectChugs||0)+' flawless wagers · 🔥 '+(S.rageActivations||0)+' rage activations';
-  const renownEl = document.getElementById('tkRenownLbl');
-  if(renownEl){
-    const nx = tkNextTier();
-    renownEl.innerHTML = '⚔ <b>' + tankTierName() + '</b>'
-      + (nx ? ' · <span class="dim">' + Math.max(0, nx.need - tankRenown()) + ' renown to ' + nx.n + '</span>'
-            : ' · <span class="dim">the saga is complete</span>');
-  }
+  if(modeLbl) modeLbl.classList.toggle('hide', !pw);
   const rageBar = document.getElementById('chugRageFill'), ragePct = document.getElementById('chugRagePct'), bloodiedBadge = document.getElementById('chugBloodied');
   const rage = S.rage || 0;
   if(rageBar){
@@ -11243,10 +11271,11 @@ function refreshChug(){
     rageBar.style.boxShadow = full ? '0 0 12px #d4841a, 0 0 4px #ff9a30' : '';
     rageBar.style.animation  = full ? 'rageFlare 0.6s ease-in-out infinite' : '';
   }
-  if(ragePct) ragePct.textContent = rage >= 100 ? '🔥 FULL' : rage + '%';
+  if(ragePct) ragePct.textContent = rage >= 100 ? 'FULL' : rage + '%';
+  const rageChip = document.querySelector('.lh-chip-rage'); if(rageChip) rageChip.classList.toggle('full', rage >= 100);
   if(bloodiedBadge) bloodiedBadge.style.display = S.bloodied ? 'block' : 'none';
   const rankLbl = document.getElementById('chugRankLbl');
-  if(rankLbl) rankLbl.innerHTML = hgDone() ? '💀 <b>HEADHUNTER</b> · ALL ' + hgNeed() + ' HEADS' : '💀 HEADS · <b>' + hgHeads().length + ' / ' + hgNeed() + '</b>';
+  if(rankLbl) rankLbl.textContent = hgDone() ? '💀 ALL ' + hgNeed() : '💀 ' + hgHeads().length + '/' + hgNeed();
   tankRenderDuel();
   // wager tries: the relic ladder, current one lit, locked ones name their relic
   const upEl = document.getElementById('chugUpgrades');
@@ -11271,7 +11300,6 @@ function tankWagerResult(won, flawless){
   } else {
     S.rage = Math.max(0, (S.rage||0) - 20);
     S.chugMisses = (S.chugMisses||0) + 1;
-    if(S.chugMisses >= 3 && !S.bloodied && unlocked('tank_rage')){ S.bloodied = true; floatText('🩸 WAR WOUNDS!', '#c03028'); toast('🩸 WAR WOUNDS — 3 lost wagers in a row! −30% XP until a flawless win'); }
   }
   if(won && (S.rage||0) >= 100 && unlocked('tank_rage')) floatText('🔥 RAGE FULL!', '#d4841a');
   if(!unlocked('tank_rage')){ S.rage = 0; S.bloodied = false; S.chugMisses = 0; }
@@ -11281,10 +11309,10 @@ function tankWagerResult(won, flawless){
    squadmate's head goes on the wall. Every head of the squad (or 3 heads with no squad set up) = THE SKULL CUP OF SKÅL. ── */
 const HG_SOLO_NEED = 3;
 function hgGoal(){ const o = sqOthers(); return o.length ? o.map(n => String(n).toUpperCase()) : null; }
-function hgNeed(){ const g = hgGoal(); return g ? g.length : HG_SOLO_NEED; }
+function hgNeed(){ const g = hgGoal(); return g ? g.length : ((S && S.hgPlayers) || HG_SOLO_NEED); }   // solo: one head per other player, asked before the first Holmgang
 function hgHeads(){ return (S && S.trophies) || []; }
 function hgLeft(){ const g = hgGoal(), h = hgHeads(); return g ? g.filter(n => h.indexOf(n) < 0) : null; }
-function hgDone(){ if(!S) return false; if((S.relics||[]).includes('skullcup')) return true; const g = hgGoal(); return g ? hgLeft().length === 0 : hgHeads().length >= HG_SOLO_NEED; }
+function hgDone(){ if(!S) return false; if((S.relics||[]).includes('skullcup')) return true; const g = hgGoal(); return g ? hgLeft().length === 0 : hgHeads().length >= hgNeed(); }
 function tankDuelReady(){ return !hgDone() && (S.dev || (S.hgTokens|0) > 0); }
 // a mounted head: a little pixel portrait made from the name (same name, same face), X-eyed once it's yours
 const _hgHeadC = {};
@@ -11313,7 +11341,7 @@ function hgHeadImg(name, got){
 }
 function hgWallHTML(){
   const g = hgGoal(), h = hgHeads();
-  const slots = g ? g.map(n => ({ n, got:h.indexOf(n) >= 0 })) : h.slice(0, HG_SOLO_NEED).map(n => ({ n, got:true })).concat(Array.from({ length:Math.max(0, HG_SOLO_NEED - h.length) }, () => ({ n:'???', got:false })));
+  const slots = g ? g.map(n => ({ n, got:h.indexOf(n) >= 0 })) : h.slice(0, hgNeed()).map(n => ({ n, got:true })).concat(Array.from({ length:Math.max(0, hgNeed() - h.length) }, () => ({ n:'???', got:false })));
   return `<div class="hg-wall">${slots.map(x => `<div class="hg-head${x.got ? ' got' : ''}"><img src="${hgHeadImg(x.n, x.got)}" alt=""><span>${escapeHtml(x.n)}</span></div>`).join('')}
     <div class="hg-head cup${hgDone() ? ' got' : ''}"><span class="i">💀</span><span>${hgDone() ? 'SKULL CUP' : 'THE PRIZE'}</span></div></div>`;
 }
@@ -11325,21 +11353,34 @@ function tankRenderDuel(){
     ${hgWallHTML()}
     <div class="cw-tagrow" style="justify-content:flex-start">
       ${done ? '' : `<span class="cw-tag">⚔ HOLMGANGS READY · <b>${tok}</b></span>`}
-      ${S.tankDuelBoost ? '<span class="cw-tag" style="border-color:#ffd24a;color:#ffd24a">⚔ NEXT CHALLENGE ×2</span>' : ''}
     </div>
     ${done ? `<div class="hg-done">💀 THE SKULL CUP OF SKÅL IS YOURS · +1 TRY ON EVERY XP WAGER · +0.5 🍺/MIN</div>`
       : `<button class="btn ${ready?'primary':'ghost'} sm" onclick="duelOpen()" ${ready ? '' : 'disabled'}>${ready ? '💀 CALL OUT A SQUADMATE' : '⏳ LEVEL UP FOR YOUR NEXT HOLMGANG'}</button>`}`;
   if(box.innerHTML !== html) box.innerHTML = html;
 }
-function g_txt(){ const g = hgGoal(); return g ? `all ${g.length} head${g.length > 1 ? 's' : ''} of your squad` : `${HG_SOLO_NEED} heads`; }
+function g_txt(){ const g = hgGoal(); return g ? `all ${g.length} head${g.length > 1 ? 's' : ''} of your squad` : `${hgNeed()} head${hgNeed() > 1 ? 's' : ''}`; }
 let _duel = null;
 function duelOpen(){
   if(!S || S.charId!=='tank' || !unlocked('tank_duel')) return;
   if(_hm && _hm.on){ toast('FINISH YOUR MATCH FIRST'); return; }
   if(hgDone()){ toast('💀 EVERY HEAD IS ALREADY ON YOUR WALL'); return; }
   if(!tankDuelReady()){ toast('⏳ LEVEL UP TO EARN YOUR NEXT HOLMGANG'); return; }
+  if(!hgGoal() && !(S.hgPlayers > 0)){ hgAskPlayers(true); return; }   // first Holmgang: how many heads are there to take?
   _duel = { opp:'', target: 4 + Math.floor(Math.random()*5), phase:'setup', tankT:null, oppT:null, t0:0 };
   duelRender();
+}
+// how many OTHER players are out tonight = how many heads hang on the full wall
+function hgAskPlayers(thenDuel){
+  const n = S.hgPlayers|0, btns = [1,2,3,4,5,6,7,8].map(k => `<button class="lh-namechip${k === n ? ' on' : ''}" style="min-width:48px;min-height:48px;font-size:16px;font-weight:900" onclick="hgSetPlayers(${k},${thenDuel ? 1 : 0})">${k}</button>`).join('');
+  showCard({ cls:'boss', tag:'💀 THE HEADHUNT', title:'HOW MANY OF YOU?',
+    raw:`<p class="small">Not counting you: how many others are out drinking tonight? That's how many heads it takes to fill your wall and win <b class="gold">the Skull Cup of Skål</b>.</p><div class="cw-tagrow" style="justify-content:center;gap:6px;flex-wrap:wrap">${btns}</div>`,
+    buttons:`<button class="btn ghost sm" onclick="closeCard()">◀ BACK</button>` });
+}
+function hgSetPlayers(n, thenDuel){
+  S.hgPlayers = Math.max(1, Math.min(8, n|0));
+  if(hgHeads().length >= S.hgPlayers && !(S.relics||[]).includes('skullcup')){ S.relics.push('skullcup'); save(); closeCard(); setTimeout(hgCupCard, 300); return; }
+  save(); closeCard(); refreshChug();
+  if(thenDuel) duelOpen();
 }
 function duelPickName(n){ const i = document.getElementById('duelName'); if(i) i.value = n; if(_duel){ _duel.opp = n; if(hgLeft()) duelRender(); } }
 function duelRender(){
@@ -11353,7 +11394,7 @@ function duelRender(){
         <div class="lh-duel-target">${d.target}<small>s</small></div>
         ${left ? `<input type="hidden" id="duelName" value="${escapeHtml(d.opp)}"><p class="small" style="text-align:center;margin:4px 0">${d.opp ? 'CALLING OUT <b class="gold">' + escapeHtml(d.opp) + '</b>' : 'Whose head do you want?'}</p>` : `<input type="text" id="duelName" maxlength="10" placeholder="THEIR NAME" autocomplete="off" value="${escapeHtml(d.opp)}">`}
         ${recent.length ? `<div class="cw-tagrow">${recent.map(n=>`<button class="lh-namechip" onclick="duelPickName('${escapeHtml(n).replace(/'/g,'&#39;')}')">${escapeHtml(n)}</button>`).join('')}</div>` : ''}
-        <div class="lh-duel-stakes"><span class="w">WIN · their head · next challenge ×2 · +20🪙</span><span class="l">LOSE · the forfeit, and this Holmgang is spent</span></div>`,
+        <div class="lh-duel-stakes"><span class="w">WIN · their head · +20🪙</span><span class="l">LOSE · the forfeit, and this Holmgang is spent</span></div>`,
       buttons:`<button class="btn primary" onclick="duelBegin()">⚔ BEGIN — ${escapeHtml(me)} CHUGS FIRST</button>
                <button class="btn ghost sm" onclick="duelCancel()">◀ BACK DOWN</button>`
     });
@@ -11376,7 +11417,7 @@ function duelRender(){
       tag:'⚔ HOLMGANG · TARGET '+d.target+'s',
       title: win ? 'VICTORY!' : draw ? 'DEAD HEAT' : 'DEFEAT',
       raw:`${row(me, d.tankT, tOff, win)}${row(d.opp, d.oppT, oOff, !win && !draw)}
-        <p class="small" style="text-align:center;margin-top:8px">${win ? 'Another head for the Trophy Wall. Your next challenge pays double.' : draw ? 'Too close to call. Both of you drink — nobody wins, everybody wins.' : escapeHtml(d.opp)+' out-chugged you. The forfeit is yours.'}</p>`,
+        <p class="small" style="text-align:center;margin-top:8px">${win ? 'Another head for the Trophy Wall. +20🪙 for the trouble.' : draw ? 'Too close to call. Both of you drink — nobody wins, everybody wins.' : escapeHtml(d.opp)+' out-chugged you. The forfeit is yours.'}</p>`,
       buttons:`<button class="btn ${win?'gold':draw?'ghost':'red'}" onclick="duelFinish()">${win ? '🏆 CLAIM THE SPOILS' : draw ? '🍻 BOTH DRINK' : '🍺 TAKE THE FORFEIT'}</button>`
     });
   }
@@ -11428,7 +11469,6 @@ function duelFinish(){
   S.duelNames = (S.duelNames||[]).filter(n => n!==d.opp).concat([d.opp]).slice(-8);
   if(d.result==='win'){
     S.duels.w++;
-    S.tankDuelBoost = true;
     grantCoins(20);
     const isNew = !(S.trophies||[]).includes(d.opp);
     if(isNew) S.trophies = (S.trophies||[]).concat([d.opp]);
@@ -11472,8 +11512,6 @@ function _chugFinishApplyWin(xpMult, isSafe, delayMs){
     } else if(isSafe && (S.rage||0) >= 100){
       toast('🔥 RAGE HELD — win a real wager to unleash it');
     }
-    if(S.bloodied){ xpMult *= 0.7; boosts.push('🩸 WOUNDS −30%'); }
-    if(S.tankDuelBoost){ xpMult *= 2; S.tankDuelBoost = false; boosts.push('⚔ DUEL SPOILS ×2'); floatText('⚔ DUEL SPOILS ×2', '#ffd24a'); addLog('⚔ Holmgang spoils — this challenge paid double'); }
     const finalXP = Math.round(xpAmount * xpMult);
     if(chugQuality >= 2){
       // Perfect or legendary — show a celebration card before granting XP
@@ -17203,7 +17241,7 @@ function renderShop(){
     </div>`;
   }
 
-  const myRelics  = RELICS.filter(r=> r.char===S.charId && !r.artifact);
+  const myRelics  = RELICS.filter(r=> r.char===S.charId && !r.artifact && !r.retired);
   const genRelics = RELICS.filter(r=>!r.char);
   const myItems   = CONSUMABLES.filter(c=> c.char===S.charId && itemGateOK(c));
   const genItems  = CONSUMABLES.filter(c=>!c.char && itemGateOK(c));
@@ -17447,15 +17485,15 @@ function renderGuide(){
     tank: `<div class="panel">
       <h2>🔨 YOUR MECHANIC — HAMMERSCHLAGEN</h2>
       <p class="small">Win a challenge and your XP goes on the <b>stump</b>. Race a Viking foe to hammer your pin flush into the log: tap when the needle hits <b class="gold">gold</b>. Win and the XP is multiplied (tougher foes pay more, a <b class="gold">flawless</b> win, every swing gold, pays most). Lose and it's gone — or take <b>SAFE XP</b> before you swing. Between challenges matches are free. Beat a foe <b>once</b> and his material is yours for good (no farming): you get <b>3 tries per challenge</b> at each foe you haven't beaten yet, and unlimited rematches against the ones you have. Forge your hammer in the Bag. New foes arrive as you level, each far tougher than the last; a bare hammer stops at the <b>Valkyrie</b>, so forge a better one to go past her. Beat a foe once for a <b class="gold">boon</b> that lasts all night (a flawless first win doubles the bounty). Beat <b class="gold">Surtr</b> and the night is yours.</p>
-      <p class="small"><b class="gold">🔥 Rage</b>: flawless wager wins fill it; full Rage pays <b class="gold">×2.25</b> on your next wager win. Three lost wagers in a row inflict <b class="red">War Wounds</b> (−30% XP) until a flawless win. <b class="gold">Wager tries</b>: 🫗 Iron Throat (2) · 📯 Horn of Gondrink (3) · ⚗️ Holy Ale (4, flawless +1×). Lose a match with tries left and you get a rematch, but SAFE is gone. <b class="gold">Neverending Stout</b> gives +1 try.</p>
+      <p class="small"><b class="gold">🔥 Rage</b>: flawless wager wins fill it; full Rage pays <b class="gold">×2.25</b> on your next wager win. Every wager is <b class="gold">one shot</b>: lose the match and the XP is gone, unless a <b class="gold">Neverending Stout</b> buys you +1 try.</p>
     </div>
     <div class="panel">
       <h2>💀 THE HEADHUNT (LEVEL 7)</h2>
-      <p class="small">From level 7, every level you gain earns one <b class="gold">Holmgang</b>. Win it and that squadmate's head goes on your Longhouse wall. Collect every head of your squad (3 heads if you play without a squad) and you drink from <b class="gold">💀 the Skull Cup of Skål</b>: +1 try on every XP wager and +0.5 beer/min.</p>
+      <p class="small">From level 7, every level you gain earns one <b class="gold">Holmgang</b>. Win it and that squadmate's head goes on your Longhouse wall. Collect one head for every other player (it asks how many of you are out tonight) and you drink from <b class="gold">💀 the Skull Cup of Skål</b>: +1 try on every XP wager and +0.5 beer/min.</p>
     </div>
     <div class="panel">
       <h2>⚔ HOLMGANG — HOW THE DUEL WORKS</h2>
-      <p class="small">Call out a squadmate whose head you don't have yet. You both chug to the <b class="gold">same target time</b> while a third person runs the timer; your time stays hidden until they've gone. Closest wins. <b class="gold">Win</b>: their head, +20🪙, and your next challenge pays ×2. <b class="red">Lose</b>: you take the forfeit and the Holmgang is spent. A dead heat gives it back.</p>
+      <p class="small">Call out a squadmate whose head you don't have yet. You both chug to the <b class="gold">same target time</b> while a third person runs the timer; your time stays hidden until they've gone. Closest wins. <b class="gold">Win</b>: their head and +20🪙. <b class="red">Lose</b>: you take the forfeit and the Holmgang is spent. A dead heat gives it back.</p>
     </div>`,
     gambler: `<div class="panel">
       <h2>🎲 YOUR MECHANIC — XP WAGER</h2>

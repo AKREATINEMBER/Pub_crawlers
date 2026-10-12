@@ -150,3 +150,13 @@ Beta feedback: the nail game was fun, but players sat farming materials instead 
 - **Flawless first win pays double the bounty** (it used to double the material drop).
 - UI: ladder chips show `n/3` (red at 0/3), the fight button shows `TRY n/3` or `NO TRIES LEFT · PLAY A CHALLENGE`, the reward line shows tries left, the Forge shows ♾ or 🔒 BEAT <FOE> per material, and the help text is rewritten.
 - Numbers: a full hammer used to need 98 material units (≈ 60–98 extra wins). Now it needs 0 extra wins, just the first kills you make anyway. The beer cost is unchanged (1,220🍺 for all parts + 650🍺 for all gems), so **beer is now the only gate**. No Tank simulator exists yet, so how far up the ladder a typical night gets is unmeasured. Watch it in the next beta.
+
+## Oct 12 2026 — Longhouse slim-down (what changed)
+Goal: the Longhouse panel was cluttered; strip the Tank back to Hammerschlagen + Forge + Rage + a simple headhunt.
+- **Header:** stat lines replaced by tappable chips (`lhInfo('heads'|'rage')`), each opening an explainer card. Foe info is name + two chips (`📌 pin`, `🏆 boon`) opening `hmFoeDetail()`.
+- **Renown is silent:** no rank chip, no tier-up toast/log, not in the share line. `tkCheckTierUp` still records the tier, so the outfit still changes.
+- **Hammer finish is automatic:** `hmFinishDef()` = newest finish earned. FINISH picker removed from the Forge.
+- **Removed:** Forge TROPHY HALL; flawless/rage counters on screen (still tracked for THE UNSHAKABLE).
+- **Goblet ladder retired:** Iron Throat / Gondrink / Holy Ale are `retired:true` (hidden from shop), `chugGetMode()` always ONE SHOT. Every XP wager = 1 try (+1 Skull Cup, +1 Neverending Stout). Holy Ale's +1× flawless is gone.
+- **War Wounds retired:** no −30%, no badge, no HUD title. `migrate` clears `bloodied`.
+- **Holmgang:** ×2 spoils removed (win = head + 20🪙). Before the first Holmgang it asks how many OTHER players are out (`hgAskPlayers` → `S.hgPlayers`, 1–8); that's the heads needed (`hgNeed()`). Changeable from the Heads card. Squad mode (frozen) still uses squad names.
