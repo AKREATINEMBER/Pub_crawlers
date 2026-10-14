@@ -386,3 +386,10 @@ Also: the out-of-rerolls button says "🍺 EMPTY YOUR BEER · NEW ROLL".
   4.5 → 7 s, his wave bubble 6.5 → 11 s. Toasts dismiss on tap.
 - **Readability layer** (end of the stylesheet, `READABILITY ON A PHONE`): every label that was 5.5–8px is
   now 7.5–9.5px, reading text 10–11px, checked for overflow on game/shop/bag at 390px.
+
+## v3.7 — tap him
+
+Tapping your Tank-ard in the town (`vkHeroTap`, a press that didn't move on `#arena`) makes him wave with a
+fresh line from the same shuffled pool, no camera move. His on-screen spot is recorded each frame from the
+canvas transform (`window._vkHeroScr`), so it works at every level and while he walks. Target ≥52px wide;
+a tap beside him does nothing; a second tap within 0.7 s is ignored, after that each tap gets a new line.

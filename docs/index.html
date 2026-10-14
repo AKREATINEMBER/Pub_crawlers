@@ -6709,6 +6709,19 @@ function vkGreetPick(){
   if(!_vkGreetBag.length){ _vkGreetBag = vkGreetLines(); for(let i=_vkGreetBag.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [_vkGreetBag[i], _vkGreetBag[j]] = [_vkGreetBag[j], _vkGreetBag[i]]; } }
   return _vkGreetBag.pop().replace('{N}', String(S.name || 'CRAWLER').slice(0, 12));
 }
+// TAP HIM and he waves with a fresh line (no camera move: he's already on screen). Tap again for another one.
+function vkHeroTap(canvas, clientX, clientY){
+  const h = window._vkHeroScr; if(!h || !S || S.charId !== 'tank' || performance.now() - h.t > 1000) return false;
+  const r = canvas.getBoundingClientRect(), sx = r.width / canvas.width;      // backing px → CSS px
+  const cx = r.left + h.x*sx, feet = r.top + h.y*sx, body = 30*h.s*sx;       // he's ~30 world px tall with a prop
+  const half = Math.max(26, 11*h.s*sx);                                     // a generous target: he's small and sometimes walking
+  if(Math.abs(clientX - cx) > half || clientY < feet - body - 8 || clientY > feet + 10) return false;
+  const now = performance.now();
+  if(window._vkGreet && now - (window._vkGreet.t0||0) < 700) return true;   // a double-tap doesn't skip a line
+  window._vkGreet = { line: vkGreetPick(), until: now + VK_GREET_MS, t0: now };
+  buzz(15);
+  return true;
+}
 function vkGreetTick(now){ // runs every town frame (Tank only); counts only time the town is actually on screen and quiet
   const dt = Math.min(250, now - (_vkGreetLast || now)); _vkGreetLast = now;
   if(window._vkGreet && now < window._vkGreet.until) return;
@@ -6722,7 +6735,7 @@ function vkGreetTick(now){ // runs every town frame (Tank only); counts only tim
   _vkGreetClock += dt;
   if(_vkGreetClock < _vkGreetNext) return;
   _vkGreetClock = 0; _vkGreetNext = 180000 + Math.random()*240000;      // then every 3–7 min of town time: rare
-  window._vkGreet = { line: vkGreetPick(), until: now + VK_GREET_MS };
+  window._vkGreet = { line: vkGreetPick(), until: now + VK_GREET_MS, t0: now };
   window._vkFocus = { x: window._vkHeroX, until: now + VK_GREET_MS };   // the camera glides over so you see him
 }
 function vkHeroProp(ctx, kind, hx, hy, now, o){
@@ -6750,6 +6763,7 @@ function vkHeroProp(ctx, kind, hx, hy, now, o){
 function vkHeroSprite(ctx, x, gy, L, now, o){
   o = o || {};
   window._vkHeroX = x;
+  { const m = ctx.getTransform(); window._vkHeroScr = { x: m.a*x + m.c*gy + m.e, y: m.b*x + m.d*gy + m.f, s: m.a, t: now }; }
   const gr = window._vkGreet;
   if(gr && now < gr.until) o = Object.assign({}, o, { prop:'wave', flip:false, say: gr.line });
   const ch = tankStageChar(), sc = 1.45;
@@ -9208,6 +9222,12 @@ function arenaInitDrag(c){
     if(performance.now() - _cam.lastT > 80) _cam.vel = 0;   // held still before letting go: no flick
     c.classList.remove('dragging');
   };
+  let tap0 = null;
+  c.addEventListener('pointerdown', e => { tap0 = { x:e.clientX, y:e.clientY, t:performance.now() }; });
+  c.addEventListener('pointerup', e => {
+    if(tap0 && Math.hypot(e.clientX - tap0.x, e.clientY - tap0.y) < 10 && performance.now() - tap0.t < 450 && typeof vkHeroTap === 'function') vkHeroTap(c, e.clientX, e.clientY);
+    tap0 = null;
+  });
   c.addEventListener('pointerdown', down);
   c.addEventListener('pointermove', move);
   c.addEventListener('pointerup', up);
