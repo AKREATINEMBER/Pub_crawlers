@@ -3473,6 +3473,15 @@ html body .hm-mats small{ font-size:7.5px !important; white-space:normal !import
 html body .hm-part .t{ font-size:11px !important; }
 html body .hm-part .t span{ font-size:10px !important; line-height:1.45; }
 html body .hm-part .t .pips{ font-size:10px !important; }
+
+/* ══ v3.9 — the action row: LOG A BEER full width under the lever (his strong suit), NEW BAR a quiet link ══ */
+html body #slotResultLabel:empty{ display:none !important; }   /* no second "PULL THE LEVER" under the reels; the tile name shows after a spin */
+html body .pill-row{ display:flex !important; flex-direction:column; align-items:stretch !important; gap:6px !important; margin-top:10px !important; }
+html body #btnLogBeer{ width:100% !important; min-height:52px !important; display:flex !important; align-items:center; justify-content:center; gap:10px; opacity:1 !important; }
+html body #btnLogBeer small{ font-size:11px; padding:3px 9px; border-radius:999px; background:rgba(0,0,0,.25); letter-spacing:1px; }
+html body #btnNewBar{ align-self:center; width:auto !important; min-height:44px !important; padding:6px 14px !important; background:none !important; border:0 !important; box-shadow:none !important; opacity:.8; font-size:11px !important; letter-spacing:1px; text-transform:none; text-decoration:underline; text-underline-offset:4px; }
+html body #btnNewBar::before, html body #btnNewBar::after{ display:none !important; }
+html body #btnNewBar.armed{ opacity:1; color:#ffd24a !important; }
 </style>
 </head>
 <body class="cozy">
@@ -3559,7 +3568,7 @@ html body .hm-part .t .pips{ font-size:10px !important; }
         <div class="reel" id="reel1"><span class="reelIcon">🍺</span></div>
         <div class="reel" id="reel2"><span class="reelIcon">🍺</span></div>
       </div>
-      <div id="slotResultLabel">PULL THE LEVER</div>
+      <div id="slotResultLabel"></div>
     </div>
 
     <button class="btn primary" id="btnSpin" onclick="handleRoll()">🎰 PULL THE LEVER</button>
@@ -3592,7 +3601,7 @@ html body .hm-part .t .pips{ font-size:10px !important; }
 
     <div class="pill-row">
       <button class="btn green sm" id="btnLogBeer" onclick="logBeer()">🍺 LOG A BEER</button>
-      <button class="btn ghost sm" id="btnNewBar" onclick="newBar()">🚪 NEW BAR</button>
+      <button class="btn ghost sm" id="btnNewBar" onclick="newBar()">🚪 moving to a new bar?</button>
     </div>
     <div id="barBanner" class="hide"></div>
 
@@ -9935,7 +9944,7 @@ function unlockPathHTML(){
 }
 function syncHUD(){
   { const lb = document.getElementById('btnLogBeer'); // the Tank-ard sees what his next beer is worth: it only goes up
-    if(lb && S){ const t = S.charId === 'tank' ? `🍺 LOG A BEER · +${beerLogXP((S.beerLogCount||0) + 1)} XP` : '🍺 LOG A BEER'; if(lb.textContent !== t) lb.textContent = t; } }
+    if(lb && S){ const t = `<span>🍺 LOG A BEER</span>` + (S.charId === 'tank' ? `<small>+${beerLogXP((S.beerLogCount||0) + 1)} XP</small>` : ''); if(lb._h !== t){ lb._h = t; lb.innerHTML = t; } } }
   if(!S) return;
   applyGates();
   // apply per-character body theme — but the title & character-select screens always stay in the tavern
@@ -17175,8 +17184,8 @@ function newBar(){
   if(!S) return;
   if(_barArm !== true){ // one stray tap shouldn't skip a bar
     _barArm = true;
-    const b = document.getElementById('btnNewBar'); if(b){ b.textContent = '🚪 TAP AGAIN: NEXT BAR'; b.classList.add('armed'); }
-    setTimeout(() => { if(S){ _barArm = false; const bb = document.getElementById('btnNewBar'); if(bb){ bb.textContent = '🚪 NEW BAR'; bb.classList.remove('armed'); } } }, 3000);
+    const b = document.getElementById('btnNewBar'); if(b){ b.textContent = '🚪 tap again: next bar'; b.classList.add('armed'); }
+    setTimeout(() => { if(S){ _barArm = false; const bb = document.getElementById('btnNewBar'); if(bb){ bb.textContent = '🚪 moving to a new bar?'; bb.classList.remove('armed'); } } }, 3000);
     return;
   }
   _barArm = false;
@@ -17186,7 +17195,7 @@ function newBar(){
   const pk = barPick(); S.barRule = pk.rule;
   addLog(`🚪 BAR ${S.bar} — house rule: ${HOUSE_RULES[pk.rule]}`);
   save(); syncHUD();
-  const b = document.getElementById('btnNewBar'); if(b){ b.textContent = '🚪 NEW BAR'; b.classList.remove('armed'); }
+  const b = document.getElementById('btnNewBar'); if(b){ b.textContent = '🚪 moving to a new bar?'; b.classList.remove('armed'); }
   showCard({
     cls:'chaos', tag:`🚪 BAR ${S.bar} — THE TAVERN WELCOMES YOU`, title:'📜 HOUSE RULE',
     body: HOUSE_RULES[pk.rule] + (sqOn() ? '\n\nEvery phone in the squad shows this same rule.' : ''),

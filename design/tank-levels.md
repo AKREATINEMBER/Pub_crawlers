@@ -405,3 +405,10 @@ a tap beside him does nothing; a second tap within 0.7 s is ignored, after that 
   (`_vkArmed`). Tap a spot in the town → he walks there (`_vkWalk`, 34 world px/s, clamped to dry land
   `_vkLandMax`) saying a short order line, the camera follows, he waits 25 s with a mug, then walks back to
   his scene. A tap elsewhere when he isn't armed does nothing.
+
+## v3.9 — the action row
+
+Under the lever: no second "PULL THE LEVER" label (`#slotResultLabel` starts empty and hides while empty;
+the tile name still shows after a spin). **LOG A BEER** is a full-width button with the next beer's XP in a
+badge (Tank only). **NEW BAR** is a quiet underlined link, "moving to a new bar?" — tap twice as before
+("tap again: next bar"). Styles live in the `v3.9 — the action row` block at the end of the stylesheet.
