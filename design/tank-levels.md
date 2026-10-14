@@ -328,3 +328,18 @@ Where they go:
   the Hulk Smash Horn. Saves get `rage = 0`, and any Horns in the bag are bought back at 45🪙 each.
 - **🏳 GIVE UP** (`hmGiveUp`, two taps, no dialog): ends a match between your swings, or settles a wager that
   already lost a try. On a wager it walks away from the whole thing — the XP is lost, whatever tries are left.
+
+## v3.1 — the beers are his strong suit
+
+Logged beers used to climb 8→67 over the first eight and then **drop** to a flat 40 for everyone. For the
+Tank-ard the climb never stops now (`beerLogXP(n)`, `TANK_BEER_STEP = 10`, `TANK_BEER_MAX = 150`): the same
+first eight, then +10 a beer up to 150. The 3-minute cooldown is unchanged. The button shows the next
+beer's value (`🍺 LOG A BEER · +87 XP`). Other classes are unchanged.
+
+```
+beers logged    old total   Tank total   share of the Tank's 2898 XP climb
+     8             235          235          8%
+    12             395          603         21%
+    15             515          984         34%
+    20             715         1731         60%
+```

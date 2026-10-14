@@ -3855,7 +3855,7 @@ const CHARS = [
   { id:'tank',  short:'TANK-ARD', name:'THE TANK-ARD', hair:'#c4501e', body:'#7a1a24', pants:'#55603c', acc:'#e0a530', accType:'vikinghelm',
     motto:["First to the bar and the last out the door,","hand him a party game — he'll ask what it's for."],
     sig:{ icon:'🔨', name:'HAMMERSCHLAGEN', text:'Win a challenge, then stake the XP on a nail-driving race against Viking foes. Win it for a multiplier, forge a better hammer to beat the big ones.' },
-    up:[['Beer challenges','+40% XP']],
+    up:[['Beer challenges','+40% XP'],['Logged beers','XP climbs every beer']],
     down:[['Party games','−25% XP']], },
   { id:'gambler', short:'GAMBLER', name:'THE GAMBLER', hair:'#1a1a1a', body:'#2a6b2a', pants:'#1a3d1a', acc:'#2e7d2e', accType:'fedora',
     motto:["At the table he's never been beat —","put him in a fight and watch him retreat."],
@@ -9756,6 +9756,8 @@ function unlockPathHTML(){
   </div>`;
 }
 function syncHUD(){
+  { const lb = document.getElementById('btnLogBeer'); // the Tank-ard sees what his next beer is worth: it only goes up
+    if(lb && S){ const t = S.charId === 'tank' ? `🍺 LOG A BEER · +${beerLogXP((S.beerLogCount||0) + 1)} XP` : '🍺 LOG A BEER'; if(lb.textContent !== t) lb.textContent = t; } }
   if(!S) return;
   applyGates();
   // apply per-character body theme — but the title & character-select screens always stay in the tavern
@@ -10067,6 +10069,13 @@ const BEER_LOG_LINES = [
 // Beta testers hated logging a real beer and getting no XP back — a logged beer ALWAYS grants XP now.
 const BEER_LOG_XP = [8, 11, 15, 20, 27, 37, 50, 67];
 const BEER_LOG_XP_STEADY = 40;                              // the climb ends at #8, the wage doesn't
+// THE TANK-ARD'S STRONG SUIT: his climb never stops. Same first 8, then every beer pays +10 more than the last, up to 150.
+const TANK_BEER_STEP = 10, TANK_BEER_MAX = 150;
+function beerLogXP(n){ // XP for logged beer #n
+  if(n <= BEER_LOG_XP.length) return BEER_LOG_XP[n-1];
+  if(S && S.charId === 'tank') return Math.min(TANK_BEER_MAX, BEER_LOG_XP[BEER_LOG_XP.length-1] + TANK_BEER_STEP*(n - BEER_LOG_XP.length));
+  return BEER_LOG_XP_STEADY;
+}
 const BEER_LOG_COOLDOWN_MS = 3*60*1000;                     // one log per 3 minutes
 const BEER_LOG_BREWERY_BEERS = 67, BEER_LOG_BREWERY_COINS = 10; // what log #9+ pays ON TOP of the steady XP
 const BEER_LOG_WAIT_LINES = [
@@ -10098,7 +10107,7 @@ function logBeer(){
   S.beerLogCount = (S.beerLogCount||0) + 1;
   S.drinks++;
   const steady = S.beerLogCount > BEER_LOG_XP.length;      // past the escalation: flat XP + the brewery on top
-  const amount = steady ? BEER_LOG_XP_STEADY : BEER_LOG_XP[S.beerLogCount-1];
+  const amount = beerLogXP(S.beerLogCount);
   const levelBefore = S.level;
   const g = grantXP(amount, 'beer log', { tile:false });   // a logged beer ALWAYS pays XP
   addPace(10);
@@ -18413,6 +18422,10 @@ function renderGuide(){
   
   const sections = {
     tank: `<div class="panel">
+      <h2>🍺 YOUR STRONG SUIT — THE BEERS</h2>
+      <p class="small">Beer challenges pay <b class="gold">+40% XP</b>, and every beer you <b>LOG</b> pays more than the last: 8, 11, 15, 20, 27, 37, 50, 67, then <b class="gold">+10 a beer</b>, up to <b class="gold">150 XP</b>. The button shows what the next one is worth.</p>
+    </div>
+    <div class="panel">
       <h2>🔨 YOUR MECHANIC — HAMMERSCHLAGEN</h2>
       <p class="small">It opens after your first real win (the tutorial beer doesn't count). From then on: win a challenge and your XP goes on the <b>stump</b>. Race a Viking foe to hammer your pin flush into the log: tap when the needle hits <b class="gold">gold</b>. Win and the XP is multiplied (tougher foes pay more, a <b class="gold">flawless</b> win, every swing gold, pays most). Lose and it's gone — or take <b>SAFE XP</b> before you swing. <b>🏳 GIVE UP</b> walks away from a match (on a wager, the XP is lost). Between challenges matches are free. Beat a foe <b>once</b> and his material is yours for good (no farming): you get <b>3 tries per challenge</b> at each foe you haven't beaten yet, and unlimited rematches against the ones you have. Forge your hammer in the Bag. New foes arrive as you level, each far tougher than the last; a bare hammer stops at the <b>Valkyrie</b>, so forge a better one to go past her. Beat a foe once for a <b class="gold">boon</b> that lasts all night (a flawless first win doubles the bounty). Beat <b class="gold">Surtr</b> and the night is yours.</p>
       <p class="small">Every wager is <b class="gold">one shot</b>: lose the match and the XP is gone, unless a <b class="gold">Neverending Stout</b> buys you +1 try.</p>
