@@ -422,3 +422,17 @@ badge (Tank only). **NEW BAR** is a quiet underlined link, "moving to a new bar?
 - **Order (Tank):** THE TOWN (The Forge pinned first with a gold outline and "⚒ UNLOCKS FORGING" until it
   stands) → GEAR (Goblet of Firewater, How to Train Your Flagon) → ONE-OFFS (Neverending Stout, A Round for
   the Fellowship). The separate "Tank-ard exclusive" block is gone. 23 things in 4 sections → 20 in 3.
+
+## v3.11 — art pass
+
+- **The five villains (+ Jörmungandr) redrawn** in `HM_SPR`, each with its own silhouette. They were
+  recolours: Garm = Fenrir in red, Níðhöggr = Jörmungandr in green, Loki/Hel/Hrym = one generic body.
+  Now: Loki — gold horned helm, green cloak, knife behind his back; Garm — black hound, red eyes, bloody maw,
+  broken chain; Níðhöggr — purple winged dragon gnawing the root; Hel — dark crown and shroud, half queen half
+  skull; Hrym — ice-crowned giant with an icicle beard and a steering oar; Jörmungandr rears out of the sea.
+- **22 new pixel icons** in `PXI` (165 → 187) for emoji that still showed as the phone's own: town buildings
+  (⚒ an anvil for THE FORGE, 🌱 🐟 🪵 🐝 🐖 ⚓ 🪨 🏛 a longhall), forge materials (🔩 🪶 a raven feather, 🦑 ❄),
+  hammer parts (🔨 a war hammer, 📌 a forged nail), boons (🐕 🌲), UI (🏘 🎚 🔓 🛠 🏳). A scan of every Tank
+  screen now finds no native emoji left (only the text glyphs ▶ ◀ ✎).
+- **Swing meter legend:** the v3.6 size bump made SOLID / GOLD / SOLID overlap on tough foes. Words that don't
+  fit their zone now hide (the colour says it), GOLD always shows, and hides its neighbours if it spills.
