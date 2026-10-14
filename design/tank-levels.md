@@ -367,3 +367,13 @@ Knight's tap says POUR). It opens a confirm card: finish your drink in one go, t
 again. Honor system like LOG A BEER: it counts a drink (`S.drinks`, `addPace(10)`), pays no XP, and bumps
 `S.chugRerolls`. The tile stays in `S._slotPending` until DONE, so a reload just brings the tile back.
 Not offered on the tutorial tile.
+
+## v3.5 — he waves at you
+
+Rarely (first after 2.5–5 min of quiet town time, then every 3–7 min; `vkGreetTick`, driven from
+`arenaCamera`), the Tank-ard turns, waves and shouts a line in his speech bubble for 6.5 s while the camera
+glides to him. Pool: `VK_GREET_LINES` (80 lines) plus a few that read the night (`vkGreetLines`), drawn from a
+shuffled bag so nothing repeats until the pool is used up. Only counts time when the game screen is up and
+nothing else is happening (no card, spotlight, level flash, tutorial, saga reveal, swiping). `vkSay` now wraps
+long lines in two; the swipe hint hides while he talks.
+Also: the out-of-rerolls button says "🍺 EMPTY YOUR BEER · NEW ROLL".

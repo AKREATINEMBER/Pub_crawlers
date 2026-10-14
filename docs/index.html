@@ -3718,7 +3718,7 @@ html body.cozy.cozy[data-char="tank"]:not([data-char=""]) .si-chip{ border-radiu
 
     <div class="panel">
       <h2>🔁 REROLLS</h2>
-      <p class="small">Not happy with a tile? Spend a reroll to skip it and spin again. Your reroll count is in the BAG tab. <b class="gold">Out of rerolls?</b> Finish your beer in one go and you get a new roll anyway.</p>
+      <p class="small">Not happy with a tile? Spend a reroll to skip it and spin again. Your reroll count is in the BAG tab. <b class="gold">Out of rerolls?</b> Empty your beer and you get a new roll anyway.</p>
     </div>
 
     <div class="panel" style="display:none"><!-- locked with GROUP_BOUNTY -->
@@ -6616,10 +6616,69 @@ function tkCheckTierUp(){
 }
 function vkSay(ctx, x, y, text){
   ctx.save(); ctx.font = 'bold 5px monospace'; ctx.textAlign = 'center';
-  const w = ctx.measureText(text).width + 5;
-  ctx.fillStyle = 'rgba(16,8,4,.85)'; ctx.fillRect(x - w/2, y - 6, w, 7.5);
-  ctx.fillStyle = '#ffd24a'; ctx.fillText(text, x, y);
+  let lines = [text];
+  if(text.length > 20){ // long lines wrap at the space nearest the middle
+    const mid = text.length/2; let best = -1;
+    for(let i=0;i<text.length;i++) if(text[i] === ' ' && (best < 0 || Math.abs(i-mid) < Math.abs(best-mid))) best = i;
+    if(best > 0) lines = [text.slice(0, best), text.slice(best+1)];
+  }
+  const w = Math.max(...lines.map(l => ctx.measureText(l).width)) + 5, top = y - 6 - (lines.length-1)*6;
+  ctx.fillStyle = 'rgba(16,8,4,.85)'; ctx.fillRect(x - w/2, top, w, 7.5 + (lines.length-1)*6);
+  ctx.fillStyle = '#ffd24a'; lines.forEach((l, i) => ctx.fillText(l, x, top + 6 + i*6));
   ctx.restore();
+}
+/* ══ HE WAVES AT YOU — every few minutes of looking at the town (rarely), your Tank-ard turns, waves and shouts
+   something nice. A shuffled bag of lines: none repeats until the whole pool has been heard. ══ */
+const VK_GREET_LINES = [
+  'YOU DRINK LIKE A TRUE GOD!', 'ODIN IS TAKING NOTES, {N}!', 'HEY {N}! SKÅL!', 'VALHALLA CALLED. THEY WANT YOU.',
+  'THOR HAS NOTHING ON YOU', 'LEGENDS SAY YOU NEVER BLINK', 'THAT LAST ONE? PURE POETRY.', 'THE MEAD FLOWS FOR YOU, {N}',
+  'THE BARD IS WRITING YOUR SONG', 'NICE ARMS. VERY HAMMERY.', 'ONE DOES NOT SIMPLY OUT-DRINK YOU', 'THE GODS ARE JEALOUS OF YOUR THIRST',
+  'WINTER IS COMING. SO IS ROUND TWO.', 'YOU HAD ME AT SKÅL', "I'LL BE BACK. WITH BEER.", 'MAY THE FROTH BE WITH YOU',
+  "HERE'S LOOKING AT YOU, {N}", 'KEEP CALM AND RAID THE BAR', 'THE VILLAGE TALKS ONLY OF YOU', 'YOUR LIVER IS A WARRIOR',
+  "I'VE SEEN BERSERKERS SIP SLOWER", 'FREYA WINKED AT YOU. TRUE STORY.', 'LOKI TRIED TO STEAL YOUR PINT', 'BIGGER MUG? BIGGER MUG.',
+  "THEY'LL CARVE THIS NIGHT IN STONE", "YOU'RE THE HERO THIS TOWN NEEDS", 'ALL HAIL THE TANK-ARD!', "I KNEW YOU'D BE BACK, {N}",
+  'SAVE ME A SEAT IN THE MEAD HALL', 'THE RAVENS SAY: YOU ROCK', 'HUGINN SAYS HI. MUNINN TOO.', 'FROM THIS VILLAGE I SALUTE YOU',
+  'NOBODY TOASTS LIKE YOU DO', 'THE BARREL FEARS YOU', 'YOU HAVE THE THIRST OF A GIANT', 'EVEN THE JÖTUNN WANT YOUR SECRET',
+  'HAMMER TIME? ALWAYS.', "I'M NOT CRYING. IT'S THE MEAD.", 'WHAT A LEGEND. WHAT A NIGHT.', 'TO THE NEXT PUB! FOR GLORY!',
+  'MORE FOAM, MORE FAME', "THAT'S MY CRAWLER!", 'THE SAGA WRITES ITSELF TONIGHT', 'BOW BEFORE THE FOAM KING',
+  'I DRINK, THEREFORE I RAID', 'ONE RING? NO. ONE MORE ROUND.', 'THIS IS SPARTA! ...WRONG MYTH.', 'THE GOATS ON THE ROOF SAY HI',
+  "THE SMITH SAYS YOU'RE HIS FAVOURITE", "YOU'RE BREWING GREATNESS, {N}", "HEY, YOU! YES, YOU! HI!", 'PSST. ORDER ANOTHER.',
+  'THE NORNS WOVE YOU A GOOD ONE', 'YGGDRASIL ITSELF IS IMPRESSED', "BIFRÖST? I'D RATHER BAR-FRÖST", 'SKÅL TO THE ONE WITH THE PHONE!',
+  'YOU AND ME, {N}. BEST CREW.', 'NO RAGNARÖK TONIGHT. JUST PARTY.', 'THE FJORD ECHOES YOUR NAME', "STRONGER THAN A DWARF'S STOUT",
+  'FENRIR HOWLS IN YOUR HONOUR', 'MJÖLNIR WHO? WE HAVE YOU.', 'LIVE, LAUGH, LONGSHIP', 'SHIELDS UP, GLASSES UP!',
+  "YOU'RE ON FIRE! NOT LITERALLY.", 'THE HORNS SOUND FOR YOU', 'KEEP IT FOAMING, {N}!', "THIS ROUND'S ON ODIN",
+  "I'VE WAITED ALL DAY FOR YOU", 'EVERY GOD NEEDS A DRINKING BUDDY', 'LAST ROUND? NEVER HEARD OF IT.', 'YOU MAKE THIS VILLAGE PROUD',
+  'DRINK LIKE THE SKALDS ARE WATCHING', 'BEER: CHECK. GLORY: CHECK.', 'A PEASANT AT DAWN. A GOD BY MIDNIGHT.', 'HOLD MY MEAD.',
+  "I'D FOLLOW YOU TO ANY BAR", 'A TOAST! TO THE BRAVEST THIRST!', 'YOU PUT THE "SKÅ" IN SKÅL', 'HEROES GET REMEMBERED. YOU GET REFILLED.'
+];
+function vkGreetLines(){ // the fixed pool, plus a few that read the night so far
+  const out = VK_GREET_LINES.slice();
+  if((S.drinks||0) >= 3) out.push(`${S.drinks} DRINKS DEEP AND STILL STANDING!`);
+  if((S.level||1) >= 3) out.push(`LEVEL ${S.level}? THE GODS NOTICED.`);
+  if((S.beerLogCount||0) >= 5) out.push(`${S.beerLogCount} BEERS LOGGED. SAGA MATERIAL.`);
+  return out;
+}
+const VK_GREET_MS = 6500;
+let _vkGreetClock = 0, _vkGreetNext = 0, _vkGreetLast = 0, _vkGreetBag = [];
+function vkGreetPick(){
+  if(!_vkGreetBag.length){ _vkGreetBag = vkGreetLines(); for(let i=_vkGreetBag.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [_vkGreetBag[i], _vkGreetBag[j]] = [_vkGreetBag[j], _vkGreetBag[i]]; } }
+  return _vkGreetBag.pop().replace('{N}', String(S.name || 'CRAWLER').slice(0, 12));
+}
+function vkGreetTick(now){ // runs every town frame (Tank only); counts only time the town is actually on screen and quiet
+  const dt = Math.min(250, now - (_vkGreetLast || now)); _vkGreetLast = now;
+  if(window._vkGreet && now < window._vkGreet.until) return;
+  if(!S || S.charId !== 'tank' || document.hidden) return;
+  const game = document.getElementById('screen-game');
+  const quiet = game && !game.classList.contains('hide') && !document.getElementById('cardOverlay') && !document.getElementById('spotOverlay')
+    && !document.getElementById('levelFlash') && S.tutorialDone && !S.tutStep && !window._vkPendingReveal
+    && !_cam.dragging && !_cam.manual && !(window._vkFocus && now < window._vkFocus.until) && window._vkHeroX != null;
+  if(!quiet) return;
+  if(!_vkGreetNext) _vkGreetNext = 150000 + Math.random()*150000;       // the first one after 2.5–5 min of town time
+  _vkGreetClock += dt;
+  if(_vkGreetClock < _vkGreetNext) return;
+  _vkGreetClock = 0; _vkGreetNext = 180000 + Math.random()*240000;      // then every 3–7 min of town time: rare
+  window._vkGreet = { line: vkGreetPick(), until: now + VK_GREET_MS };
+  window._vkFocus = { x: window._vkHeroX, until: now + VK_GREET_MS };   // the camera glides over so you see him
 }
 function vkHeroProp(ctx, kind, hx, hy, now, o){
   if(!kind) return;
@@ -6645,6 +6704,9 @@ function vkHeroProp(ctx, kind, hx, hy, now, o){
 /* draw him: feet at (x, gy). o: { prop, flip, lift, ang, bx, by } */
 function vkHeroSprite(ctx, x, gy, L, now, o){
   o = o || {};
+  window._vkHeroX = x;
+  const gr = window._vkGreet;
+  if(gr && now < gr.until) o = Object.assign({}, o, { prop:'wave', flip:false, say: gr.line });
   const ch = tankStageChar(), sc = 1.45;
   const px = x - 6*sc, py = gy - 12*sc - (o.lift || 0);
   drawChar(ctx, ch, px, py, sc, 100);
@@ -9044,6 +9106,7 @@ const CAM_IDLE_MS = 4000;
 function arenaCamera(autoPan, worldW, viewW, k, canvas){
   _cam.k = k; _cam.maxPan = Math.max(0, worldW - viewW);
   if(S && (S.charId === 'tank' || S.charId === 'wizard') && typeof vkRevealTick === 'function') vkRevealTick();
+  if(S && S.charId === 'tank' && typeof vkGreetTick === 'function') vkGreetTick(performance.now());
   if(!_cam.inited) arenaInitDrag(canvas);
   const now = performance.now();
   const clamp = v => Math.max(0, Math.min(_cam.maxPan, v));
@@ -9072,7 +9135,7 @@ function arenaCamera(autoPan, worldW, viewW, k, canvas){
 function arenaHint(wide){
   const h = document.getElementById('arenaHint'); if(!h) return;
   if(!_cam.hintDone){ try{ _cam.hintDone = store.get('as_swipehint') === '1'; }catch(e){} }
-  h.classList.toggle('hide', !wide || _cam.hintDone || _cam.dragging);
+  h.classList.toggle('hide', !wide || _cam.hintDone || _cam.dragging || !!(window._vkGreet && performance.now() < window._vkGreet.until)); // never cover him while he waves
 }
 function arenaInitDrag(c){
   _cam.inited = true;
@@ -16868,9 +16931,9 @@ function previewSlotResult(tile){
     venue: tile.venue,
     body: tpl(tile.body || ''),
     chips:[`+${promised} XP${dNote}`, tile.drink?'🍺 DRINK':'', tile.gamble?'🎲 FORFEIT IF LOST':'', tile.heal?'💧 MERCY':'', tile.t===T.BADLUCK?'💀 BAD LUCK':''].filter(Boolean),
-    extra: tile.tutorial ? tileWinHTML(tile) + tutorialNote(1) : `${tileWinHTML(tile)}<p class="small dim">${canReroll ? 'Accept it, or spend a reroll to spin again.' : 'Out of rerolls? Finish your beer in one go for a new roll.'}</p>`,
+    extra: tile.tutorial ? tileWinHTML(tile) + tutorialNote(1) : `${tileWinHTML(tile)}<p class="small dim">${canReroll ? 'Accept it, or spend a reroll to spin again.' : 'Out of rerolls? Empty your beer for a new roll.'}</p>`,
     buttons:`<button class="btn green" onclick="acceptSlotResult()">✅ ACCEPT</button>
-             ${tile.tutorial ? '' : canReroll ? `<button class="btn ghost sm" onclick="useReroll()">🔁 REROLL (${S.skips} left)</button>` : `<button class="btn ghost sm" onclick="chugReroll('slot')">🍺 CHUG FOR A NEW ROLL</button>`}
+             ${tile.tutorial ? '' : canReroll ? `<button class="btn ghost sm" onclick="useReroll()">🔁 REROLL (${S.skips} left)</button>` : `<button class="btn ghost sm" onclick="chugReroll('slot')">🍺 EMPTY YOUR BEER · NEW ROLL</button>`}
              ${tile.tutorial ? '' : tileSwapBtn(tile)}`
   });
 }
@@ -16890,15 +16953,15 @@ const CHUG_REROLL_LINES = ['BOTTOMS UP, REELS DOWN', 'THE GODS OF THE TAP ACCEPT
 function chugReroll(kind, done){
   if(!S || !S._slotPending || S.skips > 0 || slotSpinning) return;
   if(!done){
-    showCard({ tag:'🍺 OUT OF REROLLS', title:'CHUG FOR A NEW ' + (kind === 'pint' ? 'POUR' : 'ROLL'),
-      body:'Finish the drink in your hand in one go. Glass empty? Tap DONE and ' + (kind === 'pint' ? 'the tap pours again.' : 'the reels spin again.'),
+    showCard({ tag:'🍺 OUT OF REROLLS', title:'EMPTY YOUR BEER',
+      body:'Empty the beer in your hand. Glass empty? Tap DONE and ' + (kind === 'pint' ? 'the tap pours again.' : 'the reels spin again.'),
       buttons:`<button class="btn green" onclick="chugReroll('${kind}', true)">✓ DONE · MY GLASS IS EMPTY</button>
                <button class="btn ghost sm" onclick="closeCard();reshowSlotPending()">◀ BACK TO THE TILE</button>` });
     return;
   }
   S.drinks++; addPace(10);
   S.chugRerolls = (S.chugRerolls||0) + 1;
-  addLog('🍺 Chugged for a new ' + (kind === 'pint' ? 'pour' : 'roll'));
+  addLog('🍺 Emptied a beer for a new ' + (kind === 'pint' ? 'pour' : 'roll'));
   epicToast('🍺 ' + blPick(CHUG_REROLL_LINES));
   S.skips = (S.skips||0) + 1; // a reroll earned and spent on the spot
   if(kind === 'pint') useRerollPint(); else useReroll();
@@ -17604,9 +17667,9 @@ function previewPintResult(tile, pour){
     tag: tile.t===T.BADLUCK ? '💀 THE TAP HAS CURSED YOU' : pour.toast ? "🏆 THE KNIGHT'S TOAST" : `🍺 ${pour.label}`,
     title:`${tile.icon} ${tile.n}`, venue: tile.venue, body: tpl(tile.body || ''),
     chips:[`+${promised} XP${xpNote}`, tile.drink?'🍺 DRINK':'', tile.gamble?'🎲 FORFEIT IF LOST':'', tile.heal?'💧 MERCY':'', tile.t===T.BADLUCK?'💀 BAD LUCK':''].filter(Boolean),
-    extra: tile.tutorial ? tileWinHTML(tile) + tutorialNote(1) : `${streakNote}${tileWinHTML(tile)}<p class="small dim">${canReroll ? 'Accept it, or spend a reroll to pour again.' : 'Out of rerolls? Finish your beer in one go for a new pour.'}</p>`,
+    extra: tile.tutorial ? tileWinHTML(tile) + tutorialNote(1) : `${streakNote}${tileWinHTML(tile)}<p class="small dim">${canReroll ? 'Accept it, or spend a reroll to pour again.' : 'Out of rerolls? Empty your beer for a new pour.'}</p>`,
     buttons:`<button class="btn green" onclick="acceptPintResult()">✅ ACCEPT</button>
-             ${tile.tutorial ? '' : canReroll ? `<button class="btn ghost sm" onclick="useRerollPint()">🔁 REROLL (${S.skips} left)</button>` : `<button class="btn ghost sm" onclick="chugReroll('pint')">🍺 CHUG FOR A NEW POUR</button>`}
+             ${tile.tutorial ? '' : canReroll ? `<button class="btn ghost sm" onclick="useRerollPint()">🔁 REROLL (${S.skips} left)</button>` : `<button class="btn ghost sm" onclick="chugReroll('pint')">🍺 EMPTY YOUR BEER · NEW POUR</button>`}
              ${tile.tutorial ? '' : tileSwapBtn(tile)}`
   });
 }
