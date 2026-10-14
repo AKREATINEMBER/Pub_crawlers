@@ -412,3 +412,13 @@ Under the lever: no second "PULL THE LEVER" label (`#slotResultLabel` starts emp
 the tile name still shows after a spin). **LOG A BEER** is a full-width button with the next beer's XP in a
 badge (Tank only). **NEW BAR** is a quiet underlined link, "moving to a new bar?" — tap twice as before
 ("tap again: next bar"). Styles live in the `v3.9 — the action row` block at the end of the stylesheet.
+
+## v3.10 — the Tank-ard's shop, cleaned up
+
+- **Cut:** McLOVIN'S ID (`fakeid`, now `retired`) — 25🪙, rebuyable, auto-won any challenge: a skip button for
+  the whole night. THE SNORTING HAT and THE TERMIN-ALE-TOR SHADES are out of the Tank-ard's shop
+  (`TANK_SHOP_CUT`; shared relics, the other classes keep them for now) — a fake win once a lap, and a filler
+  +0.3 beer/min. `migrate` buys them back: 25 / 70 / 55🪙.
+- **Order (Tank):** THE TOWN (The Forge pinned first with a gold outline and "⚒ UNLOCKS FORGING" until it
+  stands) → GEAR (Goblet of Firewater, How to Train Your Flagon) → ONE-OFFS (Neverending Stout, A Round for
+  the Fellowship). The separate "Tank-ard exclusive" block is gone. 23 things in 4 sections → 20 in 3.

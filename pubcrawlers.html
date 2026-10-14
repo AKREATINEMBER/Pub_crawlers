@@ -3482,6 +3482,10 @@ html body #btnLogBeer small{ font-size:11px; padding:3px 9px; border-radius:999p
 html body #btnNewBar{ align-self:center; width:auto !important; min-height:44px !important; padding:6px 14px !important; background:none !important; border:0 !important; box-shadow:none !important; opacity:.8; font-size:11px !important; letter-spacing:1px; text-transform:none; text-decoration:underline; text-underline-offset:4px; }
 html body #btnNewBar::before, html body #btnNewBar::after{ display:none !important; }
 html body #btnNewBar.armed{ opacity:1; color:#ffd24a !important; }
+
+/* the Forge leads the Town until it stands (Tank) */
+html body .shop-item.si--pinned{ border-color:#e8a33d !important; box-shadow:0 0 0 2px rgba(232,163,61,.45), 0 0 18px rgba(232,163,61,.25) !important; }
+html body .si-chip--forge{ color:#ffd24a !important; border-color:#e8a33d !important; background:rgba(232,163,61,.15) !important; }
 </style>
 </head>
 <body class="cozy">
@@ -4435,7 +4439,7 @@ const RELICS = [
 ];
 
 const CONSUMABLES = [
-  { id:'fakeid',    n:"McLOVIN'S ID", icon:'🪪', char:'tank', d:'One name, no first name, organ donor, flawless record at doors. Auto-wins your next challenge tile, no questions asked.', price:25 },
+  { id:'fakeid',    retired:true, n:"McLOVIN'S ID", icon:'🪪', char:'tank', d:'One name, no first name, organ donor, flawless record at doors. Auto-wins your next challenge tile, no questions asked.', price:25 },
   { id:'stardust', n:'TINKER BELL\'S PIXIE DUST', icon:'✨', char:'wizard', d:'Think happy thoughts, sprinkle, and nothing can go wrong for exactly one ingredient. Your next ingredient CANNOT curdle.', price:25 },
   { id:'polyscroll', n:'A PINT OF POLYJUICE', icon:'🌀', char:'wizard', d:'Brewed with a single hair of another class, and it tastes exactly like that. It invokes the Shifting Rune for you — awake or not, charged or not: your next win polymorphs you into another class.', price:40 },
   { id:'sparemask', n:'THE MASK (SSSMOKIN\'!)', icon:'🎭', char:'jester', d:'Put it on and spin like a green tornado — somebody stop you. +1 🎭 Trick — spend it mid-draw to PEEK at a card or SHUFFLE the whole hand.', price:20 },
@@ -4677,6 +4681,13 @@ function migrate(p){
   p.rage = 0;                                     // Berserker Rage is retired too: any Hulk Smash Horns still in the bag are bought back at full price
   if(p.items && p.items.hornofrage > 0){ p.coins = (p.coins||0) + 45 * Math.floor(p.items.hornofrage); }
   if(p.items) delete p.items.hornofrage;
+  // the shop cleanup: McLovin's ID is gone (it auto-won every challenge), and the Tank-ard's shop dropped the
+  // Snorting Hat and the Terminator Shades. Anything already bought comes back as coins.
+  if(p.items && p.items.fakeid > 0){ p.coins = (p.coins||0) + 25 * Math.floor(p.items.fakeid); }
+  if(p.items) delete p.items.fakeid;
+  if(p.charId === 'tank' && Array.isArray(p.relics)){
+    [['luckyhat',70],['shades',55]].forEach(([id, price]) => { if(p.relics.includes(id)){ p.relics = p.relics.filter(x => x !== id); p.coins = (p.coins||0) + price; } });
+  }
   if(!(p.hgPlayers >= 0 && p.hgPlayers <= 8)) p.hgPlayers = 0; p.hgPlayers = p.hgPlayers|0;
   // Happy Hex Hour (Brew-zard) — the first cast was Norse; map their ids and ingredients onto the new school
   { const OM = { nettle:'cork', moon:'tea', dust:'ash' };
@@ -18348,8 +18359,11 @@ function openShop(){ go('shop'); }
 
 /* the TOWN section: every building you have not raised yet, cheapest first.
    The level-up chest hands these out for free — this is the shortcut for coin. */
+// shared relics the Tank-ard's shop no longer sells (the other classes keep them for now)
+const TANK_SHOP_CUT = ['luckyhat', 'shades'];
 function townSectionHTML(){
-  const avail = townAvailable().slice().sort((a,b)=> townPrice(a) - townPrice(b));
+  const pinForge = S.charId === 'tank' && !hmForgeBuilt();   // THE FORGE unlocks forging: it leads the list until it stands
+  const avail = townAvailable().slice().sort((a,b)=> (pinForge ? (b.id === 'tk_forge') - (a.id === 'tk_forge') : 0) || townPrice(a) - townPrice(b));
   const built = (S.breweryUpgrades||[]).length;
   const rate  = computeBreweryRate();
   if(!avail.length) return `
@@ -18360,14 +18374,15 @@ function townSectionHTML(){
   const cards = avail.map(u => {
     const price = townPrice(u), afford = (S.coins||0) >= price;
     const rar = RARITIES.find(r => r.id === u.rarity) || RARITIES[0];
-    return `<div class="shop-item si--town${afford ? '' : ' si--poor'}" data-item="${u.id}">
+    const pinned = pinForge && u.id === 'tk_forge';
+    return `<div class="shop-item si--town${afford ? '' : ' si--poor'}${pinned ? ' si--pinned' : ''}" data-item="${u.id}">
       <div class="si-plaque">
         <div class="si-art"><span class="tw-ico">${u.icon}</span></div>
         <div class="si-kind">BUILDING</div>
       </div>
       <div class="shop-item__body">
         <div class="shop-item__name">${u.n}</div>
-        <div class="si-chips"><span class="si-chip si-chip--brew">🍺 +${u.rate}/MIN</span><span class="si-chip" style="color:${rar.color};border-color:${rar.color}">${rar.n}</span></div>
+        <div class="si-chips">${pinned ? '<span class="si-chip si-chip--forge">⚒ UNLOCKS FORGING</span>' : ''}<span class="si-chip si-chip--brew">🍺 +${u.rate}/MIN</span><span class="si-chip" style="color:${rar.color};border-color:${rar.color}">${rar.n}</span></div>
         <div class="si-flav">${u.d}</div>
         <div class="shop-item__action">${afford ? '' : `<span class="si-need">NEED ${price - (S.coins||0)} MORE</span>`}
           <button class="si-buy si-buy--town" onclick="buyTownBuilding('${u.id}')" ${afford ? '' : 'disabled'}>${ico('🪙',12)}<span class="si-price">${price}</span></button>
@@ -18378,7 +18393,7 @@ function townSectionHTML(){
   return `
     <div class="shop-section">
       <div class="shop-section__label"><span>◆ THE TOWN ◆</span>${infoBtn('town', 'About buildings')}</div>
-      <div class="shop-section__sub">${built} standing · ${rate.toFixed(1)} beer/min${S.charId === 'tank' && !hmForgeBuilt() ? '<br><b style="color:#e8a33d">⚒ RAISE THE FORGE FIRST</b>' : ''}</div>
+      <div class="shop-section__sub">${built} standing · ${rate.toFixed(1)} beer/min</div>
       ${cards}
     </div>`;
 }
@@ -18443,8 +18458,8 @@ function renderShop(){
 
   const myRelics  = RELICS.filter(r=> r.char===S.charId && !r.artifact && !r.retired);
   const genRelics = RELICS.filter(r=>!r.char);
-  const myItems   = CONSUMABLES.filter(c=> c.char===S.charId && itemGateOK(c));
-  const genItems  = CONSUMABLES.filter(c=>!c.char && itemGateOK(c));
+  const myItems   = CONSUMABLES.filter(c=> c.char===S.charId && itemGateOK(c) && !c.retired);
+  const genItems  = CONSUMABLES.filter(c=>!c.char && itemGateOK(c) && !c.retired);
 
   const exclusiveSection = (myRelics.length || myItems.length) ? `
     <div class="shop-exclusive-wrap">
@@ -18454,6 +18469,28 @@ function renderShop(){
       ${S.charId==='jester' ? jkShopTarotHTML() : ''}
     </div>` : '';
 
+  if(S.charId === 'tank'){ // the Tank-ard's shop, by what you come for: buildings, then gear you keep, then one-offs
+    const gear = myRelics.concat(genRelics).filter(r => !TANK_SHOP_CUT.includes(r.id));
+    const offs = myItems.concat(genItems).filter(c => !TANK_SHOP_CUT.includes(c.id));
+    document.getElementById('shopInner').innerHTML = `
+    ${S.haggleActive ? '<div style="text-align:center;padding:6px;background:rgba(100,200,255,.12);border:1px solid rgba(100,200,255,.3);border-radius:4px;margin-bottom:8px;font-size:10px;letter-spacing:1px;color:#8ad4ff">🤝 HAGGLE MODE — one item, paid in XP</div>' : ''}
+    <div class="shop-header">
+      <div class="shop-header__tag">${theme.tag}</div>
+      <div class="shop-header__title">${theme.title}</div>
+      <div class="shop-header__tagline">${theme.tagline}</div>
+      <div class="shop-header__coins"><span class="shop-coins-num">${S.coins}</span><span class="shop-coins-label">SKÅL COINS</span></div>
+    </div>
+    ${townSectionHTML()}
+    <div class="shop-section">
+      <div class="shop-section__label"><span>◆ GEAR ◆</span>${infoBtn('relics', 'About gear')}</div>
+      ${gear.map(r=>itemCard(r,'relic',!!r.char)).join('')}
+    </div>
+    <div class="shop-section">
+      <div class="shop-section__label"><span>◆ ONE-OFFS ◆</span>${infoBtn('items', 'About one-offs')}</div>
+      ${offs.map(c=>itemCard(c,'item',!!c.char)).join('')}
+    </div>`;
+    return;
+  }
   document.getElementById('shopInner').innerHTML = `
     ${S.haggleActive ? '<div style="text-align:center;padding:6px;background:rgba(100,200,255,.12);border:1px solid rgba(100,200,255,.3);border-radius:4px;margin-bottom:8px;font-size:8px;letter-spacing:1px;color:#8ad4ff">🤝 HAGGLE MODE — one item, pay in XP</div>' : ''}
     <div class="shop-header">
