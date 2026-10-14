@@ -350,3 +350,12 @@ The reward/tries lines (`#hmReward`) and the hammer stat line (`#hmGear` text) a
 pane. An ⓘ next to the HAMMERSCHLAGEN header (`hmInfo()`) opens a card with this foe's rewards and tries
 (`hmRewardHTML`), the gold/flawless rule, and every hammer part with its level, what it does and its current
 name, plus a FORGE shortcut. The ⚒ FORGE button stays on the pane.
+
+## v3.3 — ⓘ everywhere, less prose on screen
+
+A shared info system: `infoBtn(key)` prints a 44px ⓘ, `showInfo(key)` opens `INFO[key]`. Short labels and
+numbers stay on screen; the "how it works" moved behind: the Daring Dial (all four notches, current one
+marked — the per-notch description line under the dial is gone), the shop's TOWN / RELICS / ITEMS sections,
+and the bag's Forge, Hammer (`hmPartsInfoHTML`), Relics, Secret Quest and upgrades panels. Hammer part rows
+keep name, level and NEXT only. The nail game's idle sub-line is gone. Flavor lines stay (house style).
+The Tank's bag panel is now "🏘 YOUR TOWN" (he gets no level-up chests).

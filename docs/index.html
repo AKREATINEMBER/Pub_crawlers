@@ -1435,6 +1435,8 @@ body[data-char="jester"] .shop-exclusive-label{color:#e8c34a;border-left-color:#
 .hmi-p{margin:4px 0;font-size:11px;line-height:1.6}
 .hmi-part{display:flex;gap:8px;align-items:flex-start;margin:6px 0;font-size:10.5px;line-height:1.5;text-align:left}
 .hmi-part .hmi-ic{font-size:16px;line-height:1}
+.shop-section__label .info-i{margin:-14px -6px -14px 2px}
+.hmi-part.on b{color:#ffd24a}
 .hmi-part em{color:#d4b0a0;font-style:normal;opacity:.85}
 .hm-gear{display:flex;align-items:center;justify-content:center;gap:6px;margin:8px 2px 0;padding:5px 6px;border:1px dashed rgba(255,160,70,.3);font-size:7.5px;color:#d4b0a0}
 .hm-gear>span{flex:1;min-width:0}
@@ -3782,8 +3784,7 @@ html body.cozy.cozy[data-char="tank"]:not([data-char=""]) .si-chip{ border-radiu
       <div class="bag-purse"><span class="pill">🪙 <b id="bagCoins" class="gold">0</b>&nbsp;SKÅL COINS</span><span class="pill">🔁 <b id="bagSkips" class="cyan">0</b>&nbsp;REROLLS LEFT</span></div>
     </div>
     <div class="panel">
-      <h2>🍺 BREWERY UPGRADES</h2>
-      <p class="small dim">Chosen at every level-up — each one permanently boosts production and changes how your brewery looks.</p>
+      <h2><span id="bagUpgTitle">🍺 BREWERY UPGRADES</span> <button type="button" class="info-i" onclick="showInfo('upgrades')" aria-label="About this"><span>i</span></button></h2>
       <div id="bagUpgradeList" class="small dim">None yet. Level up to pick your first one.</div>
     </div>
     <div class="panel hide" id="bagJesterKit"></div>
@@ -3792,8 +3793,7 @@ html body.cozy.cozy[data-char="tank"]:not([data-char=""]) .si-chip{ border-radiu
     <div class="panel hide" id="bagForge"></div>
     <div class="panel hide" id="bagWand"></div>
     <div class="panel">
-      <h2>💎 RELICS</h2>
-      <p class="small dim">Personal buffs for the crawl that also permanently boost your brewery's beer output.</p>
+      <h2>💎 RELICS <button type="button" class="info-i" onclick="showInfo('relicsBag')" aria-label="About relics"><span>i</span></button></h2>
       <div id="relicList" class="small dim">None yet. Visit the shop.</div>
     </div>
     <div class="panel">
@@ -3802,8 +3802,7 @@ html body.cozy.cozy[data-char="tank"]:not([data-char=""]) .si-chip{ border-radiu
     </div>
     <div class="panel lock-panel gate-off" data-lockslot="secret"></div>
     <div class="panel" id="bagSecret" data-gate="secret">
-      <h2>🤫 SECRET QUEST</h2>
-      <p class="small dim">Five stages, each one harder. For your eyes only — nobody else on the squad can see this from their phone.</p>
+      <h2>🤫 SECRET QUEST <button type="button" class="info-i" onclick="showInfo('secret')" aria-label="About the secret quest"><span>i</span></button></h2>
       <div id="questTrack"></div>
       <button class="btn purple sm" onclick="openQuest()">🤫 <span id="questBtnLabel">VIEW MY STAGE</span></button>
     </div>
@@ -11223,8 +11222,7 @@ function hmInfo(){
   if(!S) return;
   const foe = (_hm && _hm.on) ? _hm.foe : hmFoe(), xpMode = !!S._tankPendingWin;
   const ins = (S.hmSocket||[]).map(id => HM_INLAY_BY_ID[id]).filter(Boolean);
-  const parts = HM_PART_KEYS.map(k => { const P = HM_PARTS[k], lv = hmLv(k), cur = P.lv[Math.min(lv, P.lv.length-1)];
-    return `<div class="hmi-part"><span class="hmi-ic">${P.icon}</span><div><b>${P.n} ${lv}/${P.max}</b> · ${escapeHtml(P.what)}<br><em>${escapeHtml(cur.n)}</em></div></div>`; }).join('');
+  const parts = hmPartsInfoHTML();
   showCard({ tag:'🔨 HAMMERSCHLAGEN', title: foe.n,
     raw:`<div class="hmi-h">${xpMode ? 'YOUR XP ON THE STUMP' : 'BEAT THIS FOE'}</div>
       <p class="hmi-p">${hmRewardHTML(foe, xpMode)}</p>
@@ -11289,7 +11287,7 @@ function hmRefresh(){
   if(!live) hmRenderMeter();
   const st = document.getElementById('hmStatus');
   if(st && !live && !st.textContent.trim()) hmSetStatus(xpMode ? 'YOUR XP IS ON THE LOG' : 'BEAT '+foe.short+' TO THE LOG',
-    xpMode ? `Win ×${foe.win} · flawless ×${foe.flaw} · lose and it's gone` : hmFoeBeaten(foe) ? 'Already beaten: rematch as often as you like.' : `Beat them once: ${HM_MATS[foe.mat].icon} ${HM_MATS[foe.mat].n} is yours for good.`);
+    xpMode ? `Win ×${foe.win} · flawless ×${foe.flaw} · lose and it's gone` : '');
   hmDraw();
   hmIdleTick();
 }
@@ -12190,8 +12188,7 @@ function hmForgeHTML(){
     const P = HM_PARTS[k], lv = hmLv(k), cur = P.lv[lv], nx = P.lv[lv+1];
     const btn = !nx ? `<span class="wz-max">✦ MASTERWORK</span>`
       : `<button class="btn gold sm" onclick="hmForgeUpgrade('${k}')" ${hmCanAfford(nx.cost, nx.mats) ? '' : 'disabled'}>FORGE · ${nx.cost}🍺 ${hmMatesHTML(nx.mats)}</button>`;
-    return `<div class="hm-part"><div class="g">${P.icon}</div><div class="t"><b>${P.n} · ${cur.n}</b> <span class="pips">${'◆'.repeat(lv)}${'◇'.repeat(P.max-lv)}</span><span class="what">${P.what}</span>
-      <span>${cur.d}</span>${nx ? `<span class="nx">NEXT: <b>${nx.n}</b> — ${nx.d}</span>` : ''}</div>${btn}</div>`;
+    return `<div class="hm-part"><div class="g">${P.icon}</div><div class="t"><b>${P.n} · ${cur.n}</b> <span class="pips">${'◆'.repeat(lv)}${'◇'.repeat(P.max-lv)}</span>${nx ? `<span class="nx">NEXT: <b>${nx.n}</b> — ${nx.d}</span>` : ''}</div>${btn}</div>`;
   }).join('');
   const inlays = HM_INLAYS.map(r => {
     const has = owned.indexOf(r.id) >= 0, on = sock.indexOf(r.id) >= 0;
@@ -12209,8 +12206,7 @@ function hmForgeHTML(){
     return `<div class="hm-trophy${got ? ' got' : ''}${fo.id === 'surtr' ? ' surtr' : ''}"><img src="${hmFoeImg(fo.id)}" alt="" class="${open ? '' : 'sil'}">
       <div><b>${open ? fo.n : '??? · LV ' + fo.lv}</b><span>${got ? '✓ ' : '🔒 '}${b.icon} ${b.n} — ${escapeHtml(b.d)}</span></div></div>`;
   }).join('');
-  return `<h2>⚒ THE FORGE</h2>
-    <p class="small dim" style="margin:0 0 8px">Beat a foe ONCE and his material is yours for good (♾) — no farming. A recipe needs the right foes beaten, plus beer from your own settlement: the smith takes ale, not coin, and he needs THE FORGE standing in your town before he will take anything. Whatever you forge hangs on the rack outside the dwarf forge in your settlement — go and look. A bare hammer stops at the Valkyrie; Surtr needs nearly everything below, plus good hands.</p>
+  return `<h2>⚒ THE FORGE ${infoBtn('forge', 'How forging works')}</h2>
     <div class="hm-show">
       <canvas id="hmForgeCan" width="600" height="264"></canvas>
       <div class="hm-plate" id="hmPlate">
@@ -12220,16 +12216,49 @@ function hmForgeHTML(){
       <div class="hm-show-sub">${HM_PARTS.head.lv[hmLv('head')].n} · ${hmFinishDef().n} · ${hmBeaten()}/${HM_FOES.length} FOES BEATEN</div>
     </div>
     <div class="hm-stats">${hmStatsHTML()}</div>
-    <div class="hm-cellar">🍺 <b>${beersHeld()}</b> IN THE CELLAR · <span>${computeBreweryRate().toFixed(1)}/min brewing</span><em>the smith takes ale, not coin</em></div>
-    ${hmForgeBuilt() ? '' : `<div class="hm-hard bad" style="margin:0 0 8px">⚒ THERE IS NO FORGE IN YOUR TOWN YET. Raise it in the SHOP under THE TOWN for 80🪙 — then the smith will take your ale. Keep winning in the meantime: every foe you beat unlocks his material for good.</div>`}
+    <div class="hm-cellar">🍺 <b>${beersHeld()}</b> IN THE CELLAR · <span>${computeBreweryRate().toFixed(1)}/min brewing</span></div>
+    ${hmForgeBuilt() ? '' : `<div class="hm-hard bad" style="margin:0 0 8px">⚒ NO FORGE IN TOWN YET · raise it in the SHOP under THE TOWN</div>`}
     <div class="cw-sect">MATERIALS · ♾ = UNLOCKED FOR GOOD</div><div class="hm-mats">${mats}</div>
-    <div class="cw-sect">THE HAMMER</div>${parts}
-    <div class="cw-sect">GEMS · ${sock.length}/${sockets} SET · MORE SLOTS: FORGE THE GEM SETTING</div>${sockets < 4 ? `<p class="small dim" style="margin:0 0 6px">💍 Your ${HM_PARTS.setting.lv[hmLv('setting')].n} holds ${sockets} gem${sockets>1?'s':''}. Forge the ${HM_PARTS.setting.lv[hmLv('setting')+1].n} (above) to set ${sockets+1}.</p>` : ''}${inlays}`;
+    <div class="cw-sect">THE HAMMER ${infoBtn('hammer', 'What each part does')}</div>${parts}
+    <div class="cw-sect">GEMS · ${sock.length}/${sockets} SET</div>${inlays}`;
 }
 
 
 // ── Longhouse explainer cards: the header chips and foe chips stay terse, the rules live one tap away ──
 const _lhOk = `<button class="btn primary" onclick="closeCard()">GOT IT</button>`;
+/* ⓘ INFO BUTTONS — the screens keep short labels and numbers; the "how it works" lives one tap away.
+   infoBtn(key) prints the button, showInfo(key) opens INFO[key] (an object, or a function returning one). */
+function infoBtn(k, lbl){ return `<button type="button" class="info-i" onclick="event.stopPropagation();showInfo('${k}')" aria-label="${lbl || 'How this works'}"><span>i</span></button>`; }
+function showInfo(k){
+  const i = INFO[k]; if(!i || !S) return;
+  const o = typeof i === 'function' ? i() : i;
+  showCard({ tag:o.tag, title:o.title, body:o.body, raw:o.raw, buttons:o.buttons || _lhOk });
+}
+function hmPartsInfoHTML(){
+  return HM_PART_KEYS.map(k => { const P = HM_PARTS[k], lv = hmLv(k), cur = P.lv[Math.min(lv, P.lv.length-1)];
+    return `<div class="hmi-part"><span class="hmi-ic">${P.icon}</span><div><b>${P.n} ${lv}/${P.max}</b> · ${escapeHtml(P.what)}<br><em>${escapeHtml(cur.n)}: ${escapeHtml(cur.d)}</em></div></div>`; }).join('');
+}
+const INFO = {
+  dare: () => ({ tag:'🎚 THE DARING DIAL', title:'HOW BOLD TONIGHT?',
+    raw:`<p class="hmi-p">Pick a notch before you pull. It decides which tiles the reels can land on and how much XP they pay. Change it after any challenge.</p>`
+      + DARE_LEVELS.map(d => `<div class="hmi-part${d.lv === dareOf() ? ' on' : ''}"><span class="hmi-ic">${d.lv === dareOf() ? '▶' : '·'}</span><div><b>${d.n} · ${d.mult === 1 ? 'BASE XP' : '×' + d.mult + ' XP'}</b><br><em>${escapeHtml(d.d)}</em></div></div>`).join('') }),
+  town: () => ({ tag:'🏘 THE TOWN', title:'BUILDINGS',
+    raw:`<p class="hmi-p">Every building you raise stands in your world and brews beer for you all night.</p>`
+      + (S.charId === 'tank' ? `<p class="hmi-p">Beer is what pays the smith: forging your hammer costs ale, not coin. Raise <b>THE FORGE</b> first: until it stands, you can't forge at all.</p>` : '') }),
+  relics: { tag:'💎 RELICS', title:'WORN FOREVER', raw:`<p class="hmi-p">Buy once and keep it all night. Every relic gives you its bonus and also brews beer for your brewery, even while your phone is in your pocket.</p>` },
+  items: { tag:'🎒 ITEMS', title:'ONE USE EACH', raw:`<p class="hmi-p">Items wait in your Bag until you need them. Open the Bag and tap one to use it. Once used, it's gone.</p>` },
+  upgrades: () => S.charId === 'tank'
+    ? { tag:'🏘 YOUR TOWN', title:'WHAT YOU BUILT', raw:`<p class="hmi-p">Every building you raise in the SHOP under THE TOWN shows up here, with what it brews.</p>` }
+    : { tag:'🍺 BREWERY UPGRADES', title:'ONE PER LEVEL', raw:`<p class="hmi-p">Every level-up opens a chest with an upgrade. Each one boosts your brewery for good and changes how it looks.</p>` },
+  forge: () => ({ tag:'⚒ THE FORGE', title:'FORGING YOUR HAMMER',
+    raw:`<p class="hmi-p">Beat a foe <b>once</b> and his material is yours for good (♾). No farming.</p>
+      <p class="hmi-p">A recipe needs the right foes beaten, plus <b>beer from your cellar</b>: the smith takes ale, not coin. He needs <b>THE FORGE</b> standing in your town (SHOP → THE TOWN) before he'll take anything.</p>
+      <p class="hmi-p">Whatever you forge hangs on the rack outside the forge in your world. A bare hammer stops at the Valkyrie; Surtr needs nearly everything.</p>
+      <p class="hmi-p">💍 The <b>GEM SETTING</b> decides how many gems your hammer holds. Forge it up for more slots.</p>` }),
+  hammer: () => ({ tag:'🔨 YOUR HAMMER', title: hmHammerName(), raw: hmPartsInfoHTML() }),
+  relicsBag: { tag:'💎 RELICS', title:'YOUR RELICS', raw:`<p class="hmi-p">Personal buffs for the crawl. Each one also boosts your brewery's beer output for good.</p>` },
+  secret: { tag:'🤫 SECRET QUEST', title:'FOR YOUR EYES ONLY', raw:`<p class="hmi-p">Five stages, each one harder. Nobody else on the squad can see this from their phone. Clear them without getting caught.</p>` }
+};
 function lhInfo(k){
   if(!S) return;
   if(k === 'heads'){
@@ -17245,9 +17274,9 @@ function refreshDareDial(){
   const opts = DARE_LEVELS.map(d => `<button class="dd-opt dd-stone dd-s${d.lv}${d.lv===cur?' on':''}"${locked?' disabled':''} onclick="setDare(${d.lv})" aria-pressed="${d.lv===cur}">`
     + `<svg class="dd-carve" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">${DD_CARVE[d.lv]}</svg>`
     + `<b>${d.n}</b><span>${d.mult===1 ? 'BASE XP' : '\u00d7'+d.mult+' XP'}</span></button>`).join('');
-  const html = `<div class="dd-head"><span class="dd-title">DARING</span>`
-    + `<span class="dd-lock">${locked ? 'LOCKED TILL THIS CHALLENGE IS DONE' : 'PICK ONE \u00b7 CHANGE IT AFTER ANY CHALLENGE'}</span></div>`
-    + `<div class="dd-grid">${opts}</div><div class="dd-desc">${escapeHtml(dareLevel(cur).d)}</div>`;
+  const html = `<div class="dd-head"><span class="dd-title">DARING ${infoBtn('dare', 'How the Daring Dial works')}</span>`
+    + `<span class="dd-lock">${locked ? '🔒 LOCKED TILL THIS CHALLENGE IS DONE' : ''}</span></div>`
+    + `<div class="dd-grid">${opts}</div>`;
   if(el.innerHTML !== html) el.innerHTML = html;
   el.classList.toggle('locked', locked);
 }
@@ -18123,8 +18152,8 @@ function townSectionHTML(){
   const rate  = computeBreweryRate();
   if(!avail.length) return `
     <div class="shop-section">
-      <div class="shop-section__label"><span>◆ THE TOWN ◆</span></div>
-      <div class="shop-section__sub">Every building raised · ${rate.toFixed(1)} beer/min. There is nothing left to build and that is its own kind of problem.</div>
+      <div class="shop-section__label"><span>◆ THE TOWN ◆</span>${infoBtn('town', 'About buildings')}</div>
+      <div class="shop-section__sub">Every building raised · ${rate.toFixed(1)} beer/min</div>
     </div>`;
   const cards = avail.map(u => {
     const price = townPrice(u), afford = (S.coins||0) >= price;
@@ -18146,8 +18175,8 @@ function townSectionHTML(){
   }).join('');
   return `
     <div class="shop-section">
-      <div class="shop-section__label"><span>◆ THE TOWN ◆</span></div>
-      <div class="shop-section__sub">${built} standing · ${rate.toFixed(1)} beer/min. Everything here appears in your world and brews for you all night — and beer is what pays the smith.${S.charId === 'tank' && !hmForgeBuilt() ? ' <b style="color:#e8a33d">Raise THE FORGE before anything else: until it is standing you cannot work the hammer at all.</b>' : ''}</div>
+      <div class="shop-section__label"><span>◆ THE TOWN ◆</span>${infoBtn('town', 'About buildings')}</div>
+      <div class="shop-section__sub">${built} standing · ${rate.toFixed(1)} beer/min${S.charId === 'tank' && !hmForgeBuilt() ? '<br><b style="color:#e8a33d">⚒ RAISE THE FORGE FIRST</b>' : ''}</div>
       ${cards}
     </div>`;
 }
@@ -18234,13 +18263,11 @@ function renderShop(){
     ${exclusiveSection}
     ${townSectionHTML()}
     <div class="shop-section">
-      <div class="shop-section__label"><span>◆ RELICS ◆</span></div>
-      <div class="shop-section__sub">Worn forever. Every relic also brews beer while you sleep.</div>
+      <div class="shop-section__label"><span>◆ RELICS ◆</span>${infoBtn('relics', 'About relics')}</div>
       ${genRelics.map(r=>itemCard(r,'relic',false)).join('')}
     </div>
     <div class="shop-section">
-      <div class="shop-section__label"><span>◆ ITEMS ◆</span></div>
-      <div class="shop-section__sub">One use each. They wait in your Bag until you need them.</div>
+      <div class="shop-section__label"><span>◆ ITEMS ◆</span>${infoBtn('items', 'About items')}</div>
       ${genItems.map(c=>itemCard(c,'item',false)).join('')}
     </div>
   `;
@@ -18574,6 +18601,7 @@ function renderBag(){
   if(questTrack) questTrack.innerHTML = questProgressHTML();
   // Brewery upgrades — show each with rate contribution and description
   const upgEl = document.getElementById('bagUpgradeList');
+  { const tt = document.getElementById('bagUpgTitle'); if(tt) tt.textContent = S.charId === 'tank' ? '🏘 YOUR TOWN' : '🍺 BREWERY UPGRADES'; }
   if(upgEl){
     const ups = S.breweryUpgrades||[];
     const totalRate = computeBreweryRate();
@@ -18595,7 +18623,7 @@ function renderBag(){
           </div>`;
         }).join('');
     } else {
-      upgEl.innerHTML = '<span class="dim">None yet. Level up to pick your first one.</span>';
+      upgEl.innerHTML = S.charId === 'tank' ? '<span class="dim">Nothing raised yet. Build in the SHOP under THE TOWN.</span>' : '<span class="dim">None yet. Level up to pick your first one.</span>';
     }
   }
   // Jester — the fool's kit (mirth, tricks, rank, what's up the sleeve)
