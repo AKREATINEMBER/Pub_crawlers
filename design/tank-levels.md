@@ -475,3 +475,32 @@ screen 15.4% → 13%. The town renders pixel-identical to before (frame-by-frame
   while the reels spin (the button is disabled then). Respects reduced motion.
 - **✅ and 🔁 recoloured** into the tavern palette (gold tick on a wooden token, bronze arrows) — same shapes,
   no more bright app-green and cyan on every tile card.
+
+## v3.14 — McLovin's ID, properly gone
+
+- **Leak closed:** `migrate` refunded IDs still in the bag, but an ID already *flashed* (`S.autoWinNext`) survived
+  and still auto-won the next tile. `migrate` now sets `p.autoWinNext = false`.
+- **Shop guards:** `buyRelic` / `buyConsumable` refuse `retired` entries; `buyWithXP` (Jedi Mind Trick) now applies
+  the same rules as the coin shop (retired, artifacts, other class, `TANK_SHOP_CUT`, one-per-run) and no longer
+  writes the unused `S.brewBonus`.
+- **Consumables audit:** every non-retired item still hooks into live code. Tank one-offs: Neverending Stout
+  (the only rematch since v3 — kept), A Round for the Fellowship. Groundhog Day Token, Get Out of Jail Free and
+  the Banker's Call are only ever discovered in the Gambler's Den, so other classes never see them.
+- Tested in Chromium at 390×844: a save with 2 IDs + one flashed → +50🪙, auto-win off, buy/haggle both rejected,
+  no page errors.
+
+## v3.14 — carved wood (Tank-ard)
+
+Every panel is framed like the doorway of a stave church, all drawn as carved relief (cast shadow, dark outline,
+raised wood, a thin catch-light) in hand-built SVG, applied with `border-image` so the ends stay whole and the
+middle repeats:
+- **Gable beams** across the top of every panel, pop-up card included: a carved beast at each end, its head jutting
+  out past the panel's side, joined by a two-strand plait that truly weaves over and under (clip-window crossings).
+  Three beasts: the **gable dragon** (Borgund-style: open jaws, curled tongue, ember eye, curls on the neck),
+  **Fenrir's wolf** (laid-back ears, snarl, lolling tongue, mane) and **Odin's raven** (hooked beak, ragged crown,
+  layered neck feathers). Status bar: dragons · Daring dial: ravens (Huginn & Muninn) · Longhouse: wolves · other
+  panels take turns (`nth-of-type`). Images live in `--tk-beam-dragon/-wolf/-raven` and `--tk-sill`.
+- **Sills** along the bottom of every full panel and every shop card: the plait again, rolling up into a carved
+  double scroll at each end.
+Panels got room for them (padding). Tank-only (`body[data-char="tank"]`); other classes keep their own looks.
+No drop-shadow filters (the shadow is in the carving), so scrolling stays cheap; tap timings unchanged.
