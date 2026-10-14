@@ -436,3 +436,28 @@ badge (Tank only). **NEW BAR** is a quiet underlined link, "moving to a new bar?
   screen now finds no native emoji left (only the text glyphs ▶ ◀ ✎).
 - **Swing meter legend:** the v3.6 size bump made SOLID / GOLD / SOLID overlap on tough foes. Words that don't
   fit their zone now hide (the colour says it), GOLD always shows, and hides its neighbours if it spills.
+
+## v3.12 — performance (measured on a 4× CPU-throttled "phone", Playwright + Chromium)
+
+| tap (code + layout) | before | after |
+|---|---|---|
+| open SHOP | 324 ms | ~95 ms |
+| open BAG | 487 ms | ~160 ms |
+| LOG A BEER | 77 ms | ~43 ms |
+| start a nail match | 79 ms | ~58 ms |
+
+Town draw (desktop speed, level 10, all buildings): ~4.1 → ~2.7 ms per frame. Idle script time on the game
+screen 15.4% → 13%. The town renders pixel-identical to before (frame-by-frame diff at 9 camera positions ×
+3 levels × day/dusk/night, random and clock frozen; the only differences are ≤1/255 at the right edge).
+
+- **Town culling** (`vkDrawMain`: `L0/L1`, `vis()`, `from()`): buildings, palisade, aurora, jetty, lamp strings,
+  torches, ships, roof smoke, goats, walkers, townsfolk and the hero are only drawn near the view. Two thirds
+  of every frame used to be painted off-screen (world 1700–2600 px, view ~240).
+- **Per-frame memo**: `vkConf` / `vkInland` / `vkTownQuarter` are computed once per frame (`_vkMemo`, only alive
+  inside `drawArena`); `breweryUpgradeVisualCount` (asked ~60×/frame) counts once per change of the list.
+- **Adaptive frame rate** (`arenaAdapt`): the town draws at 15 fps; if a draw keeps costing > 18 ms it steps to
+  10 fps (> 30 ms → 7.5), and back up when the phone copes. Animation speed is unchanged.
+- **Long screens lay out lazily**: `content-visibility:auto` on shop cards (186 px placeholder) and bag panels.
+- **One save per tap**: `save()` queues a single write in a microtask (`saveNow`); `doReset` cancels a queued one.
+- **Hammer stage repaint batched** (`hmDrawSoon`): at most once per screen frame, however many HUD updates ask.
+- **Forge preview** only paints while on screen (`_hmPreviewTick`).

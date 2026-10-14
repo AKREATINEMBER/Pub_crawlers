@@ -3488,6 +3488,11 @@ html body #btnNewBar.armed{ opacity:1; color:#ffd24a !important; }
 /* the Forge leads the Town until it stands (Tank) */
 html body .shop-item.si--pinned{ border-color:#e8a33d !important; box-shadow:0 0 0 2px rgba(232,163,61,.45), 0 0 18px rgba(232,163,61,.25) !important; }
 html body .si-chip--forge{ color:#ffd24a !important; border-color:#e8a33d !important; background:rgba(232,163,61,.15) !important; }
+
+/* ══ PERF (v3.12): the long screens (shop, bag, info) only lay out and paint what's near the screen. Panels further
+   down are laid out as you scroll to them; "auto" remembers each one's real height so the page never jumps. ══ */
+#screen-shop .shop-item{ content-visibility:auto; contain-intrinsic-size:auto 186px; }   /* a shop card is ~170–260 px tall */
+#screen-bag .panel{ content-visibility:auto; contain-intrinsic-size:auto 400px; }
 </style>
 </head>
 <body class="cozy">
@@ -4584,7 +4589,11 @@ function renameOldTiles(raw){
   for(const o in TILE_RENAMES){ if(raw.indexOf('"'+o+'"') >= 0) raw = raw.split('"'+o+'"').join(JSON.stringify(TILE_RENAMES[o])); }
   return raw;
 }
-function save(){ try{ store.set('as_state', JSON.stringify(S)); }catch(e){} }
+// PERF (v3.12): one tap used to write the whole save 3–5 times. save() now marks it dirty and the write happens once,
+// in a microtask: still before the browser can paint, take another tap or reload, so nothing can be lost.
+let _saveQ = false;
+function save(){ if(_saveQ) return; _saveQ = true; queueMicrotask(saveNow); }
+function saveNow(){ if(!_saveQ) return; _saveQ = false; try{ store.set('as_state', JSON.stringify(S)); }catch(e){} }
 let _bootCorruptRaw = null; // a save that wouldn't parse — kept so the recovery card can hand it back as a code
 // keep a copy of a damaged save instead of letting the next save() overwrite the only one (newest 3 kept)
 function stashCorruptSave(raw){
@@ -5544,8 +5553,12 @@ function computeBreweryRate(){
 function beersHeld(){ return Math.floor((S && S.beerCoinsTotal) || 0); }
 function spendBeers(n){ if(!S) return; S.beerCoinsTotal = Math.max(0, (S.beerCoinsTotal||0) - (n||0)); }
 function earnBeers(n){ if(!S) return; S.beerCoinsTotal = (S.beerCoinsTotal||0) + n; S.beerLifetime = (S.beerLifetime||0) + n; }
+// PERF (v3.12): the town asks this ~60 times a frame; count once per change of the list instead
+let _buvRef = null, _buvLen = -1, _buvMap = {};
 function breweryUpgradeVisualCount(tag){
-  return (S && S.breweryUpgrades) ? S.breweryUpgrades.filter(u=>u.visual===tag).length : 0;
+  const ups = S && S.breweryUpgrades; if(!ups) return 0;
+  if(ups !== _buvRef || ups.length !== _buvLen){ _buvMap = {}; ups.forEach(u => { _buvMap[u.visual] = (_buvMap[u.visual]||0) + 1; }); _buvRef = ups; _buvLen = ups.length; }
+  return _buvMap[tag] || 0;
 }
 /* the brewery no longer follows the day/night sky (removed 12 Oct 2026): the rate on screen is the real, steady rate */
 function tickBreweryProduction(){
@@ -5719,7 +5732,12 @@ function breweryTierName(tier){
 const VK_NAMES_HIGH = ["THE WOLF'S REACH",'THE TWIN STEADINGS','THE STONE HARBOUR',"GIANT'S MARKET",'THE WORLD TREE',"THUNDER'S BARROW","HEIMDALL'S GOLDEN WATCH",'RAGNARÖK'];
 function vkLevel(){ if(hmBoon('surtr')) return TK_LEVEL_CAP; return Math.max(1, Math.min(TK_LEVEL_CAP, (S && S.level) || 1)); } // Surtr's boon: straight to RAGNARÖK
 function vkForgeStanding(){ return !!(S && (S.dev || (S.breweryUpgrades||[]).some(u => u.id === 'tk_forge'))); }
+let _vkMemo = null;   // PERF (v3.12): set only during drawArena — layout is computed once per frame, not 2–3×
 function vkConf(){
+  if(_vkMemo && _vkMemo.conf) return _vkMemo.conf;
+  const v = _vkConfRaw(); if(_vkMemo) _vkMemo.conf = v; return v;
+}
+function _vkConfRaw(){
   const L = vkLevel();
   const v = Object.assign({}, VK[Math.min(VK.length-1, L-1)]);
   v.L = L; v.idx = L-1;
@@ -5756,6 +5774,10 @@ function vkDocks(v){
 function vkSeaEnd(v){ return v.shore + 4 + v.fleet.reduce((a,f)=>a + 52*f.sc, 0); }
 function vkMainWidth(v){ return (v.ships ? vkSeaEnd(v) + 22 : v.shore + 90) + (v.kraken ? 50 : 0) + (v.ragnarok ? 120 : 0); }
 function vkInland(v){
+  if(_vkMemo){ if(_vkMemo.inV === v && _vkMemo.inland) return _vkMemo.inland; const r = _vkInlandRaw(v); _vkMemo.inV = v; _vkMemo.inland = r; return r; }
+  return _vkInlandRaw(v);
+}
+function _vkInlandRaw(v){
   const order = [];
   const tq = vkTownQuarter(); if(tq.w > 0) order.push(['town', tq.w + 24]);   // the street of bought buildings, right next to the village
   if(v.forge)  order.push(['forge',136]);     // next to the town quarter: both can arrive early, so they sit nearest the village and never shuffle the rest
@@ -6833,6 +6855,7 @@ function vkHeroSprite(ctx, x, gy, L, now, o){
   }
   const ch = tankStageChar(), sc = 1.45;
   const px = x - 6*sc, py = gy - 12*sc - (o.lift || 0);
+  { const hs = window._vkHeroScr; if(hs && (hs.x < -120 || hs.x > ctx.canvas.width + 120)) return; }   // PERF: off screen, nothing to paint
   drawChar(ctx, ch, px, py, sc, 100);
   const hx = o.flip ? px + 1.4*sc : px + 10.6*sc, hy = py + 8.8*sc;
   vkHeroProp(ctx, o.prop, hx, hy, now, o);
@@ -7794,6 +7817,10 @@ const VK_TOWN_HOUSE = {
   shrine:   { w:30, h:19, roof:'shingle', rich:true }
 };
 function vkTownQuarter(){
+  if(_vkMemo && _vkMemo.tq) return _vkMemo.tq;
+  const r = _vkTownQuarterRaw(); if(_vkMemo) _vkMemo.tq = r; return r;
+}
+function _vkTownQuarterRaw(){
   const plots = {}, houses = {}; let w = 0;
   if(typeof S === 'undefined' || !S) return { plots, houses, w };
   VK_TOWN_ORDER.forEach(t => {
@@ -7855,7 +7882,8 @@ function vkTownProps(ctx, v, lay, gy, W, now, night){
     const n = Math.min(7, Object.keys(tq.plots).length);
     for(let i = 0; i < n; i++){
       const P = 26000 + i*7300, T = ((now + i*9100) % P)/P, f = T < 0.5 ? T*2 : 2 - T*2;
-      vkViking(ctx, seg.x + 14 + (seg.w - 28)*f, gy, Math.floor(now/150 + i) % 2, i === 2 && T < 0.5);
+      const vx = seg.x + 14 + (seg.w - 28)*f; if(vx < vpan - 20 || vx > vpan + vvw + 20) continue;
+      vkViking(ctx, vx, gy, Math.floor(now/150 + i) % 2, i === 2 && T < 0.5);
     }
   }
   if(have('fishrack')) raise('fishrack', slotX('fishrack') - 10, slotX('fishrack') + 10, () => {        // stockfish on a pole rack, swinging a little
@@ -8176,7 +8204,7 @@ function drawVikingSettlement(ctx, W, H, groundY, frame, tier, nightness, isDay)
     if(s.t==='crag')   vkHeimdall(ctx, s.x, s.w, gy, nightness, now, W);
     if(s.t==='fort')   vkFort(ctx, s.x, s.w, gy, nightness, now);
   });
-  ctx.save(); ctx.translate(lay.X0, 0);
+  ctx.save(); ctx.translate(lay.X0, 0); window._vkX0 = lay.X0;
   vkDrawMain(ctx, W - lay.X0, H, groundY, frame, v, nightness, isDay);
   ctx.restore();
   vkTownProps(ctx, v, lay, gy, W, now, nightness);
@@ -8194,6 +8222,12 @@ function vkDrawMain(ctx, W, H, groundY, frame, v, nightness, isDay){
   const gy = groundY, waterY = gy + 3, now = vkNow();
   const R = (x,y,w,h,c)=>{ ctx.fillStyle=c; ctx.fillRect(x,y,w,h); };
   const night = nightness;
+  // PERF (v3.12): only draw what's on screen. The world is 1700–2600 px wide and the view is ~240, so two thirds
+  // of every frame used to be painted off-screen. L0..L1 is the view in this function's own coordinates; things
+  // that throw light or smoke past their edges get a generous margin.
+  const L0 = (window._arenaPan || 0) - (window._vkX0 || 0), L1 = L0 + (window._arenaViewW || 240);
+  const vis = (a, b, m) => b + (m == null ? 40 : m) >= L0 && a - (m == null ? 40 : m) <= L1;
+  const from = (start, step, m) => start + Math.max(0, Math.ceil((L0 - m - start) / step)) * step;   // first loop x near the view
 
   // ── aurora (night, rich tiers) ──
   if(v.aurora && night > 0.1){
@@ -8201,7 +8235,7 @@ function vkDrawMain(ctx, W, H, groundY, frame, v, nightness, isDay){
     for(let band=0; band<3; band++){
       ctx.globalAlpha = night * (0.22 - band*0.05);
       ctx.fillStyle = band===1 ? '#b070ff' : '#50ffb0';
-      for(let x=0; x<W; x+=3){
+      for(let x=from(0, 3, 6), xe=Math.min(W, L1 + 6); x<xe; x+=3){
         const y = 18 + band*9 + Math.sin(x/37 + now/2600 + band)*8 + Math.sin(x/13 + now/1700)*2;
         R(x, y, 3, 14 + Math.sin(x/21 + now/900)*5, ctx.fillStyle);
       }
@@ -8244,18 +8278,19 @@ function vkDrawMain(ctx, W, H, groundY, frame, v, nightness, isDay){
     const jx0 = shore - 6, jx1 = v.ragnarok ? vkPierEnd(v) + 4 : vkSeaEnd(v) - 6;
     if(v.quay){
       R(jx0, gy-2, jx1-jx0, 5, '#6e6a72'); R(jx0, gy-2, jx1-jx0, 1, '#8a8690');
-      for(let x=jx0; x<jx1; x+=7) R(x, gy-1, 0.6, 4, '#58545c');
-      for(let x=jx0+6; x<jx1; x+=22) R(x, gy+3, 5, H-gy-3, '#58545c');
-      for(let x=jx0+14; x<jx1; x+=44){ R(x, gy-6, 3, 4, '#3a3640'); }       // mooring posts
+      const je = Math.min(jx1, L1 + 50);
+      for(let x=from(jx0, 7, 10); x<je; x+=7) R(x, gy-1, 0.6, 4, '#58545c');
+      for(let x=from(jx0+6, 22, 10); x<je; x+=22) R(x, gy+3, 5, H-gy-3, '#58545c');
+      for(let x=from(jx0+14, 44, 10); x<je; x+=44){ R(x, gy-6, 3, 4, '#3a3640'); }       // mooring posts
     } else {
       R(jx0, gy-1, jx1-jx0, 3, '#5a3a22'); R(jx0, gy-1, jx1-jx0, 1, '#7a5432');
-      for(let x=jx0+4; x<jx1; x+=12) R(x, gy+2, 2, H-gy-2, '#3a2414');
+      for(let x=from(jx0+4, 12, 10), je=Math.min(jx1, L1 + 50); x<je; x+=12) R(x, gy+2, 2, H-gy-2, '#3a2414');
     }
   }
 
   // ── palisade behind the buildings ──
   if(v.pal){
-    for(let x=2; x<shore-24; x+=4){
+    for(let x=from(2, 4, 8), xe=Math.min(shore-24, L1 + 8); x<xe; x+=4){
       const h = 15 + ((x*7)%3);
       R(x, gy-h, 3, h, '#4a2e1a'); R(x, gy-h, 1, h, '#5e3c22');
       ctx.fillStyle = '#4a2e1a'; ctx.beginPath(); ctx.moveTo(x, gy-h); ctx.lineTo(x+1.5, gy-h-3); ctx.lineTo(x+3, gy-h); ctx.fill();
@@ -8265,6 +8300,7 @@ function vkDrawMain(ctx, W, H, groundY, frame, v, nightness, isDay){
 
   // ── buildings ──
   v.b.forEach(([type, x, w, h])=>{
+    if(!vis(x, x + w, Math.max(90, w))) return;   // its lamps' glow can reach ~90 px past the walls
     if(type==='hut')    vkHut(ctx, x, w, h, gy, night, now);
     if(type==='long')   vkHall(ctx, x, w, h, gy, night, now, { roof:'turf', rich:!!v.gold, shields: v.idx>=2 });
     if(type==='hall')   vkHall(ctx, x, w, h, gy, night, now, { roof:'shingle', rich:false, shields:true });
@@ -8283,6 +8319,7 @@ function vkDrawMain(ctx, W, H, groundY, frame, v, nightness, isDay){
   const halls = v.b.filter(b => b[0] === 'long' || b[0] === 'hall' || b[0] === 'great');
   for(let i = 0; i + 1 < halls.length; i++){
     const A = halls[i], B = halls[i + 1], rhA = A[0] === 'great' ? 26 : 18, rhB = B[0] === 'great' ? 26 : 18;
+    if(!vis(A[1], B[1] + B[2], 60)) continue;
     vkFestoon(ctx, A[1] + A[2] - 4, gy - A[3] - 4, B[1] + 4, gy - B[3] - 4, now, night);
     vkFestoon(ctx, A[1] + A[2]*0.5, gy - A[3] - rhA + 2, A[1] + A[2] + 2, gy - A[3] + 2, now, night);   // one down the gable end
   }
@@ -8291,6 +8328,7 @@ function vkDrawMain(ctx, W, H, groundY, frame, v, nightness, isDay){
   const torchXs = [v.b[0][1] - 4, v.b[0][1] + v.b[0][2] + 2];
   if(great) torchXs.push(great[1] - 4, great[1] + great[2] + 2);
   torchXs.forEach((tx,i)=>{
+    if(!vis(tx, tx, 70)) return;
     R(tx, gy-12, 2, 12, '#3a2414');
     const fl = 0.6 + 0.4*Math.sin(now/90 + i*2);
     R(tx-1.5, gy-13, 5, 1.6, '#2a1a10');                                              // the iron cup
@@ -8312,6 +8350,7 @@ function vkDrawMain(ctx, W, H, groundY, frame, v, nightness, isDay){
       const T = ((now/P + off) % 1), f = T < 0.5 ? T*2 : 2 - T*2;
       const gx = x0 + (x1 - x0)*f, dir = T < 0.5 ? 1 : -1;
       const grazing = Math.sin(now/1300 + k*3) > 0.55;
+      if(!vis(gx, gx, 20)) return;
       vkGoat(ctx, gx, gy, dir, k, grazing ? null : now);
     });
   }
@@ -8337,12 +8376,12 @@ function vkDrawMain(ctx, W, H, groundY, frame, v, nightness, isDay){
       else if(ph < 0.40){ const u = (ph-0.18)/0.22; x = dockX + (out-dockX)*u*u; st = { sail:true, crew:1, oars:u<0.4, loot:0 }; }
       else if(ph < 0.62){ x = out + 100; }
       else if(ph < 0.84){ const u = (ph-0.62)/0.22, e = 1-(1-u)*(1-u); x = out + (dockX-out)*e; dir = -1; st = { sail:true, crew:1, oars:u>0.6, loot:1 }; }
-      else { dir = -1; st = { sail:false, crew:1, loot: 1 - (ph-0.84)/0.16 }; vkWalkers(ctx, dockX, lootX, gy, (ph-0.84)/0.16, true, now); }
-      if(ph < 0.18) vkWalkers(ctx, (great||v.b[0])[1] + ((great||v.b[0])[2])/2, dockX, gy, ph/0.18, false, now);
+      else { dir = -1; st = { sail:false, crew:1, loot: 1 - (ph-0.84)/0.16 }; if(vis(Math.min(dockX, lootX), Math.max(dockX, lootX), 20)) vkWalkers(ctx, dockX, lootX, gy, (ph-0.84)/0.16, true, now); }
+      if(ph < 0.18 && vis(Math.min(dockX, (great||v.b[0])[1]), Math.max(dockX, (great||v.b[0])[1] + (great||v.b[0])[2]), 20)) vkWalkers(ctx, (great||v.b[0])[1] + ((great||v.b[0])[2])/2, dockX, gy, ph/0.18, false, now);
     }
     st.sc = d.sc; st.gold = d.gold;
     window._vkShipPos[i] = { x, y: waterY + 1 + Math.sin(now/600 + i)*0.8, dir, sc: d.sc, vis: x < W + 60*d.sc };
-    if(x < W + 60*d.sc) vkShip(ctx, x, waterY + 1 + Math.sin(now/600 + i)*0.8, dir, st, now);
+    if(x < W + 60*d.sc && vis(x - 70*d.sc, x + 70*d.sc, 20)) vkShip(ctx, x, waterY + 1 + Math.sin(now/600 + i)*0.8, dir, st, now);
   });
 
   // ── weird stuff ──
@@ -8364,6 +8403,7 @@ function vkDrawMain(ctx, W, H, groundY, frame, v, nightness, isDay){
   for(let i=vkSmoke.length-1;i>=0;i--){
     const p = vkSmoke[i]; p.y -= p.vy; p.x += Math.sin((p.y+i)/9)*0.15; p.r += 0.025; p.a -= 0.004;
     if(p.a <= 0){ vkSmoke.splice(i,1); continue; }
+    if(!vis(p.x, p.x, 8)) continue;   // keeps rising off-screen, just isn't painted
     ctx.globalAlpha = p.a; ctx.fillStyle = '#9a9aa8'; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
   }
   ctx.globalAlpha = 1;
@@ -9303,6 +9343,10 @@ function arenaInitDrag(c){
 }
 
 function drawArena(){
+  _vkMemo = {};
+  try{ _drawArena(); } finally { _vkMemo = null; }
+}
+function _drawArena(){
   const c = document.getElementById('arena'); if(!c) return;
   const ctx = c.getContext('2d');
   const px = c.width / 360;                   // backing pixels per CSS-ish px
@@ -9376,6 +9420,17 @@ function floatText(txt, color){
    Nothing is drawn while the phone is locked / the tab is hidden / another screen is open. */
 const ARENA_FRAME_MS = 66;
 let _lastArenaTs = 0, _arenaSteps = 1;
+// PERF (v3.12): adapt to the phone. The town normally redraws at 15 fps; if a draw keeps costing a slow phone too
+// much, it steps down to 10 fps (and 7.5 on a very slow one) so taps and scrolling stay smooth. It steps back up
+// when the phone copes again. Animation speed doesn't change (each draw advances by the real time passed).
+let _arenaFrameMs = ARENA_FRAME_MS, _arenaCost = 0;
+function arenaAdapt(ms){
+  _arenaCost = _arenaCost ? _arenaCost*0.9 + ms*0.1 : ms;
+  if(_arenaFrameMs === 66 && _arenaCost > 18) _arenaFrameMs = 100;
+  else if(_arenaFrameMs === 100 && _arenaCost > 30) _arenaFrameMs = 133;
+  else if(_arenaFrameMs === 133 && _arenaCost < 22) _arenaFrameMs = 100;
+  else if(_arenaFrameMs === 100 && _arenaCost < 12) _arenaFrameMs = 66;
+}
 // how many of the frames that just elapsed hit "frame % n === k" — keeps spawn rates identical at 15 fps
 function arenaHits(frame, n, k){ let c = 0; for(let s=0; s<_arenaSteps; s++){ if(((frame - s) % n + n) % n === k) c++; } return c; }
 function loop(ts){
@@ -9384,7 +9439,7 @@ function loop(ts){
   if(document.hidden) return;
   const g = document.getElementById('screen-game');
   if(!g || g.classList.contains('hide')){ _lastArenaTs = 0; return; }
-  if(_lastArenaTs && ts - _lastArenaTs < ARENA_FRAME_MS) return;
+  if(_lastArenaTs && ts - _lastArenaTs < _arenaFrameMs) return;
   // scrolled past the brewery (a hammer match, the duel, the shop list): don't paint a world nobody can see
   const ac = document.getElementById('arena');
   if(ac && !onScreen(ac)){ _lastArenaTs = 0; if(floaters.length) floaters.length = 0; return; }
@@ -9392,7 +9447,9 @@ function loop(ts){
   _lastArenaTs = ts;
   _arenaSteps = Math.max(1, Math.min(6, Math.round(dt / 16.67)));
   boardFrame += _arenaSteps;
+  const t0 = performance.now();
   try{ drawArena(); }catch(e){}
+  arenaAdapt(performance.now() - t0);
 }
 document.addEventListener('visibilitychange', ()=>{
   _lastArenaTs = 0;
@@ -11496,9 +11553,12 @@ function hmRefresh(){
   const st = document.getElementById('hmStatus');
   if(st && !live && !st.textContent.trim()) hmSetStatus(xpMode ? 'YOUR XP IS ON THE LOG' : 'BEAT '+foe.short+' TO THE LOG',
     xpMode ? `Win ×${foe.win} · flawless ×${foe.flaw} · lose and it's gone` : '');
-  hmDraw();
+  hmDrawSoon();
   hmIdleTick();
 }
+// PERF (v3.12): the stage is repainted at most once per screen frame, however many HUD updates ask for it
+let _hmDrawQ = 0;
+function hmDrawSoon(){ if(_hmDrawQ) return; _hmDrawQ = requestAnimationFrame(() => { _hmDrawQ = 0; try{ hmDraw(); }catch(e){} }); }
 let _hmFrame = 0, _hmGhostP = null;
 function hmNeedleTo(p, hit){
   const n = document.getElementById('hmNeedle'); if(!n) return;
@@ -12364,7 +12424,12 @@ function hmPreviewDraw(){
   ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
   ctx.setTransform(1,0,0,1,0,0);
   clearTimeout(_hmShowT);
-  _hmShowT = setTimeout(() => { const cc = document.getElementById('hmForgeCan'); if(cc && cc.offsetParent && !document.hidden) hmPreviewDraw(); }, 110);
+  _hmShowT = setTimeout(_hmPreviewTick, 110);
+}
+// PERF (v3.12): the forge preview keeps its clock ticking, but only paints while it's actually on screen
+function _hmPreviewTick(){
+  const cc = document.getElementById('hmForgeCan'); if(!cc || !cc.offsetParent) return;   // bag closed: the chain ends (renderBag restarts it)
+  if(!document.hidden && onScreen(cc)) hmPreviewDraw(); else _hmShowT = setTimeout(_hmPreviewTick, 250);
 }
 function hmEditName(on){
   const plate = document.getElementById('hmPlate'); if(!plate) return;
@@ -19077,7 +19142,7 @@ function hardReset(){
              <button class="btn ghost sm" onclick="closeCard()">NO, CANCEL</button>`
   });
 }
-function doReset(){ clearTransientState(); store.del('as_state'); S = freshState(); closeCard(); go('boot'); toast('RUN RESET'); }
+function doReset(){ _saveQ = false; clearTransientState(); store.del('as_state'); S = freshState(); closeCard(); go('boot'); toast('RUN RESET'); }
 
 /* ---------- init ---------- */
 // boot went wrong (damaged save, or a bug) — hand the player their save as a code and two ways forward
