@@ -393,3 +393,15 @@ Tapping your Tank-ard in the town (`vkHeroTap`, a press that didn't move on `#ar
 fresh line from the same shuffled pool, no camera move. His on-screen spot is recorded each frame from the
 canvas transform (`window._vkHeroScr`), so it works at every level and while he walks. Target ≥52px wide;
 a tap beside him does nothing; a second tap within 0.7 s is ignored, after that each tap gets a new line.
+
+## v3.8 — tapping him actually works on a phone, and you can send him places
+
+- **Why the tap failed:** the town scene draws on its own animation clock, about a second behind
+  `performance.now()`. `vkHeroTap` treated his last drawn position as stale (> 1 s) and ignored the tap —
+  on a phone, which draws slower, almost always. All the hero timing (wave, ring, walk, camera follow) now
+  uses `performance.now()`. Also: the labels over the town (`#arenaHint`, `#sagaCap`, `#brewRateLabel`) no
+  longer catch touches, and taps are read on `#arenaWrap` in the capture phase.
+- **Send him somewhere:** tap him → he waves, says a line and a gold ring pulses at his feet for 6 s
+  (`_vkArmed`). Tap a spot in the town → he walks there (`_vkWalk`, 34 world px/s, clamped to dry land
+  `_vkLandMax`) saying a short order line, the camera follows, he waits 25 s with a mug, then walks back to
+  his scene. A tap elsewhere when he isn't armed does nothing.

@@ -219,6 +219,7 @@ input[type=text]::placeholder{color:#fff;opacity:.9;}
 /* ---------- arena ---------- */
 #arenaWrap{position:relative;border:3px solid #6b4a26;box-shadow:0 0 0 3px #170f08, inset 0 0 30px rgba(217,126,43,.18);background:#0f0904;overflow:hidden;}
 #arena{width:100%;height:auto;touch-action:pan-y;cursor:grab;-webkit-user-select:none;user-select:none;}
+#arenaHint,#sagaCap,#brewRateLabel{pointer-events:none;} /* labels over the town: taps and swipes go through to it */
 #arena.dragging{cursor:grabbing;}
 #sagaCap{position:absolute;left:8px;right:8px;top:8px;padding:7px 10px 8px;background:linear-gradient(180deg,rgba(14,6,4,.9),rgba(14,6,4,.74));border:1px solid rgba(255,190,110,.4);border-left:3px solid #ffb347;pointer-events:none;opacity:0;transform:translateY(-6px);transition:opacity .5s ease, transform .5s ease;}
 #sagaCap.in{opacity:1;transform:none;}
@@ -6710,17 +6711,34 @@ function vkGreetPick(){
   return _vkGreetBag.pop().replace('{N}', String(S.name || 'CRAWLER').slice(0, 12));
 }
 // TAP HIM and he waves with a fresh line (no camera move: he's already on screen). Tap again for another one.
+const VK_WALK_SPEED = 34, VK_WALK_STAY = 25000, VK_ARM_MS = 6000;   // world px/s · how long he hangs about · how long a tap on him stays armed
+const VK_SENT_LINES = ['ON MY WAY!', 'WHERE THE BEER IS? GOING.', 'AYE, CAPTAIN!', 'MARCHING!', 'FOR GLORY! AND SNACKS.', 'COMING THROUGH!', 'ONE STEP CLOSER TO VALHALLA'];
 function vkHeroTap(canvas, clientX, clientY){
   const h = window._vkHeroScr; if(!h || !S || S.charId !== 'tank' || performance.now() - h.t > 1000) return false;
   const r = canvas.getBoundingClientRect(), sx = r.width / canvas.width;      // backing px → CSS px
   const cx = r.left + h.x*sx, feet = r.top + h.y*sx, body = 30*h.s*sx;       // he's ~30 world px tall with a prop
   const half = Math.max(26, 11*h.s*sx);                                     // a generous target: he's small and sometimes walking
-  if(Math.abs(clientX - cx) > half || clientY < feet - body - 8 || clientY > feet + 10) return false;
   const now = performance.now();
-  if(window._vkGreet && now - (window._vkGreet.t0||0) < 700) return true;   // a double-tap doesn't skip a line
-  window._vkGreet = { line: vkGreetPick(), until: now + VK_GREET_MS, t0: now };
-  buzz(15);
-  return true;
+  const onHim = !(Math.abs(clientX - cx) > half || clientY < feet - body - 8 || clientY > feet + 10);
+  if(onHim){
+    window._vkArmed = now + VK_ARM_MS;                                      // the next tap elsewhere sends him there
+    if(window._vkGreet && now - (window._vkGreet.t0||0) < 700) return true; // a double-tap doesn't skip a line
+    window._vkGreet = { line: vkGreetPick(), until: now + VK_GREET_MS, t0: now };
+    buzz(15);
+    return true;
+  }
+  if(window._vkArmed && now < window._vkArmed){                             // armed: walk to the tapped spot
+    window._vkArmed = 0;
+    const wx = ((clientX - r.left) / sx - h.e) / h.s;                       // CSS px → world x (same transform he was drawn with)
+    const tx = Math.max(8, Math.min(window._vkLandMax || wx, wx));
+    const W = window._vkWalk;
+    window._vkWalk = { tx, ph:'go', cur: W ? W.cur : window._vkHeroX, dir: 1, last: now };
+    window._vkGreet = { line: VK_SENT_LINES[Math.floor(Math.random()*VK_SENT_LINES.length)], until: now + 2500, t0: now };
+    if(typeof _cam !== 'undefined'){ _cam.manual = false; _cam.vel = 0; }
+    buzz(10);
+    return true;
+  }
+  return false;
 }
 function vkGreetTick(now){ // runs every town frame (Tank only); counts only time the town is actually on screen and quiet
   const dt = Math.min(250, now - (_vkGreetLast || now)); _vkGreetLast = now;
@@ -6762,10 +6780,35 @@ function vkHeroProp(ctx, kind, hx, hy, now, o){
 /* draw him: feet at (x, gy). o: { prop, flip, lift, ang, bx, by } */
 function vkHeroSprite(ctx, x, gy, L, now, o){
   o = o || {};
+  // SENT SOMEWHERE: he walks to the spot you tapped, hangs about, then walks back to whatever he was doing
+  // timing uses the real clock (performance.now): the scene's `now` runs on its own animation clock
+  const pn = performance.now(), W = window._vkWalk;
+  if(W){
+    const dtw = Math.min(100, pn - (W.last || pn)) / 1000; W.last = pn;
+    if(W.cur == null) W.cur = x;
+    const goal = W.ph === 'back' ? Math.min(x, window._vkLandMax || x) : W.tx, step = VK_WALK_SPEED * dtw, d = goal - W.cur;
+    if(Math.abs(d) <= step){
+      W.cur = goal;
+      if(W.ph === 'go'){ W.ph = 'stay'; W.stayUntil = pn + VK_WALK_STAY; }
+      else if(W.ph === 'back'){ window._vkWalk = null; }
+    } else { W.cur += Math.sign(d) * step; W.dir = Math.sign(d); }
+    if(W.ph === 'stay' && pn >= W.stayUntil) W.ph = 'back';
+    if(window._vkWalk){
+      const moving = W.ph !== 'stay';
+      x = W.cur; gy = window._vkGroundY != null ? window._vkGroundY : gy;
+      o = Object.assign({}, o, { prop: moving ? null : 'mug', flip: (W.dir||1) < 0, lift: moving ? vkHeroWalk(now, 120) : 0, ang: 0, say: o.say });
+      if(W.ph !== 'back') window._vkFocus = { x, until: pn + 600 };    // the camera keeps him in view
+    }
+  }
   window._vkHeroX = x;
-  { const m = ctx.getTransform(); window._vkHeroScr = { x: m.a*x + m.c*gy + m.e, y: m.b*x + m.d*gy + m.f, s: m.a, t: now }; }
+  { const m = ctx.getTransform(); window._vkHeroScr = { x: m.a*x + m.c*gy + m.e, y: m.b*x + m.d*gy + m.f, s: m.a, e: m.e, t: pn }; }
   const gr = window._vkGreet;
-  if(gr && now < gr.until) o = Object.assign({}, o, { prop:'wave', flip:false, say: gr.line });
+  if(gr && pn < gr.until) o = Object.assign({}, o, { prop:'wave', flip:false, say: gr.line });
+  if(window._vkArmed && pn < window._vkArmed){    // tapped: a pulsing ring at his feet says "tap where he should go"
+    const pr = 7 + Math.sin(now/140)*1.5;
+    ctx.save(); ctx.globalAlpha = 0.55 + 0.3*Math.sin(now/140); ctx.strokeStyle = '#ffd24a'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.ellipse(x, gy + 0.5, pr, pr*0.35, 0, 0, Math.PI*2); ctx.stroke(); ctx.restore();
+  }
   const ch = tankStageChar(), sc = 1.45;
   const px = x - 6*sc, py = gy - 12*sc - (o.lift || 0);
   drawChar(ctx, ch, px, py, sc, 100);
@@ -6785,6 +6828,7 @@ function vkVignette(L, now){
 /* where he is and what he's doing, level by level (world coords; main settlement is offset by X0) */
 function vkHeroScene(ctx, v, lay, gy, waterY, now){
   const L = v.L, X0 = lay.X0, VG = vkVignette(L, now);
+  window._vkGroundY = gy; window._vkLandMax = X0 + v.shore + 22;   // where a sent Tank-ard may walk (not into the fjord)
   const seg = t => lay.segs.find(z=>z.t===t);
   const ships = window._vkShipPos || [];
   const great = v.b.find(b=>b[0]==='great');
@@ -9223,11 +9267,12 @@ function arenaInitDrag(c){
     c.classList.remove('dragging');
   };
   let tap0 = null;
-  c.addEventListener('pointerdown', e => { tap0 = { x:e.clientX, y:e.clientY, t:performance.now() }; });
-  c.addEventListener('pointerup', e => {
+  const tapEl = c.parentElement || c;   // #arenaWrap: catches taps that land on the labels over the town too
+  tapEl.addEventListener('pointerdown', e => { tap0 = { x:e.clientX, y:e.clientY, t:performance.now() }; }, true);
+  tapEl.addEventListener('pointerup', e => {
     if(tap0 && Math.hypot(e.clientX - tap0.x, e.clientY - tap0.y) < 10 && performance.now() - tap0.t < 450 && typeof vkHeroTap === 'function') vkHeroTap(c, e.clientX, e.clientY);
     tap0 = null;
-  });
+  }, true);
   c.addEventListener('pointerdown', down);
   c.addEventListener('pointermove', move);
   c.addEventListener('pointerup', up);
