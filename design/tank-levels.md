@@ -461,3 +461,17 @@ screen 15.4% → 13%. The town renders pixel-identical to before (frame-by-frame
 - **One save per tap**: `save()` queues a single write in a microtask (`saveNow`); `doReset` cancels a queued one.
 - **Hammer stage repaint batched** (`hmDrawSoon`): at most once per screen frame, however many HUD updates ask.
 - **Forge preview** only paints while on screen (`_hmPreviewTick`).
+
+## v3.13 — UI polish pass (one look across every screen)
+
+- **Fixed:** the level plaque read "LEVELLV" (the v3.6 size bump un-hid the small LV under the plaque's own
+  LEVEL label); the bag's town list printed "undefined" under every building (now the first line of its
+  flavour); the Log still said "Brewery upgrades" for the Tank-ard (now "Your town"); Info still talked about
+  "relics" and a "Class relics & items… exclusive section" from before the shop cleanup.
+- **One vocabulary:** shop ribbons follow the sections — no BUILDING ribbon in The Town (the section already
+  says it), GEAR / ONE-OFF instead of RELIC / ITEM for the Tank; the ⓘ cards use the same words.
+- **The lever:** the main button had a slot-machine 🎰; it now carries an iron tavern lever with a red knob
+  (two pixel SVGs, `#btnSpin .lever`) that leans back at rest, swings down while you press and stays pulled
+  while the reels spin (the button is disabled then). Respects reduced motion.
+- **✅ and 🔁 recoloured** into the tavern palette (gold tick on a wooden token, bronze arrows) — same shapes,
+  no more bright app-green and cyan on every tile card.
