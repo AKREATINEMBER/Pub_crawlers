@@ -343,3 +343,10 @@ beers logged    old total   Tank total   share of the Tank's 2898 XP climb
     15             515          984         34%
     20             715         1731         60%
 ```
+
+## v3.2 — less text on the pane, an ⓘ instead
+
+The reward/tries lines (`#hmReward`) and the hammer stat line (`#hmGear` text) are off the Hammerschlagen
+pane. An ⓘ next to the HAMMERSCHLAGEN header (`hmInfo()`) opens a card with this foe's rewards and tries
+(`hmRewardHTML`), the gold/flawless rule, and every hammer part with its level, what it does and its current
+name, plus a FORGE shortcut. The ⚒ FORGE button stays on the pane.

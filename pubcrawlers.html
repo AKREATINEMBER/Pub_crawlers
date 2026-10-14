@@ -1429,7 +1429,14 @@ body[data-char="jester"] .shop-exclusive-label{color:#e8c34a;border-left-color:#
 .lh-tier.on{opacity:1;color:#ffd24a;background:rgba(255,210,74,.08);border-radius:6px}
 .hm-foeinfo .k{font-size:7px;letter-spacing:1px;color:#c08a6a}
 .hm-foeinfo .t{font-size:7.5px;color:#d4a070}
-.hm-gear{display:flex;align-items:center;justify-content:space-between;gap:6px;margin:8px 2px 0;padding:5px 6px;border:1px dashed rgba(255,160,70,.3);font-size:7.5px;color:#d4b0a0}
+.info-i{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;margin:-16px -10px -16px 0;padding:0;background:none;border:0;vertical-align:middle;cursor:pointer}
+.info-i span{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;border:2px solid currentColor;font:bold 12px/1 Georgia,serif;font-style:italic;color:#ffd24a;letter-spacing:0}
+.hmi-h{margin:12px 0 4px;font-size:10px;letter-spacing:2px;color:#ffd24a}
+.hmi-p{margin:4px 0;font-size:11px;line-height:1.6}
+.hmi-part{display:flex;gap:8px;align-items:flex-start;margin:6px 0;font-size:10.5px;line-height:1.5;text-align:left}
+.hmi-part .hmi-ic{font-size:16px;line-height:1}
+.hmi-part em{color:#d4b0a0;font-style:normal;opacity:.85}
+.hm-gear{display:flex;align-items:center;justify-content:center;gap:6px;margin:8px 2px 0;padding:5px 6px;border:1px dashed rgba(255,160,70,.3);font-size:7.5px;color:#d4b0a0}
 .hm-gear>span{flex:1;min-width:0}
 .hm-gear .btn{margin:0;flex:0 0 auto;width:auto;padding-left:12px;padding-right:12px}
 .hm-gear-name{color:#ffd24a;letter-spacing:.5px}
@@ -3555,7 +3562,7 @@ html body.cozy.cozy[data-char="tank"]:not([data-char=""]) .si-chip{ border-radiu
             </div>
           </div>
         </div>
-        <div class="cw-sect" style="margin-top:6px" data-gate="tank_hammer">🔨 HAMMERSCHLAGEN</div>
+        <div class="cw-sect" style="margin-top:6px" data-gate="tank_hammer">🔨 HAMMERSCHLAGEN <button type="button" class="info-i" onclick="hmInfo()" aria-label="Rewards, tries and your hammer"><span>i</span></button></div>
         <!-- ── HAMMERSCHLAGEN — the gauntlet: Old Ragnar → Surtr (driven by hm* functions) ── -->
         <div id="lhHammerPane" data-gate="tank_hammer">
           <div class="hm-ladder" id="hmLadder"></div>
@@ -3574,9 +3581,8 @@ html body.cozy.cozy[data-char="tank"]:not([data-char=""]) .si-chip{ border-radiu
             <button id="hmSafeBtn" class="btn ghost sm hide" onclick="chugTakeSafe()">🛡 TAKE SAFE XP</button>
             <button id="hmGiveUpBtn" class="btn ghost sm hide" onclick="hmGiveUp()">🏳 GIVE UP</button>
           </div>
-          <div class="cw-tagrow"><span class="cw-tag hm-reward" id="hmReward"></span></div>
           <div class="cw-tagrow" id="hmWagerTags"></div>
-          <div class="hm-gear"><span id="hmGear"></span><button class="btn ghost sm" onclick="hmOpenForge()">⚒ FORGE</button></div>
+          <div class="hm-gear"><button class="btn ghost sm" onclick="hmOpenForge()">⚒ FORGE</button></div>
         </div>
         <div class="cw-sect" data-gate="tank_duel">💀 HOLMGANG · THE HEADHUNT</div>
         <div id="duelBox" class="lh-duel" data-gate="tank_duel"></div>
@@ -11203,6 +11209,30 @@ function hmRenderMeter(){
   if(lg) lg.innerHTML = zs.map(([k,w]) => `<span class="${{miss:'mi',tap:'gl',solid:'so',gold:'sw'}[k]}" style="flex:${w.toFixed(2)}">${k === 'gold' ? 'GOLD' : k.toUpperCase()}</span>`).join('');
   const mt = document.getElementById('hmMeter'); if(mt) mt.classList.toggle('slowmo', hmHas('turner'));
 }
+// what this foe pays and how many tries are left — lives behind the ⓘ now, not on the pane
+function hmRewardHTML(foe, xpMode){
+  return xpMode ? `XP ×<b>${foe.win}</b> · FLAWLESS ×<b>${foe.flaw}</b>`
+    : hmFoeBeaten(foe)
+      ? `✓ BEATEN · ♾${HM_MATS[foe.mat].icon} UNLOCKED · WIN: <b>${hmPaidLeft() ? '+' + hmPurse(foe) + '🪙' : 'glory'}</b>${hmPaidLeft() ? ' · FLAWLESS ×2' : ''}`
+        + `<br>🪙 PAID WINS LEFT THIS ROUND: <b>${hmPaidLeft()}/${HM_PAID_WINS}</b>`
+      : `1ST WIN: <b>+${foe.first}🪙${hmMatOwned(foe.mat) ? '' : ` · ♾${HM_MATS[foe.mat].icon} ${HM_MATS[foe.mat].n}`}</b> · FLAWLESS ×2 BOUNTY`
+        + `<br>⚔ TRIES LEFT THIS ROUND: <b>${hmTriesLeft(foe)}/${HM_TRIES}</b> · they refill after your next challenge`;
+}
+// ⓘ next to HAMMERSCHLAGEN: the foe's rewards, your tries, and what every part of your hammer does
+function hmInfo(){
+  if(!S) return;
+  const foe = (_hm && _hm.on) ? _hm.foe : hmFoe(), xpMode = !!S._tankPendingWin;
+  const ins = (S.hmSocket||[]).map(id => HM_INLAY_BY_ID[id]).filter(Boolean);
+  const parts = HM_PART_KEYS.map(k => { const P = HM_PARTS[k], lv = hmLv(k), cur = P.lv[Math.min(lv, P.lv.length-1)];
+    return `<div class="hmi-part"><span class="hmi-ic">${P.icon}</span><div><b>${P.n} ${lv}/${P.max}</b> · ${escapeHtml(P.what)}<br><em>${escapeHtml(cur.n)}</em></div></div>`; }).join('');
+  showCard({ tag:'🔨 HAMMERSCHLAGEN', title: foe.n,
+    raw:`<div class="hmi-h">${xpMode ? 'YOUR XP ON THE STUMP' : 'BEAT THIS FOE'}</div>
+      <p class="hmi-p">${hmRewardHTML(foe, xpMode)}</p>
+      <p class="hmi-p dim">Tap when the needle hits <b>GOLD</b>. Every swing on gold makes it <b>FLAWLESS</b>, which pays the most.</p>
+      <div class="hmi-h">🔨 ${escapeHtml(hmHammerName())}</div>
+      ${parts}${ins.length ? `<p class="hmi-p">💎 GEMS: ${ins.map(g => g.icon + ' ' + escapeHtml(g.n)).join(' · ')}</p>` : ''}`,
+    buttons:`<button class="btn ghost" onclick="closeCard();hmOpenForge()">⚒ FORGE</button>` + _lhOk });
+}
 function hmGearLine(){
   const ins = (S.hmSocket||[]).map(id => HM_INLAY_BY_ID[id] ? HM_INLAY_BY_ID[id].icon : '').join('');
   return `<span class="hm-gear-name">🔨 ${escapeHtml(hmHammerName())}</span> <span class="hm-gear-lv">${HM_PART_KEYS.map(k => HM_PARTS[k].icon+hmLv(k)).join(' ')}${ins ? ' · ' + ins : ''}</span>`;
@@ -11255,13 +11285,6 @@ function hmRefresh(){
     if(xpMode) tags.push(`🔨 TRIES LEFT · <b>${S.chugAttemptsLeft ?? 1}</b>`);
     const h = tags.map(x => `<span class="cw-tag">${x}</span>`).join('');
     if(wt.innerHTML !== h) wt.innerHTML = h; }
-  const rw = document.getElementById('hmReward');
-  if(rw) rw.innerHTML = xpMode ? `XP ×<b>${foe.win}</b> · FLAWLESS ×<b>${foe.flaw}</b>`
-    : hmFoeBeaten(foe)
-      ? `✓ BEATEN · ♾${HM_MATS[foe.mat].icon} UNLOCKED · WIN: <b>${hmPaidLeft() ? '+' + hmPurse(foe) + '🪙' : 'glory'}</b>${hmPaidLeft() ? ' · FLAWLESS ×2' : ''}`
-        + `<br>🪙 PAID WINS LEFT THIS ROUND: <b>${hmPaidLeft()}/${HM_PAID_WINS}</b>`
-      : `1ST WIN: <b>+${foe.first}🪙${hmMatOwned(foe.mat) ? '' : ` · ♾${HM_MATS[foe.mat].icon} ${HM_MATS[foe.mat].n}`}</b> · FLAWLESS ×2 BOUNTY`
-        + `<br>⚔ TRIES LEFT THIS ROUND: <b>${hmTriesLeft(foe)}/${HM_TRIES}</b> · they refill after your next challenge`;
   const meter = document.getElementById('hmMeter'); if(meter) meter.classList.toggle('idle', !live || _hm.turn !== 'you' || _hm.busy);
   if(!live) hmRenderMeter();
   const st = document.getElementById('hmStatus');
