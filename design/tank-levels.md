@@ -160,3 +160,171 @@ Goal: the Longhouse panel was cluttered; strip the Tank back to Hammerschlagen +
 - **Goblet ladder retired:** Iron Throat / Gondrink / Holy Ale are `retired:true` (hidden from shop), `chugGetMode()` always ONE SHOT. Every XP wager = 1 try (+1 Skull Cup, +1 Neverending Stout). Holy Ale's +1× flawless is gone.
 - **War Wounds retired:** no −30%, no badge, no HUD title. `migrate` clears `bloodied`.
 - **Holmgang:** ×2 spoils removed (win = head + 20🪙). Before the first Holmgang it asks how many OTHER players are out (`hgAskPlayers` → `S.hgPlayers`, 1–8); that's the heads needed (`hgNeed()`). Changeable from the Heads card. Squad mode (frozen) still uses squad names.
+
+## Hammerschlagen v3 — the swing hits when you tap (Oct 12)
+- **Bug:** the swing listened for `click`, which fires when the finger *lifts* (80–150 ms after touching), and read the needle at that later moment. At Ragnar's speed the needle had moved 12–20% of the bar, and gold is 3–8% wide. Faster foes could also step the needle clean over gold between two frames. Browser test, tapping on a frame that showed the needle in gold: **1/30 registered gold before, 30/30 now**. Taps 80 ms after gold still miss (0/30).
+- **Fix:** `hmPointer` swings on `pointerdown` using the event's own timestamp. `hmJudge` replays the needle's recorded path (`_hm.hist`) from the last painted frame to the touch, capped at `HM_LOOKBACK_MAX` = 34 ms; the best zone it touched wins. The needle freezes where the hit was judged, and the meter flashes gold or solid.
+- The whole meter is now a tap target, not just the button. Status line: "Tap the bar or SWING when the needle hits gold".
+- **Smoother:** the needle moves with a compositor transform (`hmNeedleTo`, on a `.hm-track`) plus a faint ghost trail. While you aim, the arena canvas redraws every other frame, so the needle gets the phone's time.
+
+## Cozy v3 — hearth details (whole UI)
+- Brass corner filigree on panels and cards (background layers, so no pseudo-elements are used), gilt-rule titles with a ✦, and ornamental diamond dividers.
+- **Counter-accent:** the XP bar is now dusk-teal → honey with a slow shimmer (was neon cyan → purple), and the level badge is moonlit teal. Green and cyan buttons are softened to moss and sea-glass.
+- (Drifting hearth embers were tried and removed at David's request.)
+- Screens fade in (opacity only). The open nav tab has a little lantern flame. The meter has brass rivets.
+- **Title screen:** the green PRESS START is now a glowing honey lantern button, with an "A NIGHT OF LEGENDS" tagline. The logo pulse animates transform only (it used to repaint six stacked drop-shadows every frame).
+
+## Tank details (Oct 12) — the Longhouse in Norse craft
+- **Borders:** a braided knotwork band runs top and bottom of the Longhouse board (`--tk-braid`). Iron corner brackets with rivets replace the brass curls on every Tank panel and frame the arena (`.hm-stage::before`).
+- **Portrait and titles:** the portrait hangs like a shield. Section titles get a gilt knot and a rule running to the edge.
+- **Stat chips and Rage:** the stat chips are nailed wooden plaques. The Rage bar is live fire with a running glint.
+- **Foe ladder:** foes are nail-hung plaques. The chosen one is gold-rimmed, lifted, and has a pointer down to its name, which sits between two gilt axe-heads.
+- **SWING:** the button is an iron-banded plank. `#hmBtn.swing` (set in `hmRefresh`, cleared in `hmSwing`) pulses a gold ring only while it's your turn.
+- **Hammer row and Holmgang:** the hammer row is a weapon-rack plank. The Holmgang heads hang each on its own nail on a plank wall.
+- All pure CSS, scoped to `body[data-char="tank"]`. The only motion added is two opacity/transform loops (Rage glint, SWING ring).
+
+## Cozy v4 — one crafted system (Oct 12, whole UI)
+- **One sigil per class** (`--cz-motif`): Tank knot, Gambler spade, Jester harlequin diamond, Brew-zard star, Sir Drinks-A-Lot shield. It marks:
+  - every screen title (a centred plaque: sigil · rule · TITLE · rule · sigil)
+  - every board heading (h2)
+  - every class-widget section label (sigil · words · rule to the edge)
+  - every divider
+- **Corner ornaments per class** (`--cz-orn*`): gold curls for the Gambler and Jester (studs in green and red), lilac with mint for the Brew-zard, steel with gold for the Knight. They go on panels, cards, class widgets and stages. The Tank keeps his iron brackets.
+- **Bottom bar:** pixel-art icons above each word (mug, sack, coin, scroll, book), drawn as SVG via `--nav-icon` per button.
+- **HUD and slots:** the level is a teal medallion, and the XP bar has quarter marks. The slot cabinet has marquee bulbs top and bottom and payline arrows either side of the reels.
+- **Achievements** (`renderLog`): rows with a round icon well, name and description. Earned ones glow gold; locked ones are muted wood (they were hyperlink-blue `#4a4080`).
+- **Class widgets:**
+  - All: framed portraits, rounded meters and tabs, and stages with ornamented corners.
+  - Gambler: felt stitched in gold.
+  - Jester: the Street Act is a striped booth.
+  - Brew-zard: the Surge bar glows violet.
+  - Knight: a steel-and-wood counter edge on the tap stage.
+- **Legibility:** foe names 5.5→7px, hammer legend 7→8px, head names 6→7.5px, Den tabs and mini buttons to 8px.
+- **Rhythm:** 10px between every board.
+
+## Tank · Norse craft (Oct 13) — every Tank screen hand-carved
+Motifs are drawn once as SVG (`--nx-*`, generated by script):
+- **valknut:** the Tank's sigil.
+- **Jörmungandr:** the world-serpent divider, head and curled tail.
+- **shield-wall:** four painted round shields on a gunwale.
+- **rune band:** it reads ᛊᚲᚨᛚ · ᛏᚨᚾᚲᚨᚱᛞ · ᚹᚨᛚᚺᚨᛚᛚᚨ, i.e. SKÅL · TANKARD · VALHALLA.
+- **longship stem-curl**, **round shield**, **knot-line** and **axe-head**.
+
+Where they go:
+- **Screen titles:** a stem-curl at each end. **Dividers:** the serpent. **h2 and section labels:** valknut, the words, then a knot-line fading out.
+- **HUD:**
+  - Level badge: a round shield with an iron rim and rivets.
+  - Pills: stitched leather.
+  - XP: iron-framed, with notched quarters.
+- **Daring signs:** a knot carved along the foot of each.
+- **Slot cabinet:**
+  - A shield-wall along the top and a braided rail below.
+  - Axe-heads on the payline.
+  - Nailed iron-bound reels.
+- **Every primary or big button:** an iron-banded plank with nails. Gold and green buttons get nails; small gold ones stay plain so the FORGE prices fit.
+- **Longhouse:**
+  - Top: the braid, then a shield-wall.
+  - A carved rune lintel under the portrait row.
+  - Foe plaques hang from a beam.
+  - Axes either side of the foe's name, and round shields at both ends of the meter.
+  - A valknut over the status line, and shields over the Holmgang wall of heads.
+- **Forge:**
+  - The showcase gets iron brackets.
+  - Stat tiles are nailed plaques; materials are nailed crates.
+  - Each hammer part sits in a round-shield well, with knot-line row separators. The cellar has a shield emblem.
+- **Armory:** braid plus shield-wall header, a serpent under the coin count, and a valknut on the exclusive label. Item art has an iron frame.
+- **Achievements:** each in a round shield, with knot-line separators.
+- **Cards:** a rune band across the head, iron brackets in the corners, a knot along the foot. **Toasts:** a carved plaque with a valknut seal.
+- **Bottom bar:** a carved bench with a braid on top, and wooden tabs with an iron strap and two nails.
+- **Fix (all classes):** the Shop sat under #app's empty bottom padding (~144px blank band). `#app:not(:has(> section:not(.hide)))` drops that padding.
+- **Motion:** none added.
+
+## Tank · Norse craft II (Oct 13) — second pass over all five tabs
+- **Headings:** h2 and section labels drop the doubled icon (valknut + emoji). They now read "emoji WORDS" with a knot-line underneath that ends in a valknut. `background-clip` keeps the line from running under the valknut.
+- **Boards:** faint upright plank grain under the lamplight glow.
+- **Game:**
+  - The brewery window gets iron brackets and a bronze edge; the beer/min reading sits in a small pill.
+  - The Daring header is a serif label with a valknut.
+- **Challenge card:** the chips are wooden plaques, "YOU WIN IF" is a nailed carved board, and ACCEPT is a strapped moss plank.
+- **Bag:**
+  - Coins and rerolls are two leather purses (`.bag-purse`, an HTML change shared by all classes; checked in the other classes).
+  - Secret Quest steps are round shields: current gold, done moss, blown red. The quest button is a bronze-and-iron plank instead of purple.
+- **Armory:**
+  - Serif title between longship curls, with an italic tagline.
+  - Leather coin purse with a round-shield coin.
+  - "THE TOWN / RELICS / ITEMS" breaks are serif labels between fading knot-lines.
+- **Info:** Crawler's Path rows are carved slats with round-shield icon wells; "UNLOCKED" is moss.
+
+## Tank dividers (Oct 13): the ring-chain replaces the painted shields
+- David: the shield rows were too colourful. They're gone everywhere: slot cabinet top, Longhouse trim, Holmgang wall, Armory header.
+- In their place is `--nx-chain`, a continuous Borre-style ring-chain carved in dark brown (rings joined by crossing strands).
+- The same chain also divides the boards on every Tank tab: 26px between panels, fading at both ends. It also sits above the Daring dial and the Longhouse.
+
+## Tank · hearth + calm & unified (Oct 13)
+- David's feedback: the black slot cabinet looked low-effort. Then: too many patterns, and the boards looked like separate games.
+- **One surface, one frame:**
+  - Every board shares one surface, `--tk-board` (oak, lamplight from above, faint upright grain), and one frame, `--tk-frame` (2px bronze edge, dark outline, 14px corners).
+  - Boards covered: HUD, Daring dial, slot cabinet, Longhouse, challenge strip, cards, Bag/Info/Log panels.
+  - The brewery window, hammer arena and forge showcase get the same frame.
+  - Even 10px rhythm between boards.
+- **Slot cabinet:** the same oak board with a valknut crest at the top, two candle sconces with warm glow (`--nx-sconce-l/r`, `--nx-crest`), a carved recess for the reels, oak-framed reels, and a nailed name-plaque for the result.
+- **Armory:** the whole shop is warm oak; item cards are oak (`--si-*` vars), not blood-red.
+- **Removed:**
+  - The braid and ring-chain bands, and the panel dividers.
+  - The rune lintel and the rune band on cards.
+  - Corner brackets on boards and pictures.
+  - The knots on the Daring signs, the bench braid on the nav, and the Armory header bands.
+  - Most nails (they stay only on things you press). Knot-line row separators became hairlines.
+- **Kept, as the few meaningful details:**
+  - The knot-line + valknut under headings, and the serpent under the Armory purse.
+  - The cabinet's crest and candles, the axes on the payline, and the round shields on the meter ends.
+  - Leather purses, round-shield wells, and iron-strapped primary buttons.
+
+## Tank HUD (Oct 13): one window, a bronze level medallion
+- **Window and nameplate:** the brewery window and the nameplate under it are one piece again. The window has rounded top corners only and the plate rounded bottom corners only, joined by a carved bronze sill (`#arenaWrap + .panel.tight::before`). My unified frame had split them into two boxes that collided.
+- **Brew-rate tag:** a small oak tag with a bronze edge.
+- **Level:** `syncHUD` now writes `<span class="lv-k">LV</span><span class="lv-n">N</span>` (plus `.lv-cap` ★ at the level cap). This is shared by all classes; the others look as before.
+  - The Tank shows it as a polished bronze medallion: 46px, a big serif number, small "LV" above. It replaces the wooden pill with rivets, which David didn't like.
+
+## Tank reels (Oct 13): rebuilt to match the Daring dial
+- David: the candle-lit cabinet didn't fit the rest. It mixed in its own vocabulary: a dark recess, sconces, a crest, floating axes, and a result plaque that looked like a second button.
+- **Now it's the same board as the Daring dial**, with a serif "THE REELS" label and valknut (`#slotWrap::before`).
+- **The reels** are walnut signs with two brass nails, like the Daring signs, 74×70, with a soft dark well behind the icon.
+- **The result** is a plain caption like the Daring note.
+- The candles, crest, recess, axes and plaque are gone (their SVG vars are left unused).
+
+## Tank: choose, then pull (Oct 13)
+- The Daring dial and the reels are one board: the dial has rounded top corners only, the reels rounded bottom corners only, and a carved hairline rule between them. Same oak, continuous grain.
+
+## Tank materials (Oct 13): nothing looks like a default any more
+- David: the level counter looked cheap, and other elements too. Every Tank element is now one of four materials.
+- **BOARD:** the oak panels (`--tk-board`).
+- **SIGN:** raised walnut with two brass nails (`--tk-sign`): the Daring signs, the reels, the foe plaques, the Forge stat tiles, and **the level**. The level is a nailed sign with "LEVEL" carved small and the number in honey serif; it replaces the gradient coin. The Forge stat pips are brass studs in dark sockets.
+- **TRAY:** a groove carved into the board, with a dark well and bronze lip (`--tk-tray-bg/--tk-tray-sh`). Used for:
+  - the XP bar: a mead-amber fill with gloss, in a groove, quarter-notched
+  - the next-unlock line (no dashed border)
+  - coin/brew/purse trays (no stitching) and the Armory purse
+  - reward lines, the hammer row, the cellar, the Heads/Rage chips, the challenge chips and win-condition
+- **BUTTONS:**
+  - ember plank: main action (unchanged)
+  - dark oak plank with a bronze edge: secondary (FORGE, NEW BAR, REROLL)
+  - struck brass plate with an engraved inner line: prices
+  - verdigris copper: items
+  - disabled: pressed into the wood, muted but legible (not washed-out tan)
+- **Shop kind tags:** notched bronze ribbons (RELIC); items get a verdigris ribbon.
+
+## v3 — beta focus: Tank only, a clean tutorial, no Rage, a way out
+
+- **Beta lock.** `BETA_TANK_ONLY = true`: the other four classes show on the select screen with a 🔒 and
+  "LOCKED FOR THE BETA"; START refuses them. The developer login (PUBDEV) still starts any class.
+- **Hammerschlagen is an unlock now** (`tank_hammer` in `UNLOCKS`, `win:1`, flag `S.hmUnlocked`). It stays
+  sealed through the tutorial and its fixed-XP beer tile. The Tank's first *real* win pays XP straight out
+  (no stump), then the unlock spotlight plays a 3-step intro (`HM_INTRO`: the stump → swing on gold → the
+  gauntlet). Every win after that goes on the stump. Foes reached while sealed arrive silently
+  (`hmCheckNewFoes`). Old saves past their first real win are opened by `migrate` (`_hmOld` flag from `load`).
+- **The tutorial is the tutorial.** Saga reveals (`vkRevealTick`) wait until `S.tutorialDone && !S.tutStep`,
+  and no Hammerschlagen foe spotlight can land inside it.
+- **Berserker Rage is gone**: the unlock, the chip, the HUD glow, the ×2.25, the wager tag, the help text and
+  the Hulk Smash Horn. Saves get `rage = 0`, and any Horns in the bag are bought back at 45🪙 each.
+- **🏳 GIVE UP** (`hmGiveUp`, two taps, no dialog): ends a match between your swings, or settles a wager that
+  already lost a try. On a wager it walks away from the whole thing — the XP is lost, whatever tries are left.
