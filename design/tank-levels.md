@@ -359,3 +359,11 @@ marked — the per-notch description line under the dial is gone), the shop's TO
 and the bag's Forge, Hammer (`hmPartsInfoHTML`), Relics, Secret Quest and upgrades panels. Hammer part rows
 keep name, level and NEXT only. The nail game's idle sub-line is gone. Flavor lines stay (house style).
 The Tank's bag panel is now "🏘 YOUR TOWN" (he gets no level-up chests).
+
+## v3.4 — out of rerolls? Chug for a new roll (all classes)
+
+With 0 rerolls, the tile card's reroll button becomes **🍺 CHUG FOR A NEW ROLL** (`chugReroll(kind)`; the
+Knight's tap says POUR). It opens a confirm card: finish your drink in one go, tap DONE, and the reels spin
+again. Honor system like LOG A BEER: it counts a drink (`S.drinks`, `addPace(10)`), pays no XP, and bumps
+`S.chugRerolls`. The tile stays in `S._slotPending` until DONE, so a reload just brings the tile back.
+Not offered on the tutorial tile.

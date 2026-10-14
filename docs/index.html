@@ -3718,7 +3718,7 @@ html body.cozy.cozy[data-char="tank"]:not([data-char=""]) .si-chip{ border-radiu
 
     <div class="panel">
       <h2>🔁 REROLLS</h2>
-      <p class="small">Not happy with a tile? Spend a reroll to skip it and spin again. Your reroll count is in the BAG tab.</p>
+      <p class="small">Not happy with a tile? Spend a reroll to skip it and spin again. Your reroll count is in the BAG tab. <b class="gold">Out of rerolls?</b> Finish your beer in one go and you get a new roll anyway.</p>
     </div>
 
     <div class="panel" style="display:none"><!-- locked with GROUP_BOUNTY -->
@@ -4490,7 +4490,7 @@ function freshState(){
     skips:2, pace:0, waters:0, laps:0, spins:0, gambleWins:0, respin:1, badLuckHeat:0, dare:2,
     doubleNext:false, startTime:Date.now(), log:[], ach:[], tkTierSeen:0, beerLifetime:0,
     flags:{}, resolved:false, quest:null, karaokeDone:false, beerLogCount:0, bossMarks:{}, bossesAvenged:0,
-    bounty:null, underdog:null, unlocksSeen:null, veteran:false, tutorialDone:false, tutStep:null, hmUnlocked:false, tutRate0:0, bountyStats:{ taken:0, survived:0, caught:0, failed:0, defended:0 },
+    bounty:null, underdog:null, unlocksSeen:null, veteran:false, tutorialDone:false, tutStep:null, hmUnlocked:false, chugRerolls:0, tutRate0:0, bountyStats:{ taken:0, survived:0, caught:0, failed:0, defended:0 },
     coins:50, souvenirs:{}, relics:[], items:{}, hatUsedThisLap:false, denSpinsLeft:3, chugAttemptsLeft:1, chugRoundLeft:0,
     rage:0, bloodied:false, chugMisses:0, perfectChugs:0, rageActivations:0, haggleActive:false,
     autoWinNext:false, shopPending:false, discovered:[], itemsUsed:{},
@@ -16868,9 +16868,9 @@ function previewSlotResult(tile){
     venue: tile.venue,
     body: tpl(tile.body || ''),
     chips:[`+${promised} XP${dNote}`, tile.drink?'🍺 DRINK':'', tile.gamble?'🎲 FORFEIT IF LOST':'', tile.heal?'💧 MERCY':'', tile.t===T.BADLUCK?'💀 BAD LUCK':''].filter(Boolean),
-    extra: tile.tutorial ? tileWinHTML(tile) + tutorialNote(1) : `${tileWinHTML(tile)}<p class="small dim">Accept it, or spend a reroll to spin again.</p>`,
+    extra: tile.tutorial ? tileWinHTML(tile) + tutorialNote(1) : `${tileWinHTML(tile)}<p class="small dim">${canReroll ? 'Accept it, or spend a reroll to spin again.' : 'Out of rerolls? Finish your beer in one go for a new roll.'}</p>`,
     buttons:`<button class="btn green" onclick="acceptSlotResult()">✅ ACCEPT</button>
-             ${canReroll && !tile.tutorial ? `<button class="btn ghost sm" onclick="useReroll()">🔁 REROLL (${S.skips} left)</button>` : ''}
+             ${tile.tutorial ? '' : canReroll ? `<button class="btn ghost sm" onclick="useReroll()">🔁 REROLL (${S.skips} left)</button>` : `<button class="btn ghost sm" onclick="chugReroll('slot')">🍺 CHUG FOR A NEW ROLL</button>`}
              ${tile.tutorial ? '' : tileSwapBtn(tile)}`
   });
 }
@@ -16883,6 +16883,25 @@ function reshowSlotPending(){
     paintPint(_pintFill, true, false);
     previewPintResult(sp.tile, sp.pour);
   } else previewSlotResult(sp.tile);
+}
+// OUT OF REROLLS: finish your beer in one go and the reels spin again (honor system, like LOG A BEER).
+// The tile stays pending in S._slotPending until DONE, so a reload just brings the tile card back.
+const CHUG_REROLL_LINES = ['BOTTOMS UP, REELS DOWN', 'THE GODS OF THE TAP ACCEPT YOUR OFFERING', 'ONE GULP, ONE MORE GO', 'GLASS EMPTY, FATE RESET'];
+function chugReroll(kind, done){
+  if(!S || !S._slotPending || S.skips > 0 || slotSpinning) return;
+  if(!done){
+    showCard({ tag:'🍺 OUT OF REROLLS', title:'CHUG FOR A NEW ' + (kind === 'pint' ? 'POUR' : 'ROLL'),
+      body:'Finish the drink in your hand in one go. Glass empty? Tap DONE and ' + (kind === 'pint' ? 'the tap pours again.' : 'the reels spin again.'),
+      buttons:`<button class="btn green" onclick="chugReroll('${kind}', true)">✓ DONE · MY GLASS IS EMPTY</button>
+               <button class="btn ghost sm" onclick="closeCard();reshowSlotPending()">◀ BACK TO THE TILE</button>` });
+    return;
+  }
+  S.drinks++; addPace(10);
+  S.chugRerolls = (S.chugRerolls||0) + 1;
+  addLog('🍺 Chugged for a new ' + (kind === 'pint' ? 'pour' : 'roll'));
+  epicToast('🍺 ' + blPick(CHUG_REROLL_LINES));
+  S.skips = (S.skips||0) + 1; // a reroll earned and spent on the spot
+  if(kind === 'pint') useRerollPint(); else useReroll();
 }
 function useReroll(){
   if(S.skips<=0 || slotSpinning) return;
@@ -17585,9 +17604,9 @@ function previewPintResult(tile, pour){
     tag: tile.t===T.BADLUCK ? '💀 THE TAP HAS CURSED YOU' : pour.toast ? "🏆 THE KNIGHT'S TOAST" : `🍺 ${pour.label}`,
     title:`${tile.icon} ${tile.n}`, venue: tile.venue, body: tpl(tile.body || ''),
     chips:[`+${promised} XP${xpNote}`, tile.drink?'🍺 DRINK':'', tile.gamble?'🎲 FORFEIT IF LOST':'', tile.heal?'💧 MERCY':'', tile.t===T.BADLUCK?'💀 BAD LUCK':''].filter(Boolean),
-    extra: tile.tutorial ? tileWinHTML(tile) + tutorialNote(1) : `${streakNote}${tileWinHTML(tile)}<p class="small dim">Accept it, or spend a reroll to pour again.</p>`,
+    extra: tile.tutorial ? tileWinHTML(tile) + tutorialNote(1) : `${streakNote}${tileWinHTML(tile)}<p class="small dim">${canReroll ? 'Accept it, or spend a reroll to pour again.' : 'Out of rerolls? Finish your beer in one go for a new pour.'}</p>`,
     buttons:`<button class="btn green" onclick="acceptPintResult()">✅ ACCEPT</button>
-             ${canReroll && !tile.tutorial ? `<button class="btn ghost sm" onclick="useRerollPint()">🔁 REROLL (${S.skips} left)</button>` : ''}
+             ${tile.tutorial ? '' : canReroll ? `<button class="btn ghost sm" onclick="useRerollPint()">🔁 REROLL (${S.skips} left)</button>` : `<button class="btn ghost sm" onclick="chugReroll('pint')">🍺 CHUG FOR A NEW POUR</button>`}
              ${tile.tutorial ? '' : tileSwapBtn(tile)}`
   });
 }
