@@ -3427,6 +3427,51 @@ html body.cozy.cozy[data-char="tank"]:not([data-char=""]) .btn.gold.sm{ backgrou
 html body.cozy.cozy[data-char="tank"]:not([data-char=""]) .si-kind{ border-radius:0; padding:3px 9px 2px; color:#2a1404; background:linear-gradient(180deg,#f2c27a,#c8924a); clip-path:polygon(0 0,100% 0,calc(100% - 4px) 50%,100% 100%,0 100%,4px 50%); box-shadow:none; }
 html body.cozy.cozy[data-char="tank"]:not([data-char=""]) .si--item .si-kind{ background:linear-gradient(180deg,#9fd0c0,#5f9e8c); color:#0c2420; }
 html body.cozy.cozy[data-char="tank"]:not([data-char=""]) .si-chip{ border-radius:999px; }
+
+/* ══ READABILITY ON A PHONE (v3.6) — one layer, last in the cascade, that lifts every tiny label to a size you
+   can read in a dark bar without squinting. Sizes are picked per spot so nothing overflows its chip or tile:
+   labels and badges land on ~8–9px (pixel caps read big), anything you actually read on ~10–11px. ══ */
+html body .toast{ font-size:11px !important; line-height:1.5; padding:11px 14px; }
+html body .epic-toast{ font-size:12px !important; line-height:1.5; }
+/* character select */
+html body .ciLabel{ font-size:9.5px !important; }
+html body .charTile{ font-size:9px !important; }
+html body .skip-tut small{ font-size:9.5px !important; }
+html body .dev-link{ font-size:10px !important; }
+/* HUD, the saga caption, the reels */
+html body #sagaCap small{ font-size:8.5px !important; }
+html body #sagaCap span{ font-size:10px !important; line-height:1.5 !important; }
+html body #xpTxt{ font-size:10.5px !important; }
+html body #slotResultLabel{ font-size:10.5px !important; }
+html body #arenaHint{ font-size:10px !important; }
+html body #hudLevel .lv-k{ font-size:8px !important; }
+html body .cw-sect{ font-size:10px !important; }
+html body .cw .cw-tag, html body .cw-tag{ font-size:9.5px !important; }
+html body .lh-chip .l{ font-size:9.5px !important; }
+/* Hammerschlagen: the ladder, the foe line, the meter */
+html body .hm-foe b{ font-size:8px !important; letter-spacing:0 !important; }
+html body .hm-foe i{ font-size:8.5px !important; }
+html body .hm-foe em{ font-size:7.5px !important; padding:1px 3px !important; }
+html body .hm-fi-name .k, html body .hm-foeinfo .k{ font-size:9px !important; }
+html body .hm-foeinfo .t{ font-size:9.5px !important; }
+html body .hm-legend, html body .hm-legend span{ font-size:9.5px !important; }
+html body .hm-status small{ font-size:10px !important; }
+/* the shop */
+html body .si-kind{ font-size:8px !important; }
+html body .si-chip{ font-size:8.5px !important; padding:3px 6px !important; }
+html body .shop-header__tag{ font-size:9.5px !important; }
+html body .shop-header__tagline{ font-size:10.5px !important; }
+html body .shop-section__sub{ font-size:10px !important; opacity:.8 !important; }
+/* the bag: forge, hammer, materials */
+html body .hm-hard{ font-size:10px !important; line-height:1.45; }
+html body .hm-cellar{ font-size:10px !important; }
+html body .hm-show-sub{ font-size:9.5px !important; }
+html body .hm-stat b{ font-size:9px !important; }
+html body .hm-stat small{ font-size:8px !important; white-space:normal !important; line-height:1.2; }
+html body .hm-mats small{ font-size:7.5px !important; white-space:normal !important; line-height:1.15; }
+html body .hm-part .t{ font-size:11px !important; }
+html body .hm-part .t span{ font-size:10px !important; line-height:1.45; }
+html body .hm-part .t .pips{ font-size:10px !important; }
 </style>
 </head>
 <body class="cozy">
@@ -6658,7 +6703,7 @@ function vkGreetLines(){ // the fixed pool, plus a few that read the night so fa
   if((S.beerLogCount||0) >= 5) out.push(`${S.beerLogCount} BEERS LOGGED. SAGA MATERIAL.`);
   return out;
 }
-const VK_GREET_MS = 6500;
+const VK_GREET_MS = 11000;
 let _vkGreetClock = 0, _vkGreetNext = 0, _vkGreetLast = 0, _vkGreetBag = [];
 function vkGreetPick(){
   if(!_vkGreetBag.length){ _vkGreetBag = vkGreetLines(); for(let i=_vkGreetBag.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [_vkGreetBag[i], _vkGreetBag[j]] = [_vkGreetBag[j], _vkGreetBag[i]]; } }
@@ -9749,7 +9794,7 @@ function showUnlockBanner(u){
   let closed = false;
   const close = () => { if(closed) return; closed = true; d.classList.add('out'); setTimeout(() => { d.remove(); if(_bannerEl === d) _bannerEl = null; }, 260); };
   d.addEventListener('click', close);
-  setTimeout(close, 4500);
+  setTimeout(close, 7000);
 }
 function unlockTeaser(id){ const u = UNLOCK_BY_ID[id]; if(u) showUnlockBanner(u); }
 function nextUnlockTap(){ const u = nextUnlock(); if(u) unlockTeaser(u.id); }
@@ -11073,7 +11118,9 @@ function hmLoot(foe, flawless, xpMode){
   S.hmWins = S.hmWins || {}; S.hmWins[foe.id] = (S.hmWins[foe.id]||0) + 1;
   S.hmBeaten = hmBeaten();
   const mat = HM_MATS[foe.mat];
-  const paid = hmPaidLeft() > 0;
+  // the night is about the squad, not the stump: a free rematch against a foe you've already beaten pays nothing.
+  // Purses come with an XP wager (a real challenge) or a first win.
+  const paid = (xpMode || first) && hmPaidLeft() > 0;
   let coins = paid ? hmPurse(foe, flawless) : 0;
   if(paid) S.hmPaidWins = (S.hmPaidWins|0) + 1;
   if(first){
@@ -11275,8 +11322,7 @@ function hmRenderMeter(){
 function hmRewardHTML(foe, xpMode){
   return xpMode ? `XP ×<b>${foe.win}</b> · FLAWLESS ×<b>${foe.flaw}</b>`
     : hmFoeBeaten(foe)
-      ? `✓ BEATEN · ♾${HM_MATS[foe.mat].icon} UNLOCKED · WIN: <b>${hmPaidLeft() ? '+' + hmPurse(foe) + '🪙' : 'glory'}</b>${hmPaidLeft() ? ' · FLAWLESS ×2' : ''}`
-        + `<br>🪙 PAID WINS LEFT THIS ROUND: <b>${hmPaidLeft()}/${HM_PAID_WINS}</b>`
+      ? `✓ BEATEN · ♾${HM_MATS[foe.mat].icon} ${HM_MATS[foe.mat].n} IS YOURS<br>Rematches are just for fun: no coins, no XP. Put XP on the stump against him after a challenge for real stakes.`
       : `1ST WIN: <b>+${foe.first}🪙${hmMatOwned(foe.mat) ? '' : ` · ♾${HM_MATS[foe.mat].icon} ${HM_MATS[foe.mat].n}`}</b> · FLAWLESS ×2 BOUNTY`
         + `<br>⚔ TRIES LEFT THIS ROUND: <b>${hmTriesLeft(foe)}/${HM_TRIES}</b> · they refill after your next challenge`;
 }
@@ -16829,18 +16875,18 @@ function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<
 let toastTimer=null;
 function toast(msg){
   document.querySelectorAll('.toast').forEach(t=>t.remove());
-  const d=document.createElement('div'); d.className='toast'; d.textContent=msg;
+  const d=document.createElement('div'); d.className='toast'; d.textContent=msg; d.onclick=()=>d.remove(); // tap to dismiss early
   document.body.appendChild(d);
   clearTimeout(toastTimer);
-  toastTimer=setTimeout(()=>d.remove(), 2300);
+  toastTimer=setTimeout(()=>d.remove(), 3600);
 }
 function epicToast(msg){
   buzz([40,60,40]);
   document.querySelectorAll('.toast').forEach(t=>t.remove());
-  const d=document.createElement('div'); d.className='toast epic-toast'; d.textContent=msg;
+  const d=document.createElement('div'); d.className='toast epic-toast'; d.textContent=msg; d.onclick=()=>d.remove();
   document.body.appendChild(d);
   clearTimeout(toastTimer);
-  toastTimer=setTimeout(()=>d.remove(), 5000);
+  toastTimer=setTimeout(()=>d.remove(), 8000);
 }
 
 /* ---------- slot machine ---------- */

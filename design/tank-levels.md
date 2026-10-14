@@ -377,3 +377,12 @@ shuffled bag so nothing repeats until the pool is used up. Only counts time when
 nothing else is happening (no card, spotlight, level flash, tutorial, saga reveal, swiping). `vkSay` now wraps
 long lines in two; the swipe hint hides while he talks.
 Also: the out-of-rerolls button says "🍺 EMPTY YOUR BEER · NEW ROLL".
+
+## v3.6 — rematches are for fun, pop-ups stay longer, readable on a phone
+
+- **Free rematches against a beaten foe pay nothing** (`hmLoot`: the purse only comes with an XP wager or a
+  first win). The night is about the squad; Hammerschlagen is an extra. The ⓘ says so.
+- **Pop-ups stay longer:** toasts 2.3 → 3.6 s, epic toasts (the beer-log line) 5 → 8 s, unlock teasers
+  4.5 → 7 s, his wave bubble 6.5 → 11 s. Toasts dismiss on tap.
+- **Readability layer** (end of the stylesheet, `READABILITY ON A PHONE`): every label that was 5.5–8px is
+  now 7.5–9.5px, reading text 10–11px, checked for overflow on game/shop/bag at 390px.
