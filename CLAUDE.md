@@ -72,4 +72,4 @@ The file is ~1.2 MB. Never rewrite it wholesale; make targeted edits and grep fo
 - When a mechanic changes, update the in-game help text too (e.g. the duel's `HOW THE DUEL WORKS` panel) and any tutorial or coach copy.
 - When a design change ships, append a short **"vN — what changed"** section to the relevant file in `design/` (numbers, function names, sim results).
 - **Commit once per shipped version**, with a message like `Wizard v12: …`. Don't commit `.DS_Store`.
-- `_archive/` is history; don't edit it or build on it.
+- Old versions live in git history only; there are no copies in the folder.

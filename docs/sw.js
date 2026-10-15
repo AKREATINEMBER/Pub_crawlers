@@ -2,7 +2,7 @@
    The game itself saves to the phone; this just keeps a copy of the page so a
    reload in a basement bar with no signal still opens the game.
    Strategy: try the network (so updates arrive), give up after 2.5s and use the copy. */
-const CACHE = 'pubcrawlers-v2';
+const CACHE = 'pubcrawlers-v3';
 const FILES = ['./', './index.html', './manifest.webmanifest', './icon-180.png', './icon-192.png', './icon-512.png', './icon-maskable.png'];
 
 self.addEventListener('install', e => {

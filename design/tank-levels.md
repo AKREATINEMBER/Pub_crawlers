@@ -504,3 +504,20 @@ middle repeats:
   double scroll at each end.
 Panels got room for them (padding). Tank-only (`body[data-char="tank"]`); other classes keep their own looks.
 No drop-shadow filters (the shadow is in the carving), so scrolling stays cheap; tap timings unchanged.
+
+## v3.15 — pixel skin (pixel · fantasy · viking)
+
+The v3.14 carvings were smooth vector relief and clashed with the pixel town and icons, so every piece of menu chrome
+is now a hand-placed pixel sprite in the `SPR_PAL` palette with the `#120a10` outline, 2 css px per art pixel
+(PNGs pre-scaled 6x so they stay crisp on 3x phones). One CSS block, "PIXEL SKIN", appended before `<body>`.
+- **Type:** Pixelify Sans (body), Silkscreen (labels, buttons, tabs), Jacquard 12 (titles, pixel blackletter).
+  All three embedded as woff2 (OFL), so the game still works offline. A tiny script keeps `h1` and the shop title
+  in Title Case, since blackletter in all caps is unreadable.
+- **Gable beams:** pixel dragon, wolf and raven heads on a twisted-rope plank, iron collars at the joins
+  (same `--tk-beam-*` hooks as v3.14). **Sills:** a chain of gold-studded lozenges ending in pixel scrolls.
+- **Panels:** dark plank boards in a wooden rail with iron corner brackets, hard 4px shadow.
+- **Buttons, tabs, Daring stones, reels, pills, shop and foe cards:** 9-slice pixel plates with stepped corners,
+  a top catch-light and a baked drop shadow; they press down on tap. No rounded corners or soft gradients anywhere.
+- **Ornaments:** rope rules, Othala rune, iron bosses on the swing meter, scroll flourishes by the titles,
+  a pixel Jormungandr under the shop header.
+- Tested at 390x844: tutorial order unchanged, start screen, character select, game, shop, bag, pop-ups, no errors.
