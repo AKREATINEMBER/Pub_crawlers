@@ -1360,6 +1360,11 @@ body[data-char="jester"] .shop-exclusive-label{color:#e8c34a;border-left-color:#
 .hm-meter.slowmo .hm-zones .so,.hm-meter.slowmo .hm-zones .sw{box-shadow:inset 0 0 0 1px rgba(112,232,216,.7),inset 0 0 8px rgba(112,232,216,.35)}
 .hm-ladder{display:flex;gap:4px;overflow-x:auto;padding:2px 1px 6px;margin-top:6px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .hm-ladder::-webkit-scrollbar{display:none}
+.hm-tries{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin:2px 0;padding:6px 8px;font-size:10px;letter-spacing:1px;color:#f0d8b8;background:rgba(0,0,0,.35);border:1px solid rgba(232,163,61,.45);border-radius:6px}
+.hm-tries b{color:#ffd24a;font-size:11px}
+.hm-tries.beaten{border-color:rgba(110,227,110,.45)} .hm-tries.beaten b{color:#6ee36e}
+.hm-tries.out{color:#ff8a8a;border-color:rgba(255,77,94,.5);letter-spacing:.5px}
+.hm-pips{display:inline-flex;gap:3px} .hm-pips i{width:9px;height:9px;border:1px solid #e8a33d;background:transparent;transform:rotate(45deg)} .hm-pips i.on{background:#ffd24a;box-shadow:0 0 4px rgba(255,210,74,.7)}
 .hm-foe{flex:0 0 auto;width:52px;padding:4px 2px 3px;background:#170608;border:1px solid #4a1a10;color:#d4b0a0;font-family:inherit;text-align:center;position:relative;cursor:pointer}
 .hm-foe img{display:block;height:30px;margin:0 auto 2px;image-rendering:pixelated}
 .hm-foe .q{display:block;height:30px;line-height:30px;font-size:16px;color:#5a3a30}
@@ -2281,6 +2286,17 @@ body[data-char="gambler"]{--dim:#b8956a;--cyan:#e0605a}
 .sq-code b{color:var(--gold);font-size:14px;letter-spacing:3px}
 .ci-win{margin-top:10px;padding:8px 10px;border:1px dashed rgba(232,195,74,.5);border-radius:6px;color:#f0d070;font-size:12px;font-weight:bold;letter-spacing:.3px;line-height:1.5}
 .card .ci-win{margin:8px 0 4px}
+.ci-ex{margin-top:6px;font-size:11px;opacity:.78;font-style:italic;line-height:1.5}
+.ci-tool{margin-top:10px}
+.ci-tool .btn{width:100%}
+.tool-q{font-size:13px;line-height:1.6;text-align:center;margin:6px 0 10px}
+.tool-a{font-size:15px;font-weight:bold;text-align:center;color:#f0d070;margin:4px 0 10px}
+.tool-cards{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:6px 0 10px}
+.tool-card{min-width:38px;padding:8px 6px;border-radius:6px;background:#f4ead2;color:#170f08;font-weight:bold;font-size:16px;text-align:center}
+.tool-card.r{color:#c1392b}
+.tool-row{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.tool-row .btn{flex:1;min-width:44%}
+#hauntBadge{position:fixed;right:8px;bottom:calc(80px + env(safe-area-inset-bottom));z-index:60;padding:6px 12px;border-radius:14px;background:rgba(40,20,70,.92);color:#cfe8ff;border:1px solid #8a6cff;font-size:11px;font-weight:bold;letter-spacing:.5px;cursor:pointer}
 #nextUp{text-align:center;font-size:12px;letter-spacing:1px;color:var(--dim);margin:8px 0 0}
 #nextUp b{color:var(--gold)}
 .jk-decree{margin:10px 4px 6px;padding:10px 12px;border:2px solid rgba(232,195,74,.55);border-radius:8px;background:rgba(107,42,150,.25);font-size:10px;letter-spacing:1.5px;color:#c8a0ff;text-align:center}
@@ -3830,13 +3846,13 @@ html body.cozy #arenaHint{font-family:'PxBody',monospace !important;letter-spaci
           <div class="hm-legend" id="hmLegend"></div>
           <div id="hmStatus" class="hm-status"></div>
           <div id="hmXPRow" class="hide cw-stake">XP AT STAKE<b id="hmXPAmt">0</b></div>
+          <div class="cw-tagrow" id="hmWagerTags"></div>
           <div class="cw-actions">
             <button id="hmBtn" class="btn primary" onpointerdown="hmPointer(event)" onclick="hmMainBtn(event)">🔨 FIGHT</button>
             <button id="hmSafeBtn" class="btn ghost sm hide" onclick="chugTakeSafe()">🛡 TAKE SAFE XP</button>
             <button id="hmGiveUpBtn" class="btn ghost sm hide" onclick="hmGiveUp()">🏳 GIVE UP</button>
           </div>
-          <div class="cw-tagrow" id="hmWagerTags"></div>
-          <div class="hm-gear"><button class="btn ghost sm" onclick="hmOpenForge()">⚒ FORGE</button></div>
+          <div class="hm-gear"><button class="btn ghost sm hm-forge-btn" onclick="hmOpenForge()">⚒ FORGE</button></div>
         </div>
         <div class="cw-sect" data-gate="tank_duel">💀 HOLMGANG · THE HEADHUNT</div>
         <div id="duelBox" class="lh-duel" data-gate="tank_duel"></div>
@@ -4033,7 +4049,7 @@ html body.cozy #arenaHint{font-family:'PxBody',monospace !important;letter-spaci
   <section id="screen-bag" class="hide">
     <h1>MY BAG</h1>
     <div class="panel tight center">
-      <div class="bag-purse"><span class="pill">🪙 <b id="bagCoins" class="gold">0</b>&nbsp;SKÅL COINS</span><span class="pill">🔁 <b id="bagSkips" class="cyan">0</b>&nbsp;REROLLS LEFT</span></div>
+      <div class="bag-purse"><span class="pill">🪙 <b id="bagCoins" class="gold">0</b>&nbsp;SKÅL COINS</span><span class="pill">🔁 <b id="bagSkips" class="cyan">0</b>&nbsp;REROLLS LEFT</span><span class="pill">💧 <b id="bagWater" class="cyan">0</b>/2&nbsp;WATER CARDS</span></div>
     </div>
     <div class="panel">
       <h2><span id="bagUpgTitle">🍺 BREWERY UPGRADES</span> <button type="button" class="info-i" onclick="showInfo('upgrades')" aria-label="About this"><span>i</span></button></h2>
@@ -4122,7 +4138,7 @@ const CHARS = [
   { id:'jester', short:'JESTER', name:'THE JESTER', hair:'#2a0a0a', body:'#c1392b', pants:'#170f08', acc:'#c1392b', accType:'jesterhat',
     motto:["Chaos in his blood, he's always in luck —","when it comes to beer, he doesn't give a duck."],
     sig:{ icon:'🃏', name:'TAROT DRAW', text:'Win a challenge, then pick a tarot card. The card decides your reward — anything from triple XP to a quarter. Buy better cards in the shop.' },
-    up:[['Party games','+30% XP'],['The Wheel','+50% XP'],['Wheel re-spins','1 free per lap']],
+    up:[['Party games','+30% XP']],
     down:[['Beer challenges','−25% XP']], },
   { id:'machine', short:'KNIGHT', name:'SIR DRINKS-A-LOT', hair:'#8a8f99', body:'#9aa2af', pants:'#454a54', acc:'#c9a227', accType:'helmet', chestIcon:'beer',
     motto:["Built like a wall, hits like a door —","send him to the casino, he's out on the floor."],
@@ -4140,233 +4156,211 @@ const CHARS = [
 /* ---------- board: 28 tiles in a 10x6 ring ---------- */
 const T = {
   BEER:'beer', GAMBLE:'gamble', PHYS:'phys', SHOT:'shot', CHAOS:'chaos',
-  MERCY:'mercy', MOVE:'move', BOSS:'boss', SOCIAL:'social', START:'start', BADLUCK:'badluck', KARAOKE:'karaoke'
-};
+  MERCY:'mercy', MOVE:'move', BOSS:'boss', SOCIAL:'social', START:'start', BADLUCK:'badluck', KARAOKE:'karaoke', WATER:'water'
+}; // CHAOS, MERCY and BOSS have no tiles any more (Oct 2026) — kept so old saves still read
 const TILES = [
   { n:'THE FELLOWSHIP OF THE PINT', t:T.START, icon:'⭐', venue:'The dive-bar strip where the night begins.',
     body:'The prophecy begins. Everyone raises a glass. The night begins. Pass here again and the whole squad toasts like it\'s a coronation.', xp:5 },
-
-  { n:'BEER: FIRST CONTACT', t:T.BEER, icon:'🍺', venue:'Any proper neighbourhood bar.',
-    body:'Order a beer you have never had before. This is officially "research." No repeats all night — you\'re building a legacy, not a rut.', xp:15, drink:1 },
-
-  { n:'GAME OF PONGS', t:T.GAMBLE, icon:'🏓', venue:'Anywhere with a flat table and low standards.',
-    body:'2v2, best of one, played with the gravity of an Olympic final nobody else knew was happening. Winners choose the next bar. Losers take the forfeit and their dignity, briefly, elsewhere.', xp:25, gamble:true },
-
-  { n:'SPLIT THE G', t:T.BOSS, icon:'🍀', venue:'Any pub pouring proper Guinness — real judgement guaranteed.',
-    body:'One pint of Guinness. One gulp. Land the foam line exactly on the G in GUINNESS, as the ancient Irish gods intended.\n\nPERFECT SPLIT = legend status, statue optional.\nCLOSE = respect, no statue.\nMISS = forfeit, and the Guinness gods remember your name.', xp:60, drink:1, gamble:true },
-
-  { n:'THE DEER SHOTTER', t:T.SHOT, icon:'🥃', venue:'Bartender picks. You do not.',
-    body:'Everyone points at someone, democracy at its finest. Most-pointed picks the shot for the whole table, sight unseen.', xp:20, drink:1 },
-
-  { n:'THE FOOS AWAKENS', t:T.BOSS, icon:'⚽', venue:'Any basement bar with pool & darts.',
-    body:'BOSS FIGHT. 1v1 to 5 goals. Spinning the rods is allowed, morally correct, and quietly the whole point.\n\nWIN: big XP and a career highlight reel.\nLOSE: forfeit and a strategic, dignified retreat to the first bar of the night.', xp:55, gamble:true },
-
-  { n:'WHEEL OF CHAOS', t:T.CHAOS, icon:'🎡', venue:'',
-    body:'The Wheel decides. The Wheel is never wrong. The Wheel does not care about your plans for tomorrow.', xp:10 },
-
-  { n:'A BEER ON ELM STREET', t:T.BEER, icon:'🚶', venue:'Any canal, riverside, or scenic walk nearby.',
-    body:'Beer to go, walk to the next spot like a Viking on a very relaxed campaign (where the local law allows it). Do not be the person who litters — the street has seen enough.', xp:15, drink:1 },
-
-  { n:'BABY GUINNESS', t:T.SHOT, icon:'🖤', venue:'Any Irish pub worth its salt.',
-    body:'Kahlúa, floated Baileys. A tiny, perfect, deceptively strong pint of a pint. Round for the table — everyone becomes a connoisseur for exactly six seconds.', xp:20, drink:1 },
-
-  { n:'MILLION DOLLAR PUNCH', t:T.PHYS, icon:'👊', venue:'Any arcade machine you can find in a bar basement.',
-    body:'Everyone gets one punch to settle who among you is secretly built like a Norse god. Highest score is safe. Lowest score takes the forfeit and some light ridicule.', xp:30, gamble:true },
-
-  { n:'THE FOUNTAIN OF YOUTH', t:T.MERCY, icon:'💧', venue:'Ask any bar. Danish tap water is free and excellent.',
-    body:'MERCY TILE. Whole squad drinks a full glass of water like functioning adults for exactly ninety seconds. Nobody skips this one — the brewery insists.', xp:20, heal:35 },
-
-  { n:'DARTH 501', t:T.PHYS, icon:'🎯', venue:'Any bar with a dartboard.',
-    body:'Quick 301, played with the focus of someone who definitely didn\'t just have a beer. First to zero wins. Last place takes the forfeit, no appeals.', xp:25, gamble:true },
-
-  { n:'RAW POWER', t:T.SHOT, icon:'⚡', venue:'You know the place. You know the bartender.',
-    body:'RAW POWER. Full send, all four, at the exact same time, like a synchronized swimming team with worse decisions. Photo evidence required, for the archives.', xp:35, drink:1 },
-
-  { n:'BLACKJACK SPARROW', t:T.GAMBLE, icon:'🃏', venue:'Your local casino floor. Bring ID.',
-    body:'Minimum bet only. One hand each. The dealer takes no prisoners and definitely judges your outfit.\n\nRemember: you never lose when you gamble — you just get a free drink. The house rules, not the casino\'s.', xp:35, gamble:true },
-
-  { n:'WHEEL OF CHAOS', t:T.CHAOS, icon:'🎡', venue:'',
-    body:'Spin it. Accept your fate. Resistance is statistically pointless.', xp:10 },
-
-  { n:'50 SHADES OF RED', t:T.GAMBLE, icon:'🔴', venue:'Any casino roulette table.',
-    body:'Smallest chip on red. That is the whole strategy. That has always been the whole strategy. Wiser men than you have tried more and gotten less.', xp:35, gamble:true },
-
-  { n:'THE SLOTFATHER', t:T.GAMBLE, icon:'🎰', venue:'Bar slot machine or the casino floor.',
-    body:'One spin each, smallest stake, maximum drama. Biggest winner is exempt from the next forfeit — a title worth fighting for.', xp:25, gamble:true },
-
-  { n:'BIG DOINK', t:T.SHOT, icon:'💥', venue:'Inside joke. You four know exactly what this means.',
-    body:'BIG DOINK. No further explanation will be provided by this game, or by anyone, ever, to anyone outside this circle.', xp:30, drink:1 },
-
-  { n:'SKIP THE PUB: TOKYO DRIFT', t:T.MOVE, icon:'⏩', venue:'',
-    body:'This place is dead, spiritually and possibly literally. Finish your drink and move on like royalty who has better places to be — free XP, no challenge.', xp:10 },
-
+  { n:'BEER: FIRST CONTACT', t:T.BEER, icon:'🍺', venue:'Any bar with more than one tap.',
+    body:'Order a beer you have never had before. This is officially "research." No repeats all night, and anything brewed in this city earns double bragging rights.',
+    xp:15, drink:1, ex:'Never had a sour? Now you have.' },
+  { n:'UNLIMITED POWER', t:T.BEER, icon:'⚡', venue:'Any bar. Every bar has a strongest.',
+    body:'Only you: order the strongest beer on tap, whatever this bar calls strong. Raise it like a Sith Lord who just found the cellar.',
+    xp:30, drink:1, ex:'The 9% Belgian tripel at the bottom of the menu. Yours.' },
+  { n:'SPLIT THE G', t:T.BEER, icon:'🍀', venue:'',
+    body:'One pint of Guinness. One gulp. Land the foam line exactly on the G in GUINNESS, as the ancient Irish gods intended.\n\nNO GUINNESS? Any pint in a branded glass: the logo is your G now.\nNO LOGO EITHER? Chaos protocol: the squad races to chug a beer. Fastest wins.\n\nPERFECT SPLIT = legend status, statue optional.\nCLOSE = respect, no statue.\nMISS = forfeit, and the Guinness gods remember your name.',
+    xp:35, drink:1, gamble:true, ex:'The line stops dead on the G. Statue pending.' },
   { n:'THE STOUTSHANK REDEMPTION', t:T.BEER, icon:'🍺', venue:'Any pub with a proper stout tap.',
-    body:'Order a full stout and sip it with the solemn patience of a monk who brews for a living. The rule: it must still be in your hand at your next pull. The tile counts the moment you order it — no one waits for you.', xp:30, drink:1 },
-
+    body:'Order a full stout and sip it with the solemn patience of a monk who brews for a living. The rule: it must still be in your hand at your next pull. The tile counts the moment you order it — no one waits for you.', xp:30, drink:1, ex:'Ordered at pull 4, still nursing it at pull 5.' },
   { n:'MINECRAFT BEER TASTING', t:T.BEER, icon:'🧑‍🔬', venue:'Any bar with more than 3 taps.',
-    body:'Order whatever the bartender is proudest of. Rate it out loud like a sommelier who definitely didn\'t just learn the word "sommelier."', xp:20, drink:1 },
-
-  { n:'FRIENDLY NEIGHBOURHOOD BREW', t:T.BEER, icon:'🏠', venue:'Any bar pouring something local.',
-    body:'Something brewed in this city or this country, something you\'ve never tried. New beer, new night, new opportunity to have a strong opinion about hops.', xp:20, drink:1 },
-
-  { n:'KEBAB TO THE FUTURE', t:T.MERCY, icon:'🥙', venue:'Any kebab shop or grill still open at this hour.',
-    body:'MERCY TILE. Everyone eats something real, blessed by the ancient patron saint of 3am decisions. This is the single best play of the night, full stop.', xp:35, heal:50 },
-
+    body:'The squad picks a beer off the menu for you. Rate it out loud like a sommelier who definitely didn\'t just learn the word "sommelier."',
+    xp:20, drink:1, ex:'"Notes of grapefruit, regret and a hint of Tuesday."' },
+  { n:'ONE SMALL SIP FOR MAN', t:T.BEER, icon:'🌙', venue:'',
+    body:'One sip. That is it. One small sip for you, one giant leap for the bar tab. Plant the flag: history is watching, and so is the bartender.',
+    xp:5, drink:1, ex:'One sip. Neil would be proud.' },
+  { n:'THE TWO TOWERS', t:T.BEER, icon:'🗼', venue:'',
+    body:'Two sips: one for Orthanc, one for Barad-dûr. The Eye of Sauron is on your glass. Do not disappoint the Eye.',
+    xp:6, drink:1, ex:'Sip, sip. Middle-earth nods.' },
+  { n:'THE THREE SIPKETEERS', t:T.BEER, icon:'⚔️', venue:'',
+    body:'Three sips, swashbuckled. All for one, one for all, and all of it down the hatch. Twirling an imaginary moustache is optional and strongly encouraged.',
+    xp:8, drink:1, ex:'Sip, sip, sip. En garde.' },
+  { n:'FINISH HIM!', t:T.BEER, icon:'💀', venue:'',
+    body:'Whatever is left in that glass, it ends now. No mercy, no half measures, no "I\'ll finish it later." The arcade voice is already shouting. FATALITY.',
+    xp:12, drink:1, ex:'Half a pint left? Not any more.' },
+  { n:'THE DEER SHOTTER', t:T.SHOT, icon:'🥃', venue:'',
+    body:'Everyone points at someone, democracy at its finest. Most-pointed picks the shot for the whole table, sight unseen.', xp:20, drink:1, ex:'Three fingers land on Sam. Sam orders four mystery shots.' },
+  { n:'BABY GUINNESS', t:T.SHOT, icon:'🖤', venue:'Any bar with a back shelf.',
+    body:'Kahlúa, floated Baileys. A tiny, perfect, deceptively strong pint of a pint. Round for the table, and everyone becomes a connoisseur for exactly six seconds. No Baileys or Kahlúa? Any sweet or layered shot on the menu does a convincing impression.',
+    xp:20, drink:1, ex:'A round of tiny pints. Six seconds of connoisseurship.' },
+  { n:'GAME OF PONGS', t:T.GAMBLE, icon:'🏓', venue:'Anywhere with a flat table and low standards.',
+    body:'2v2, best of one, played with the gravity of an Olympic final nobody else knew was happening. Winners choose the next bar. Losers take the forfeit and their dignity, briefly, elsewhere.', xp:25, gamble:true, ex:'Last cup, you sink it, the table erupts.' },
+  { n:'BLACKJACK SPARROW', t:T.GAMBLE, icon:'🃏', venue:'',
+    body:'Captain\'s orders: the app deals, one hand against the house, stake is 3 sips. The dealer takes no prisoners and definitely judges your outfit. Beat it and the sips sail round the table, savvy? Lose and they\'re yours.',
+    xp:35, gamble:true, tool:'bj', gamblerOnly:true, ex:'You stand on 18. The dealer busts. Sips for everyone else.' },
+  { n:'50 SHADES OF RED', t:T.GAMBLE, icon:'🔴', venue:'',
+    body:'Call red or black, then let the app spin. Stake is 3 sips. Smallest chip, maximum drama: that has always been the whole strategy. Wiser men than you have tried more and gotten less.',
+    xp:35, gamble:true, tool:'red', gamblerOnly:true, ex:'You call red. It lands red. Hand out the sips.' },
+  { n:'THE FOOS AWAKENS', t:T.PHYS, icon:'⚽', venue:'Any bar with a foosball table.',
+    body:'1v1 to 5 goals. Spinning the rods is allowed, morally correct, and quietly the whole point. The winner gets a career highlight reel. The loser drinks and blames the table.',
+    xp:30, gamble:true, ex:'4–4, last ball, total silence.' },
+  { n:'DARTH 501', t:T.PHYS, icon:'🎯', venue:'Any bar with a dartboard.',
+    body:'A game of 501, played with the focus of a Sith Lord who definitely didn\'t just have a beer. First to zero wins. Last place takes the forfeit, no appeals to the Jedi Council.', xp:25, gamble:true, ex:'Double 16 to finish. The whole bar holds its breath.' },
   { n:'POOL FICTION', t:T.PHYS, icon:'🎱', venue:'Any bar with a pool table.',
-    body:'Doubles, played like the World Championship of Basements. Potting the black early means instant forfeit, obviously — the felt gods do not forgive.', xp:25, gamble:true },
-
-  { n:'WHEEL OF CHAOS', t:T.CHAOS, icon:'🎡', venue:'',
-    body:'Third time. The Wheel remembers everything you did to it earlier.', xp:10 },
-
-  { n:'YOU SHALL NOT PASS', t:T.BOSS, icon:'🕴', venue:'The door of somewhere slightly too nice for you.',
-    body:'BOSS FIGHT. Talk your way into a place none of you would normally get into, armed only with confidence and questionable footwear.\n\nWIN: enormous XP and eternal glory.\nLOSE: forfeit and a strategic, dignified retreat to the first bar of the night.', xp:70, gamble:true },
-
-  { n:'THE PADDINGTON RAID', t:T.SOCIAL, icon:'💐', venue:'',
-    body:'Conquering heroes surveying newly won territory: everyone must compliment one stranger in this bar, genuinely, in the next five minutes. Spread the chaos of kindness — no weirdness.', xp:25 },
-
-  { n:'DIRTY DANCE FLOOR', t:T.PHYS, icon:'🕺', venue:'Wherever the music is loudest at this hour.',
-    body:'One full song, all four of you, no phones, no irony, full commitment to whatever this dance is supposed to be. Squad votes on the song.', xp:35 },
-
-  { n:'MISSION: SNAPPOSSIBLE', t:T.SOCIAL, icon:'📸', venue:'',
-    body:'Recreate a photo from a night out years ago. Same poses, same energy, twice the regret. Post it in the group chat as historical documentation.', xp:30 },
-
-  { n:'LAST ORDERS: ENDGAME', t:T.SOCIAL, icon:'🔔', venue:'',
-    body:'Everyone says one honest nice thing about the person to their left. Then a final round.\n\nThen: kebab, taxi, bed. In that sacred order.', xp:40, drink:1 },
-
-  { n:'EXECUTE ORDER WATER', t:T.BADLUCK, icon:'💧', venue:'',
-    body:'BAD LUCK... but make it hydration. The reels have decided you deserve a glass of water, and honestly, fair. Drink the whole thing before your next real drink.', xp:10, heal:20 },
-  { n:'PIRATES OF THE CHEAP LAGER', t:T.BADLUCK, icon:'🥴', venue:'',
-    body:'BAD LUCK. The lager gods have chosen you. Your next beer has to be the cheapest one on tap. No substitutions, no complaining, no bargaining with fate.', xp:10, drink:1 },
-  { n:'HOME ALONE: PINT FOR ONE', t:T.BADLUCK, icon:'🚶', venue:'',
-    body:'BAD LUCK. Drink your next shot completely alone, like a lone wolf who mildly regrets his choices. Nobody joins you this time.', xp:10, drink:1 },
-  { n:'THE BENCHWARMER', t:T.BADLUCK, icon:'⏳', venue:'',
-    body:'BAD LUCK. Skip a whole round. No drink, no challenge — just sit there, watching everyone else go, contemplating the nature of chance.', xp:5 },
-  { n:'SHOW ME THE MONEY', t:T.BADLUCK, icon:'🎁', venue:'',
-    body:'BAD LUCK. Invite someone outside the squad to join you for a beer. You are now, briefly, a diplomat. Represent well.', xp:15 },
-
-  { n:'COUNT DRUNKULA', t:T.SOCIAL, icon:'🔢', venue:'',
-    body:'Count upward around the group — 1, 2, 3... First to hesitate, mess up, or say the wrong number drinks. Restart from 1, dignity intact but questionable.', xp:20, gamble:true },
-  { n:'STARS IN YOUR BEERS', t:T.SOCIAL, icon:'🎭', venue:'',
-    body:'Someone picks a famous person for you — you don\'t know who. Yes/no questions only until you guess. Last to guess drinks and questions their entire cultural literacy.', xp:25, gamble:true },
-  { n:'NEVER HAVE I EVER', t:T.SOCIAL, icon:'🙊', venue:'',
-    body:'Go around the circle. Say something you have never done. Anyone who HAS done it drinks. No judgment, just consequences and a very specific kind of eye contact.', xp:20, drink:1 },
-  { n:'SPEED: RIDE THE BUS', t:T.SOCIAL, icon:'🚌', venue:'',
-    body:'Classic card game — guess red/black, higher/lower, in/out, and the suit. Wrong guess, you drink. Blow the final row and you\'re "on the bus," a title nobody wants and everybody remembers.', xp:30, gamble:true },
-  { n:'THE FAMILY FEUD', t:T.SOCIAL, icon:'📊', venue:'',
-    body:'Someone names two things. Everyone secretly guesses which one is actually more popular. Whoever\'s wrong drinks and loses all confidence in their worldview.', xp:20, gamble:true },
-  { n:'THE USUAL SUSPECTS', t:T.SOCIAL, icon:'👉', venue:'',
-    body:'"Most likely to..." — say a scenario, everyone points at who fits, chaos and betrayal ensue. Whoever gets pointed at most drinks.', xp:20, drink:1 },
-  { n:'LIAR LIAR, PINTS ON FIRE', t:T.SOCIAL, icon:'🎯', venue:'',
-    body:'Tell the group two true things and one lie about tonight so far. Guess wrong as a group, everyone drinks — a shared punishment, democratically earned.', xp:20, drink:1 },
-  { n:'THE CATEGORY IS...', t:T.SOCIAL, icon:'🗂️', venue:'',
-    body:'Pick a category — beers, cities, footballers. Go around naming one each. First to repeat, blank, or break rhythm drinks, and takes the shame with it.', xp:20, gamble:true },
-
-  { n:'THE ILLUMINALE HANDSHAKE', t:T.SOCIAL, icon:'🤝', venue:'',
-    body:'You have 60 seconds to invent the squad\'s official secret handshake: minimum four moves, one of them stupid. Teach it. Then everyone performs it, together, flawlessly, in public.',
-    win:'all four nail it first try', xp:25 },
-  { n:'PROFESSOR X READS THE ROOM', t:T.SOCIAL, icon:'📊', venue:'',
-    body:'Ask the table an either/or ("pizza or kebab?"). Before anyone answers, write your prediction of the split on a napkin. Then everyone votes at once.',
-    win:'your napkin called the exact split', xp:20, gamble:true },
+    body:'Doubles, played like the World Championship of Basements. Potting the black early means instant forfeit, obviously — the felt gods do not forgive.', xp:25, gamble:true, ex:'Black ball, corner pocket, called it.' },
   { n:'TOP FLIP: MAVERICK', t:T.PHYS, icon:'🟫', venue:'',
     body:'Coaster on the table edge, flick it up, catch it. Then two stacked. Then three. Everyone gets one run. Beer mats have never been so respected.',
-    win:'your stack beats everyone else\'s', xp:25, gamble:true },
-  { n:"THE KING'S SPEECH", t:T.SOCIAL, icon:'📜', venue:'',
-    body:'You set one table rule until the next bar: drink left-handed, no first names, say "m\'lord" before every sentence. It goes live the moment you say it — anyone who breaks it sips. Then pull on.', xp:25 },
-  { n:'A QUIET PLACE', t:T.SOCIAL, icon:'🤐', venue:'',
-    body:'Order your next drink from the bartender using only mime. No words, no pointing at the menu. The squad watches in respectful silence.',
-    win:'they pour the right thing first try', xp:30, drink:1, gamble:true },
-  { n:'LOST IN TRANSLATION TOAST', t:T.SOCIAL, icon:'🌍', venue:'',
-    body:'60 seconds: raise a toast in five languages. Each squadmate may feed you one; the last one must come from a stranger.',
-    win:'five languages before the minute ends', xp:30, drink:1 },
-  { n:'GUARDIANS OF THE JUKEBOX', t:T.SOCIAL, icon:'🎶', venue:'',
-    body:'Hum a song, mouth closed, full commitment. The squad has 15 seconds to name it. Then {LEFT} hums one back at you.',
-    win:'they guess yours AND you guess theirs', xp:25, gamble:true },
-  { n:'ARM OF STEEL', t:T.PHYS, icon:'💪', venue:'',
-    body:'Best of three arm-wrestle against {LEFT}. Elbows on the table, eyes locked, dignity optional. Loser fetches the next round of napkins.',
-    win:'you take 2 of 3', xp:30, gamble:true },
-  { n:'DRAW ME LIKE YOUR FRENCH GIRLS', t:T.SOCIAL, icon:'🖼️', venue:'',
-    body:'60 seconds to draw {RIGHT} on a napkin. They rate it out of 10, honestly. The napkin is then signed and must survive the rest of the night.',
-    win:'you score 6 or more', xp:25, gamble:true },
-  { n:'BLACK MIRROR', t:T.SOCIAL, icon:'📱', venue:'',
-    body:'Phones face-up in the middle. Highest level picks the song at the next bar; lowest level raises a sincere toast to whoever is highest.',
-    win:'you are not the lowest level', xp:20, gamble:true },
-  { n:'NEVER HAVE I EVER: SNYDER CUT', t:T.SOCIAL, icon:'🙊', venue:'',
-    body:'Never Have I Ever — but only about things that happened with THIS squad. Three rounds, you go first. Anyone who has done it sips. Lies will be cross-examined.',
-    win:'you sipped the least', xp:20, gamble:true },
-  { n:'RED PILL OR BLUE PILL', t:T.SOCIAL, icon:'⚖️', venue:'',
-    body:'Ask three "would you rather" questions. On three, everyone points left or right at once. The minority sips every round.',
-    win:'you were in the majority all three times', xp:20, gamble:true },
-  { n:'THE IRON THRONE', t:T.SOCIAL, icon:'🔥', venue:'',
-    body:'Sixty seconds. The squad fires questions at you, fast. Answer every single one instantly — no "uhh", no "pass", no thinking face.',
-    win:'not one hesitation', xp:25, gamble:true },
-  { n:'ONCE UPON A PINT', t:T.SOCIAL, icon:'📖', venue:'',
-    body:'Around the table, one word each, tell the true story of how tonight ends. You start. First to stall, laugh or break the sentence sips.',
-    win:'it wasn\'t you who broke it', xp:20, gamble:true },
-  { n:'8 MILE RHYME CHAIN', t:T.SOCIAL, icon:'🎤', venue:'',
-    body:'Say any word. Around the table, everyone adds a word that rhymes. First to blank, repeat or invent a word sips. Two rounds.',
-    win:'you never broke the chain', xp:20, gamble:true },
-  { n:'KNIVES OUT: THE ALIBI', t:T.SOCIAL, icon:'🕵️', venue:'',
-    body:'You and {LEFT} get 30 seconds out of earshot to agree on where you both were at 3am last Saturday. Then the squad questions you separately — three questions each.',
-    win:'your stories match', xp:30, gamble:true },
-  { n:'FIZZ BUZZ LIGHTYEAR', t:T.SOCIAL, icon:'🔢', venue:'',
-    body:'Count around the table. Multiples of 3 are "FIZZ", of 5 are "BUZZ", of both "FIZZBUZZ". Mess up and you sip, then restart from 1. Play to 30.',
-    win:'you never messed up', xp:20, gamble:true },
-  { n:'GRANDMASTER THUMB', t:T.SOCIAL, icon:'👍', venue:'',
-    body:'You are the Thumb Master until your next pull. Any time, quietly put your thumb on the table — the last one to copy you sips. Pull on; the power stays with you.', xp:20 },
-  { n:'INTERVIEW WITH THE VAMPINT', t:T.SOCIAL, icon:'🎙️', venue:'',
-    body:'{RIGHT} interviews you for 60 seconds as if you just won a major award for something ridiculous. Full acceptance-speech energy. The squad rates it out of 10.',
-    win:'the average rating is 7 or more', xp:25, gamble:true },
-  { n:'2 FAST 2 TOAST', t:T.SOCIAL, icon:'🥂', venue:'',
-    body:'Thirty seconds: raise a toast to every squadmate, each with one specific reason from tonight. No pauses, no repeated reasons. Then everyone drinks to you.',
-    win:'you made it round in time', xp:25, drink:1 },
+    win:'your stack beats everyone else\'s', xp:25, gamble:true, ex:'Three stacked coasters, one clean catch.' },
+  { n:'THUMB WARS', t:T.PHYS, icon:'👍', venue:'',
+    body:'A long time ago, in a hand far, far away: best of three thumb wars against {LEFT}. Elbows down, trash talk mandatory, dignity optional. Loser drinks.',
+    xp:20, win:'you take 2 of 3', gamble:true, ex:'"1, 2, 3, 4, I declare a thumb war…"' },
   { n:'MIRROR MIRROR ON THE BAR', t:T.PHYS, icon:'🪞', venue:'',
     body:'For 60 seconds you copy every single move {LEFT} makes, including the sip. They will try to shake you off. The squad referees.',
-    win:'you never broke the mirror', xp:25, gamble:true },
+    win:'you never broke the mirror', xp:25, gamble:true, ex:'They scratch their nose, sip, salute. So do you.' },
   { n:'STARE WARS', t:T.PHYS, icon:'👀', venue:'',
     body:'Staring contest against {RIGHT}. The rest of the squad may try to make you laugh — no touching. First to blink, laugh or look away sips.',
-    win:'you win the stare', xp:20, gamble:true },
-  { n:'THE WORD THAT MUST NOT BE NAMED', t:T.SOCIAL, icon:'🚫', venue:'',
-    body:'Ban one everyday word ("yes", "no", "drink", "like") for the whole table until your next pull. You are the referee: every slip, a sip. It\'s live now — pull on.', xp:20 },
+    win:'you win the stare', xp:20, gamble:true, ex:'Sam does the worm. You blink.' },
   { n:'DWAYNE THE ROCK PAPER SCISSORS', t:T.PHYS, icon:'✂️', venue:'',
     body:'Knockout bracket, best of three each round, full ceremony. The champion picks the next toast. Everyone else bows.',
-    win:'you are the champion', xp:25, gamble:true },
+    win:'you are the champion', xp:25, gamble:true, ex:'Final: rock vs rock vs paper. Champion.' },
+  { n:'SKIP THE PUB: TOKYO DRIFT', t:T.MOVE, icon:'⏩', venue:'',
+    body:'This place is dead, spiritually and possibly literally. Finish your drink and move on like royalty who has better places to be — free XP, no challenge.', xp:10, ex:'Three people and a sad DJ? You are out.' },
+  { n:'INTO THE UNKNOWN', t:T.MOVE, icon:'🚪', venue:'',
+    body:'Elsa has spoken: the next bar has to be one none of you has ever set foot in. First lit door that fits. Let it go — your usual local will survive one night without you.',
+    xp:15, ex:'You have all done the Irish pub, so the tiny wine bar next door it is.' },
+  { n:'STRANGER THINGS', t:T.MOVE, icon:'🔦', venue:'',
+    body:'Ask the bartender or a local where they would go next. You go there. No vetoes, no googling it first, no whimpering. Whatever is behind that door, the party goes in together.',
+    xp:15, ex:'"The basement place with the jukebox." That is the plan now.' },
+  { n:'THE UPSIDE DOWN', t:T.MOVE, icon:'🙃', venue:'',
+    body:'Spin a phone on the table. Wherever it points, the squad walks. The first bar you reach is the next one, no vetoes. The lights are flickering. Follow them.',
+    xp:15, ex:'It points down the alley. The alley has a karaoke bar. Fate.' },
+  { n:'MISSION: SNAPPOSSIBLE', t:T.SOCIAL, icon:'📸', venue:'',
+    body:'Your mission, should you choose to accept it (you do): recreate this famous picture, right here, right now: {PIC}. Full commitment, zero irony. The photo goes in the group chat as historical documentation. This message will self-destruct.',
+    xp:30, pics:['the Abbey Road crossing', 'the Titanic "I\'m flying" pose', 'The Last Supper', 'the Creation of Adam fingers', 'Rocky on the steps', 'Lunch atop a Skyscraper', 'the Beatles mid-jump', 'Napoleon crossing the Alps', 'American Gothic', 'The Thinker'], ex:'Two of you, one bar stool, "I\'m flying." Full commitment.' },
+  { n:'LAST ORDERS: ENDGAME', t:T.SOCIAL, icon:'🔔', venue:'',
+    body:'Everyone says one honest nice thing about the person to their left. Then a final round.\n\nThen: kebab, taxi, bed. In that sacred order.', xp:40, drink:1, ex:'"Jo, you found every good bar tonight. Never change."' },
+  { n:'STARS IN YOUR BEERS', t:T.SOCIAL, icon:'🎭', venue:'',
+    body:'A round for everyone. The squad secretly picks a famous person for each player. Yes/no questions only until you guess yours. Last to guess drinks and questions their entire cultural literacy.',
+    xp:25, win:'you are not the last to guess', gamble:true, ex:'"Am I real?" "No." "Am I green?" "Yes." "…Shrek?"' },
+  { n:'NEVER HAVE I EVER', t:T.SOCIAL, icon:'🙊', venue:'',
+    body:'A round for everyone, you start. Each player confesses something they have never done. Anyone who HAS done it drinks. No judgment, just consequences and a very specific kind of eye contact.',
+    xp:20, win:'you drank the least by the end of the round', drink:1, ex:'Never have I ever fallen asleep in a taxi.' },
+  { n:'SPEED: RIDE THE BUS', t:T.SOCIAL, icon:'🚌', venue:'',
+    body:'The app deals. Red or black, higher or lower, inside or outside, then the suit. Every wrong guess, you drink. Blow the final row and you are "on the bus" — a title nobody wants and everybody remembers. Pop quiz, hotshot.',
+    xp:30, win:'you are NOT left on the bus', gamble:true, tool:'bus', ex:'Red. Higher. Outside… hearts? Spades. On the bus.' },
+  { n:'NO CAP, SHERLOCK', t:T.SOCIAL, icon:'🔍', venue:'',
+    body:'Elementary: you are the game master. Three rounds. Read the statement out like it\'s the final clue, everyone calls FACT or CAP at once, then the big reveal. Wrong guessers drink.',
+    xp:25, win:'you called all three right', tool:'nocap', ex:'"Octopuses have three hearts." FACT. Two of you said cap. Drink.' },
+  { n:'HIGHER OR LAGER', t:T.SOCIAL, icon:'📈', venue:'',
+    body:'You are the game master, and the whole table is about to get humbled. Three rounds: two things, one measure. Everyone calls which one is MORE at once, then reveal. Wrong guessers drink.',
+    xp:25, win:'you called all three right', tool:'hol', ex:'Calories: a pint of lager or a Big Mac? Big Mac. Sips for the optimists.' },
+  { n:'THE LIMIT DOES NOT EXIST', t:T.SOCIAL, icon:'📏', venue:'',
+    body:'You are the game master, and the limit does not exist. Three rounds: read the question, everyone shouts a number at once, then reveal. Closest wins, furthest drinks. Spot on? Hand out 2 sips and act like you knew all along.',
+    xp:25, win:'you were never the furthest', tool:'limit', ex:'"How tall is the Eiffel Tower?" Sam says 900 m. Sam drinks.' },
+  { n:'THE USUAL SUSPECTS', t:T.SOCIAL, icon:'👉', venue:'',
+    body:'A round for everyone, you start. Each player asks one "most likely to…". Everyone points on three, and chaos and betrayal ensue. Most-pointed drinks. The greatest trick a squad ever pulled is pretending they didn\'t all point at you.',
+    xp:20, win:'you are never the most-pointed-at', drink:1, ex:'Most likely to text an ex tonight? Three fingers on Alex.' },
+  { n:'LIAR LIAR, PINTS ON FIRE', t:T.SOCIAL, icon:'🎯', venue:'',
+    body:'A round for everyone. Each player tells two truths and one lie, poker face on. The table spots your lie: you drink. The table misses: they all drink. Pants may or may not be on fire.',
+    xp:20, win:'nobody spots your lie', drink:1, ex:'I have met a footballer / been to Iceland / can juggle.' },
+  { n:'THE CATEGORY IS...', t:T.SOCIAL, icon:'🗂️', venue:'',
+    body:'Pick a category — beers, cities, footballers. Go around naming one each. First to repeat, blank, or break rhythm drinks, and takes the shame with it.', xp:20, gamble:true, ex:'Beer brands: Heineken, Corona, Carlsberg… blank. Sip.' },
+  { n:"THE KING'S SPEECH", t:T.SOCIAL, icon:'📜', venue:'',
+    body:'You set one table rule until the next bar: drink left-handed, no first names, say "m\'lord" before every sentence. It goes live the moment you say it — anyone who breaks it sips. Then pull on.', xp:25, ex:'No first names. "Hey Tom—" Sip.' },
+  { n:'LOST IN TRANSLATION TOAST', t:T.SOCIAL, icon:'🌍', venue:'',
+    body:'60 seconds: raise a toast in five languages, like a jet-lagged diplomat who has had two too many. Each squadmate may feed you one.',
+    xp:30, win:'five languages before the minute ends', drink:1, ex:'Cheers, Skål, Prost, Salud, Kanpai!' },
+  { n:'GUARDIANS OF THE JUKEBOX', t:T.SOCIAL, icon:'🎶', venue:'',
+    body:'Hum a song, mouth closed, full commitment. The squad has 15 seconds to name it. Then {LEFT} hums one back at you.',
+    win:'they guess yours AND you guess theirs', xp:25, gamble:true, ex:'You hum Mr Brightside. They get it in 8 seconds.' },
+  { n:'DRAW ME LIKE YOUR FRENCH GIRLS', t:T.SOCIAL, icon:'🖼️', venue:'',
+    body:'60 seconds to draw one squadmate on your phone, Titanic-sketchbook seriousness. Do not say who. The others guess. Nobody gets it: you drink, and the masterpiece gets deleted.',
+    xp:25, win:'someone guesses who it is', gamble:true, ex:'Huge beard, tiny hat. "It\'s Tom!"' },
+  { n:'RED PILL OR BLUE PILL', t:T.SOCIAL, icon:'⚖️', venue:'',
+    body:'A round for everyone, you start. Each player asks one "would you rather". On three, everyone points left or right at once. The minority drinks, every round. There is no spoon. There is only the minority.',
+    xp:20, win:'you were never in the minority', gamble:true, ex:'Only warm beer forever, or only flat beer forever?' },
+  { n:'THE IRON THRONE', t:T.SOCIAL, icon:'🔥', venue:'',
+    body:'Sixty seconds. The squad fires questions at you, fast. Answer every single one instantly — no "uhh", no "pass", no thinking face.',
+    win:'not one hesitation', xp:25, gamble:true, ex:'"Favourite colour?" "Blue." "Worst job?" "Uhh—" Sip.' },
+  { n:'ONCE UPON A PINT', t:T.SOCIAL, icon:'📖', venue:'',
+    body:'Around the table, one word each, tell the true story of how tonight ends. You start. First to stall, laugh or break the sentence sips.',
+    win:'it wasn\'t you who broke it', xp:20, gamble:true, ex:'"Then" "Sam" "stole" "a" "traffic" "cone"…' },
+  { n:'8 MILE RHYME CHAIN', t:T.SOCIAL, icon:'🎤', venue:'',
+    body:'Say any word. Around the table, everyone adds a word that rhymes. First to blank, repeat or invent a word sips. Two rounds.',
+    win:'you never broke the chain', xp:20, gamble:true, ex:'Beer, cheer, near, steer… "umm." Sip.' },
+  { n:'KNIVES OUT: THE ALIBI', t:T.SOCIAL, icon:'🕵️', venue:'',
+    body:'You and {LEFT} get 30 seconds out of earshot to agree on where you both were at 3am last Saturday. Then the squad turns detective and questions you separately, three questions each.\n\nSTORIES CLASH: you and {LEFT} finish your drinks.\nSTORIES MATCH: every questioner drinks.',
+    xp:30, win:'your stories match', gamble:true, ex:'"What were you eating?" You: pizza. {LEFT}: sushi. Bottoms up.' },
+  { n:'FIZZ BUZZ LIGHTYEAR', t:T.SOCIAL, icon:'🔢', venue:'',
+    body:'Count around the table. Multiples of 3 are "FIZZ", of 5 are "BUZZ", of both "FIZZBUZZ". Mess up and you sip, then restart from 1. Play to 30.',
+    win:'you never messed up', xp:20, gamble:true, ex:'1, 2, FIZZ, 4, BUZZ, FIZZ, 7…' },
+  { n:'GRANDMASTER THUMB', t:T.SOCIAL, icon:'👍', venue:'',
+    body:'You are the Thumb Master until your next pull. Any time, quietly put your thumb on the table — the last one to copy you sips. Pull on; the power stays with you.', xp:20, ex:'Mid-chat you rest a thumb on the table. Sam notices last.' },
+  { n:'INTERVIEW WITH THE VAMPINT', t:T.SOCIAL, icon:'🎙️', venue:'',
+    body:'{RIGHT} interviews you for 60 seconds as if you just won a major award for something ridiculous. Full acceptance-speech energy. The squad rates it out of 10.',
+    win:'the average rating is 7 or more', xp:25, gamble:true, ex:'"Congratulations on Best Parallel Parker 2026. How do you feel?"' },
+  { n:'2 FAST 2 TOAST', t:T.SOCIAL, icon:'🥂', venue:'',
+    body:'Thirty seconds: raise a toast to every squadmate, each with one specific reason from tonight. No pauses, no repeated reasons. Then everyone drinks to you.',
+    win:'you made it round in time', xp:25, drink:1, ex:'"To Jo for this bar, to Sam for the nachos, to Alex for staying upright—"' },
+  { n:'THE WORD THAT MUST NOT BE NAMED', t:T.SOCIAL, icon:'🚫', venue:'',
+    body:'Ban one everyday word ("yes", "no", "drink", "like") for the whole table until your next pull. You are the referee: every slip, a sip. It\'s live now — pull on.', xp:20, ex:'Banned: "yeah". "Yeah, totally—" Sip.' },
   { n:'COMPLIMENT KOMBAT', t:T.SOCIAL, icon:'💬', venue:'',
     body:'You and {LEFT} trade wildly over-the-top compliments, one each. First to laugh, stall or repeat loses — and sips.',
-    win:'you outlast them', xp:20, gamble:true },
+    win:'you outlast them', xp:20, gamble:true, ex:'"Your eyebrows have a fan club." "Your laugh could end wars."' },
   { n:'WHO WANTS TO BE A PINTIONAIRE', t:T.SOCIAL, icon:'❓', venue:'',
-    body:'The squad asks you three questions about {LEFT} — favourite drink, worst ex-haircut, middle name, anything. {LEFT} is the judge.',
-    win:'you get 2 of 3 right', xp:25, gamble:true },
-  { n:'A STAR IS BOOZED', t:T.KARAOKE, icon:'🎤', venue:'Any bar with a karaoke machine, or your own phone speaker if you\'re desperate.',
-    body:'Whole squad picks one song together, a decision that will define the rest of the night. Everyone sings at least one line — no hiding behind harmonies, no pretending you don\'t know the words. History is watching. This only happens once.', xp:35, gamble:true }
+    body:'A round for everyone. Each player gets three questions about the person on their left: favourite drink, middle name, first concert, anything. Fewer than 2 right: drink. No lifelines, no phoning a friend, final answer.',
+    xp:25, win:'you get 2 of 3 right', gamble:true, ex:'Sam\'s middle name? Favourite pizza? First concert?' },
+  { n:'SAY MY NAME', t:T.SOCIAL, icon:'🏷️', venue:'',
+    body:'The squad votes you a nickname. It is legally binding for the rest of the night.',
+    xp:15, ex:'You are now "Captain Nachos". Respond to it.' },
+  { n:'METHOD ACCENT', t:T.SOCIAL, icon:'🎭', venue:'',
+    body:'Fake accent for 10 minutes, Oscar-campaign levels of commitment. The squad picks which. Slip out of it and you take 2 sips.',
+    xp:20, win:'you never slip', gamble:true, ex:'Pirate it is. Arrr, another pint.' },
+  { n:'DOUBLE TROUBLE XP', t:T.SOCIAL, icon:'✖️', venue:'',
+    body:'No dare this time. Your NEXT tile is worth double XP. Choose your moment wisely, like a supervillain sitting on a doomsday device.',
+    xp:10, doubleNext:true, ex:'Next one is a thumb war? Make it count.' },
+  { n:'L\'ASSOMMOIR: THE CHUG RACE', t:T.PHYS, icon:'🏁', venue:'',
+    body:'Everyone gets a full beer. Glasses up, on three, everyone starts at the same time. First empty glass slammed upside down on the table wins. Ladies and gentlemen, start your engines.',
+    xp:30, gamble:true, win:'your glass is empty first', ex:'Three, two, one… and Sam is already slamming the glass down.' },
+  { n:'A STAR IS BOOZED', t:T.KARAOKE, icon:'🎤', venue:'Your phone speaker. A karaoke machine is a bonus.',
+    body:'Whole squad picks one song together, a decision that will define the rest of the night. Everyone sings at least one line — no hiding behind harmonies, no pretending you don\'t know the words. History is watching. This only happens once.', xp:35, gamble:true, ex:'Mr Brightside, phone speaker, four voices, zero shame.' },
+  /* ── THE TANK-ARD'S OWN TILES (Oct 2026): Viking tiles only he can roll (classOnly, see tileForClass) ── */
+  { n:'MEAD MAX: FURY ROAD', t:T.BEER, icon:'🍯', venue:'', dare:1, classOnly:'tank',
+    body:'WITNESS ME! Order the darkest beer on tap, raise it to the rafters and call it mead. Loudly. For the rest of the night. Shiny and chrome, black as a fjord at midnight. Valhalla is watching your order.',
+    xp:25, drink:1, win:'you order the darkest beer on tap and call it mead all night', ex:'"The stout, please." "Our stout?" "THE MEAD."' },
+  { n:'THE SKALDFATHER', t:T.SOCIAL, icon:'📜', venue:'', dare:1, classOnly:'tank',
+    body:'I\'m gonna make you a saga you can\'t refuse. 30 seconds: tell the saga of tonight so far like an ancient skald in a mead hall, in the third person, maximum thunder. The squad rates it out of 10.',
+    xp:25, win:'the squad rates it 7 or higher', ex:'"And lo, Sam did drop the nachos, and the gods wept."' },
+  { n:'HOW TO DRAIN YOUR DRAGON', t:T.BEER, icon:'🐉', venue:'', dare:1, classOnly:'tank',
+    body:'A dragon is circling the longhouse and only an empty glass can save the village. Whatever is in yours, drain it: bottoms up, glass slammed, beard wiped, roar optional but expected. Then tap 🍺 LOG A BEER, because the scribe writes this one into your saga too. One beer, paid twice. Odin loves a bargain.',
+    xp:12, drink:1, win:'your glass is empty', ex:'Half a pint left? Gone. Logged. Already being sung about.' },
+  { n:'THE WATER CARD', t:T.WATER, icon:'💧', venue:'',
+    body:'A water card goes in your bag, like an ace up a very hydrated sleeve. Nothing to drink yet. Next time the reels hand you a tile you do not fancy, tap 💧 USE IT, drink a glass of water, and get a fresh tile.',
+    xp:5, ex:'The reels say Thumb Wars. You say water card. New tile.' },
+  { n:'PIRATES OF THE CHEAP LAGER', t:T.BADLUCK, icon:'🥴', venue:'',
+    body:'BAD LUCK. The lager gods have chosen you. Your next beer has to be the cheapest one on tap. No substitutions, no complaining, no bargaining with fate.', xp:10, drink:1, ex:'Skip the craft IPA. It is the house pilsner.' },
+  { n:'GHOSTBREWSTERS', t:T.BADLUCK, icon:'👻', venue:'',
+    body:'BAD LUCK. Phone face-down for 15 minutes. Your brewery is haunted: no brewing, no shop, no spending until the ghosts leave. Who you gonna call? Nobody. Phone is down.',
+    xp:10, haunt:true, ex:'Your cellar was dripping 3 beer a minute. Now it is dripping ectoplasm.' },
+  { n:'THE DESIGNATED BUTLER', t:T.BADLUCK, icon:'🤵', venue:'',
+    body:'BAD LUCK. Alfred mode: you fetch every drink for the squad until your next pull, towel over your arm. They still pay. You still serve. Very good, sir.',
+    xp:10, ex:'"Another round, m\'lord?"' },
+  { n:'PHONE A FRIEND: THE HANGOVER CALL', t:T.BADLUCK, icon:'📞', venue:'',
+    body:'BAD LUCK. Call a friend who is not here, on speaker. They choose your next drink. No vetoes. What happens on speaker stays on speaker.',
+    xp:10, drink:1, ex:'Your brother says "something blue." Good luck.' }
 ];
-// within a BADLUCK result, EXECUTE ORDER WATER should come up far more than the other curses
-const BADLUCK_WEIGHTS = { 'EXECUTE ORDER WATER':45, 'PIRATES OF THE CHEAP LAGER':15, 'HOME ALONE: PINT FOR ONE':15, 'THE BENCHWARMER':10, 'SHOW ME THE MONEY':15 };
+// within a BADLUCK result, the four curses come up evenly (Oct 2026: the water curse became the Water Card)
+const BADLUCK_WEIGHTS = { 'PIRATES OF THE CHEAP LAGER':25, 'GHOSTBREWSTERS':25, 'THE DESIGNATED BUTLER':25, 'PHONE A FRIEND: THE HANGOVER CALL':25 };
 
-/* ---------- wheel of chaos ---------- */
-const WHEEL = [
-  { n:'AVENGERS ASSEMBLE', c:'#ff3ea5', d:'All four of you. Right now. No negotiation.', xp:15, drink:1 },
-  { n:'SPLIT THE G',       c:'#6ee36e', d:'Nearest Guinness. Whoever splits it closest is immune to the next forfeit.', xp:25, drink:1 },
-  { n:'FACE/OFF JACKETS', c:'#38f2e0', d:'Swap outer layers with the person to your left. Keep them until the next Wheel.', xp:15 },
-  { n:'SAY MY NAME',      c:'#ffd24a', d:'The squad votes you a nickname. It is legally binding for the rest of the night.', xp:15 },
-  { n:'METHOD ACCENT',    c:'#a45cff', d:'Fake accent only for 10 minutes — the squad picks which. Slip out of it and it costs you a street beer.', xp:20 },
-  { n:'ELM STREET BEER',  c:'#ff9d3d', d:'Beer to go. Walk somewhere new. Bin it properly.', xp:15, drink:1 },
-  { n:'BABY GUINNESS',     c:'#e8e4ff', d:'A round of Baby Guinness. Small. Perfect. Devastating.', xp:20, drink:1 },
-  { n:'TOKYO DRIFT',      c:'#38f2e0', d:'Leave now. Next venue. Free XP, no challenge.', xp:15 },
-  { n:'THE SHAPE OF WATER', c:'#6ee36e', d:'MERCY. Full glass of water each. Free 30 XP because hydration is elite.', xp:30, heal:30 },
-  { n:'PHONES DOWN, E.T.', c:'#ff4d5e', d:'Phones away for 15 minutes. First person to check theirs takes a forfeit.', xp:20 },
-  { n:'DOUBLE TROUBLE XP', c:'#ffd24a', d:'Your next tile is worth double. Choose your moment.', xp:10, doubleNext:true },
-  { n:'MAKE IT RAIN',     c:'#a45cff', d:'You buy the next round. Yes, you. The Wheel has spoken.', xp:25, drink:1 }
-];
 
 /* ---------- forfeits (gambling never loses) ---------- */
 const FORFEITS = [
   { n:'STOUT',       d:'A full stout. Slowly. That is the punishment and the reward.', drink:1 },
   { n:'STREET BEER', d:'Beer to go, and you carry everyone else\'s coats to the next place like a very sad coat rack.', drink:1 },
   { n:'SHOT',        d:'Bartender\'s choice shot. No complaints, no negotiating, no making a face about it.', drink:1 },
-  { n:'STREET BEER', d:'Street beer, and you are on navigation duty until the next Wheel. Google Maps has never trusted a drunker man.', drink:1 },
-  { n:'CIDER',       d:'A full cider, and you must speak only in compliments for the next five minutes. Everyone is beautiful. Everyone. Even the bouncer.', drink:1 },
+  { n:'STREET BEER', d:'Street beer, and you are on navigation duty until your next pull. Google Maps has never trusted a drunker man.', drink:1 },
+  { n:'CIDER',       d:'A full cider, and you must speak only in compliments for the next five minutes. Everyone is beautiful. Everyone. Even the coat rack.', drink:1 },
   { n:'STREET BEER', d:'Street beer, and you owe the group one (1) dramatic reenactment of how this happened, on request, any time tonight.', drink:1 },
-  { n:'BABY GUINNESS', d:'One Baby Guinness, and you have to say "skål" like you mean it, in front of strangers.', drink:1 },
+  { n:'BABY GUINNESS', d:'One Baby Guinness, and you have to say "skål" like you mean it, loud enough for the whole table.', drink:1 },
   { n:'HOUSE WINE',  d:'A glass of whatever\'s open. Nobody here judges, and neither should you.', drink:1 },
   { n:'NATURE DOCUMENTARY', d:'Narrate the squad\'s next two minutes like a nature documentary. Whispered. Reverent. Every sip is a migration.', drink:0 },
   { n:'RHYME TIME',  d:'Speak only in rhyming couplets until your next pull. Every slip costs a sip, and the squad is listening.', drink:0 },
@@ -4384,7 +4378,8 @@ const SOUVENIRS = {
   [T.BOSS]:   { icon:'🏆', n:'TROPHY' },
   [T.CHAOS]:  { icon:'🎡', n:'STICKER' },
   [T.BADLUCK]:{ icon:'🪞', n:'BROKEN MIRROR' },
-  [T.KARAOKE]:{ icon:'🎤', n:'MICROPHONE' }
+  [T.KARAOKE]:{ icon:'🎤', n:'MICROPHONE' },
+  [T.WATER]:  { icon:'💧', n:'BOTTLE' }
 };
 
 // items with a "char" field are exclusive to that character's shop — everyone else never even sees them
@@ -4676,11 +4671,11 @@ const QUEST_POOLS = [
     { n:'THE RELUCTANT ROUND', d:'Without asking anyone and without reaching for your own coin, get one specific person you pick right now to be the one who buys the next full round.' },
     { n:'THE PLANTED LIE',     d:'Tell the squad one small, harmless, invented "fact" about this city. Catch at least one of them repeating it to someone else as if it were true.' }
   ],
-  [ // ── stage 3 — the whole squad, or a stranger doing your work
+  [ // ── stage 3 — the whole squad, or a squadmate doing your work
     { n:'SKÅL SIMON SAYS',     d:'Secretly start a 10-minute timer. Get every other squadmate to individually say "skål" before it runs out — without ever calling a group toast yourself.' },
     { n:'THE NAVIGATOR',       d:'Pick a specific venue in your head right now. Get the squad to end up there next WITHOUT you naming it — somebody else has to be the one who suggests it out loud.' },
     { n:'MATCHING ORDERS',     d:'Order a specific drink. Without telling anyone what it is, get every other squadmate to independently order that exact same drink before the night is over.' },
-    { n:'THE RECRUITED STRANGER',d:'Get a stranger to deliver your line to the table — a toast, a rule, a question you planted with them — with the squad never learning you set it up.' },
+    { n:'THE GHOSTWRITER',     d:'Get one squadmate to deliver your line to the table — a toast, a rule, a question you planted with them — without the rest of the squad learning you set it up.' },
     { n:'THE FAKE EXCUSE',     d:'Invent one specific fake reason right now ("that place looked shut") to skip a venue that was actually on the plan — and get the squad to genuinely skip it because of you.' }
   ],
   [ // ── stage 4 — misdirection: the credit has to land somewhere else
@@ -4703,11 +4698,10 @@ const QUEST_STAGE_NAMES = ['THE SEED', 'THE SPREAD', 'THE TABLE', 'THE MISDIRECT
 const ACHIEVEMENTS = [
   { id:'first',  n:'A NEW HOPS',      d:'Complete your first challenge',  test:s=>s.wins>=1 },
   { id:'lap',    n:'AROUND THE BAR IN 80 PINTS',  d:'Pass GO once',                   test:s=>s.laps>=1 },
-  { id:'gsplit', n:'SPLIT THE G',      d:'Beat the Guinness boss',         test:s=>s.flags.gsplit },
-  { id:'door',   n:'YOU SHALL PASS',   d:'Beat The Bouncer',               test:s=>s.flags.bouncer },
+  { id:'gsplit', n:'SPLIT THE G',      d:'Win SPLIT THE G',         test:s=>s.flags.gsplit },
   { id:'hydro',  n:'WATERWORLD',      d:'Drink water 3 times',            test:s=>s.waters>=3 },
   { id:'lucky',  n:'CASINO ROYALE-ALE',  d:'Win 3 gambles',                  test:s=>s.gambleWins>=3 },
-  { id:'chaos',  n:'AN AGENT OF CHAOS',     d:'Spin the Wheel 5 times',         test:s=>s.spins>=5 },
+  { id:'chaos',  n:'THE SHAPE OF WATER',    d:'Play 3 water cards',             test:s=>(s.waterUsed||0)>=3 },
   { id:'secret', n:"MR. & MRS. SMITHWICK'S",      d:'Clear a secret quest stage',     test:s=>(s.quest && s.quest.cleared>=1) || s.secretDone },
   { id:'secret5',n:'THE USUAL SUSPECT',           d:'Clear all five secret quest stages', test:s=>(s.quest && s.quest.cleared>=QUEST_POOLS.length) || s.secret2Done },
   { id:'lv5',    n:'HALFWAY TO VALHALLA',   d:'Reach level 5',                  test:s=>s.level>=5 },
@@ -4739,10 +4733,10 @@ let _runEpoch = 0; // bumped on reset/restore so animations still running for th
 function freshState(){
   return {
     name:'', charId:'tank', currentTile:null, pulls:0, xp:0, level:1, drinks:0, fails:0, wins:0,
-    skips:2, pace:0, waters:0, laps:0, spins:0, gambleWins:0, respin:1, badLuckHeat:0, dare:2,
-    doubleNext:false, startTime:Date.now(), log:[], ach:[], tkTierSeen:0, beerLifetime:0,
+    skips:2, pace:0, waters:0, laps:0, spins:0, gambleWins:0, respin:1, badLuckHeat:0, dare:1, dareV2:true,
+    doubleNext:false, doubleArm:false, waterCards:0, waterUsed:0, deckUsed:{ nocap:[], hol:[], limit:[] }, toolRun:null, brewHauntUntil:0, startTime:Date.now(), log:[], ach:[], tkTierSeen:0, beerLifetime:0,
     flags:{}, resolved:false, quest:null, karaokeDone:false, beerLogCount:0, bossMarks:{}, bossesAvenged:0,
-    bounty:null, underdog:null, unlocksSeen:null, veteran:false, tutorialDone:false, tutStep:null, hmUnlocked:false, chugRerolls:0, tutRate0:0, bountyStats:{ taken:0, survived:0, caught:0, failed:0, defended:0 },
+    bounty:null, underdog:null, unlocksSeen:null, veteran:false, tutorialDone:false, tutStep:null, hmUnlocked:false, chugRerolls:0, tutRate0:0, tutBuyAhead:false, bagLegacy:false, bountyStats:{ taken:0, survived:0, caught:0, failed:0, defended:0 },
     coins:50, souvenirs:{}, relics:[], items:{}, hatUsedThisLap:false, denSpinsLeft:3, chugAttemptsLeft:1, chugRoundLeft:0,
     rage:0, bloodied:false, chugMisses:0, perfectChugs:0, rageActivations:0, haggleActive:false,
     autoWinNext:false, shopPending:false, discovered:[], itemsUsed:{},
@@ -4793,7 +4787,9 @@ function stashCorruptSave(raw){
 // type-safe repair of a loaded save: wrong types fall back to the fresh default, unknown ids are cleaned up
 function migrate(p){
   const _runeV2 = p && p.wzRuneV2 === true;
-  const _hadHm = !(p && p._hmOld); if(p) delete p._hmOld; // saves from before the Hammerschlagen gate: a Tank already past his first real win keeps it open
+  const _hadHm = !(p && p._hmOld); if(p) delete p._hmOld;
+  const _dareOld = !!(p && p._dareOld); if(p) delete p._dareOld; // a save from the four-notch dial (before Oct 16 2026)
+  const _bagOld = !!(p && p._bagOld); if(p) delete p._bagOld; // saves from before the Forge opened the Tank-ard's bag // saves from before the Hammerschlagen gate: a Tank already past his first real win keeps it open
   const f = freshState();
   for(const k in f){
     const d = f[k], v = p[k];
@@ -4808,7 +4804,10 @@ function migrate(p){
   if(!CHARS.some(c=>c.id===p.charId)) p.charId = 'tank';
   if(!_hadHm) p.hmUnlocked = (p.wins||0) > 1 || (p.pulls||0) > 1 || !!p._tankPendingWin;
   p.level = Math.max(1, Math.floor(p.level)); p.xp = Math.max(0, p.xp);
-  p.dare = Math.max(1, Math.min(DARE_LEVELS.length, Math.floor(p.dare) || 2)); // the Daring Dial notch — a missing or malformed value becomes AT THE BAR, anything out of range is clamped into it
+  // the Daring Dial notch. The old four notches fold into two: SEATED / AT THE BAR → AT THE TABLE, ON YOUR FEET / OUT THE DOOR → ON THE MOVE
+  if(_dareOld){ const fold = d => (Math.floor(d) || 2) >= 3 ? 2 : 1; p.dare = fold(p.dare); if(p._slotPending && typeof p._slotPending === 'object') p._slotPending.dare = fold(p._slotPending.dare); }
+  p.dareV2 = true;
+  p.dare = Math.max(1, Math.min(DARE_LEVELS.length, Math.floor(p.dare) || 1)); // missing or malformed → AT THE TABLE, out of range → clamped
   const isObj = o => o && typeof o === 'object' && !Array.isArray(o);
   const okTile = t => isObj(t) && typeof t.n === 'string' && typeof t.t === 'string' && typeof t.xp === 'number';
   if(p.currentTile != null && !okTile(p.currentTile)){ p.currentTile = null; p.resolved = true; }
@@ -4853,14 +4852,26 @@ function migrate(p){
   if(p.jkJuggle != null && !(isObj(p.jkJuggle) && Array.isArray(p.jkJuggle.pile) && Array.isArray(p.jkJuggle.drawn))) p.jkJuggle = null;
   if(p.jkDeck != null && !Array.isArray(p.jkDeck)) p.jkDeck = null;
   if(p._slotPending != null && !(isObj(p._slotPending) && okTile(p._slotPending.tile))) p._slotPending = null;
-  if(isObj(p._slotPending)) p._slotPending.dare = Math.max(1, Math.min(DARE_LEVELS.length, Math.floor(p._slotPending.dare) || 2));
+  if(isObj(p._slotPending)) p._slotPending.dare = Math.max(1, Math.min(DARE_LEVELS.length, Math.floor(p._slotPending.dare) || 1));
   if(p._denSpin != null && !(isObj(p._denSpin) && DEN_GAMES[p._denSpin.game] && typeof p._denSpin.mult === 'number')) p._denSpin = null;
   if(p._bj != null && !(isObj(p._bj) && Array.isArray(p._bj.deck) && Array.isArray(p._bj.player) && Array.isArray(p._bj.dealer))) p._bj = null;
   if(p._duel != null && !(isObj(p._duel) && ['tank','opp','reveal'].includes(p._duel.phase))) p._duel = null;
-  if(p._wheelSpin != null && !(p._wheelSpin >= 0 && p._wheelSpin < WHEEL.length)) p._wheelSpin = null;
+  // Oct 2026 tile overhaul: the Wheel of Chaos is gone — a half-spun Wheel just ends, a pending one is dropped
+  p._wheelSpin = null;
+  if(isObj(p.currentTile) && p.currentTile.t === T.CHAOS && !p.resolved) p.resolved = true;
+  if(isObj(p._slotPending) && p._slotPending.tile && p._slotPending.tile.t === T.CHAOS) p._slotPending = null;
+  p.waterCards = Math.max(0, Math.min(WATER_MAX, Math.floor(p.waterCards) || 0));
+  p.waterUsed = Math.max(0, Math.floor(p.waterUsed) || 0);
+  if(!isObj(p.deckUsed)) p.deckUsed = {};
+  ['nocap','hol','limit'].forEach(k => { p.deckUsed[k] = (Array.isArray(p.deckUsed[k]) ? p.deckUsed[k] : []).filter(i => Number.isInteger(i) && i >= 0 && i < DECKS[k].length); });
+  if(p.toolRun != null && !(isObj(p.toolRun) && DECKS[p.toolRun.tool] && Number.isInteger(p.toolRun.round))) p.toolRun = null;
+  p.brewHauntUntil = Math.max(0, Number(p.brewHauntUntil) || 0);
   p.relics = p.relics.filter(x=>typeof x === 'string');
   // Hammerschlagen: clamp the ladder + forge, drop unknown materials/inlays
   p.hmBeaten = Math.max(0, Math.min(HM_FOES.length, Math.floor(p.hmBeaten)));
+  // the Tank-ard's bag now waits for THE FORGE — a save from before that keeps an already-open bag
+  if(_bagOld) p.bagLegacy = p.charId === 'tank' && (p.level||1) >= 2 && !(p.breweryUpgrades||[]).some(u => u && u.id === 'tk_forge');
+  p.bagLegacy = !!p.bagLegacy; p.tutBuyAhead = !!p.tutBuyAhead;
   if(p.hmForge.setting == null) p.hmForge.setting = (p.hmForge.head >= 2 ? 1 : 0) + (p.hmForge.ward >= 3 ? 1 : 0); // sockets used to come from the head + ward
   HM_PART_KEYS.forEach(k => { const v = p.hmForge[k]; p.hmForge[k] = (typeof v === 'number' && isFinite(v)) ? Math.max(0, Math.min(HM_PARTS[k].max, Math.floor(v))) : 0; });
   if(!p.hmWins || typeof p.hmWins !== 'object' || Array.isArray(p.hmWins)) p.hmWins = {};
@@ -4924,7 +4935,7 @@ function load(){
   try{ p = JSON.parse(renameOldTiles(raw)); }catch(e){ stashCorruptSave(raw); return false; }
   if(!p || typeof p !== 'object' || Array.isArray(p)){ stashCorruptSave(raw); return false; }
   if(!p.name) return false;
-  { const v2 = p.wzRuneV2 === true, m = Object.assign(freshState(), p); m.wzRuneV2 = v2; m._hmOld = !('hmUnlocked' in p); S = migrate(m); }
+  { const v2 = p.wzRuneV2 === true, m = Object.assign(freshState(), p); m.wzRuneV2 = v2; m._hmOld = !('hmUnlocked' in p); m._dareOld = !('dareV2' in p); m._bagOld = !('bagLegacy' in p); S = migrate(m); }
   if(S._runeRefund){ const n = S._runeRefund; delete S._runeRefund; setTimeout(() => { try{ addLog(`🔮 Your wand became the Rune Circle: ${n}🪙 refunded for old coin carvings`); toast(`🔮 RUNES NOW POWER YOUR DUELS — ${n}🪙 REFUNDED`); }catch(e){} }, 2500); }
   if(!S.lastProdTs) S.lastProdTs = Date.now(); // older saves predate the brewery production timer
   return true;
@@ -5461,21 +5472,20 @@ let boardFrame = 0;
 /* ---------- the slot machine: no dice, no board, just pull the lever ---------- */
 const SLOT_ICONS = {
   [T.BEER]:'🍺', [T.SHOT]:'🥃', [T.GAMBLE]:'🎲', [T.PHYS]:'🥊', [T.SOCIAL]:'📜',
-  [T.MERCY]:'💧', [T.MOVE]:'⏩', [T.CHAOS]:'🎡', [T.BOSS]:'⚔', [T.BADLUCK]:'💀', [T.KARAOKE]:'🎤'
+  [T.MOVE]:'⏩', [T.WATER]:'💧', [T.BADLUCK]:'💀', [T.KARAOKE]:'🎤'
 };
-// base relative weights — "swap pub, have a beer" should come up way more than anything else
+// base relative weights (Oct 2026 tile overhaul: no Wheel, no bosses, no mercy — the Water Card is the rare one)
 const SLOT_BASE_WEIGHTS = {
-  [T.BEER]:8, [T.MOVE]:8, [T.SHOT]:13, [T.SOCIAL]:27, [T.PHYS]:13,
-  [T.GAMBLE]:13, [T.MERCY]:6, [T.CHAOS]:21, [T.BOSS]:25, [T.BADLUCK]:11
+  [T.BEER]:16, [T.MOVE]:8, [T.SHOT]:6, [T.SOCIAL]:30, [T.PHYS]:12,
+  [T.GAMBLE]:6, [T.WATER]:4, [T.BADLUCK]:11
 };
-// within a BOSS result, foosball should come up far more than the other two — foosball alone lands ~15%+ of ALL pulls
-const BOSS_WEIGHTS = { 'THE FOOS AWAKENS':75, 'SPLIT THE G':13, 'YOU SHALL NOT PASS':12 };
+
 // each character skews which outcomes come up more often, not just how much XP they're worth —
 // mirrors the same strength/weakness pairing used in grantXP() so the two systems tell the same story
 const CHAR_SLOT_BIAS = {
   tank:    { [T.BEER]:1.35, [T.SOCIAL]:0.75 },
   gambler: { [T.GAMBLE]:1.5, [T.PHYS]:0.75 },
-  jester:  { [T.SOCIAL]:1.35, [T.CHAOS]:1.3, [T.BEER]:0.75 },
+  jester:  { [T.SOCIAL]:1.35, [T.BEER]:0.75 },
   machine: { [T.PHYS]:1.5, [T.GAMBLE]:0.75 },
   wizard:  { [T.SHOT]:1.5, [T.SOCIAL]:0.75 }
 };
@@ -5493,6 +5503,7 @@ function computeSlotWeights(){
   }
   w[T.BADLUCK] = (11 + heat*6) * (0.75 + Math.random()*0.5); // fail more, and bad luck ramps up hard and fast
   if(!unlocked('curses')) w[T.BADLUCK] = 0; // new crawlers meet the curses once they find their feet
+  if((S.level||1) < WATER_MIN_LEVEL) w[T.WATER] = 0; // the Water Card only turns up from level 7 (David, Oct 16)
   // KARAOKE unlocks at level 5 — starts at ~10% of all pulls, +5% per level after that (capped so other outcomes never vanish)
   // one-time only: once it's happened once, it never comes up again for this run
   if(S.level>=5 && !S.karaokeDone && (S.pulls||0) >= 8){ // the big sing-along waits for the second half of the night
@@ -5509,19 +5520,14 @@ function weightedPick(weights){
   for(const [k,v] of entries){ if(r<v) return k; r -= v; }
   return entries[0][0];
 }
-function pickTileOfType(type, avoidId, dare){
+function pickTileOfType(type, avoidId, dare){ return bakeTile(pickTileRaw(type, avoidId, dare)); }
+function pickTileRaw(type, avoidId, dare){
   let fullPool = TILES.filter(t=>t.t===type);
-  // the Daring Dial narrows the pool to the chosen notch; CHAOS/BADLUCK/KARAOKE sit outside it and are never narrowed
-  if(dare && type!==T.CHAOS && type!==T.BADLUCK && type!==T.KARAOKE){
+  fullPool = fullPool.filter(tileForClass); // a few tiles belong to one class (the Gambler's in-app casino)
+  // the Daring Dial narrows the pool to the chosen notch; WATER/BADLUCK/KARAOKE sit outside it and are never narrowed
+  if(dare && !dareOutside(type)){
     const inNotch = fullPool.filter(t=>t.dare===dare);
     if(inNotch.length) fullPool = inNotch; // an unreachable notch falls back to the whole type rather than rolling nothing
-  }
-  if(type===T.BOSS){
-    for(let i=0;i<6;i++){ // a boss that isn't open yet (e.g. YOU SHALL NOT PASS before pull 6) re-rolls
-      const name = weightedPick(BOSS_WEIGHTS);
-      const t = fullPool.find(x=>x.n===name);
-      if(t && !((t.minPulls||0) > ((S && S.pulls)||0))) return t;
-    }
   }
   if(type===T.BADLUCK){
     const name = weightedPick(BADLUCK_WEIGHTS);
@@ -5550,26 +5556,39 @@ function tutorialNote(step){
 // which tile types this notch can actually serve right now (minPulls respected) — everything else is masked out of the roll
 function dareTypesOpen(d){
   const out = {};
-  TILES.forEach(t=>{ if(t.dare===d && !((t.minPulls||0) > ((S && S.pulls)||0))) out[t.t] = true; });
+  TILES.forEach(t=>{ if(t.dare===d && tileForClass(t) && !((t.minPulls||0) > ((S && S.pulls)||0))) out[t.t] = true; });
   return out;
 }
-const dareOutside = k => k===T.CHAOS || k===T.BADLUCK || k===T.KARAOKE; // never narrowed by the dial
+const dareOutside = k => k===T.WATER || k===T.BADLUCK || k===T.KARAOKE; // never narrowed by the dial
+function tileForClass(t){ if(!t) return true; if(t.gamblerOnly && !(S && S.charId === 'gambler')) return false; if(t.classOnly && !(S && S.charId === t.classOnly)) return false; return true; }
+// a tile with a list of variants (SNAPPOSSIBLE's famous pictures) is baked into a copy the moment it's rolled,
+// so the picture rides on the pending/current tile and a reload shows the same one
+function bakeTile(t){
+  if(!t || !t.pics) return t;
+  const c = Object.assign({}, t); delete c.pics;
+  c.body = String(t.body).replace('{PIC}', t.pics[Math.floor(Math.random()*t.pics.length)]);
+  return c;
+}
 function spinOutcome(){
   if(tutorialActive()) return Object.assign({}, TUTORIAL_TILE);
   const d = dareOf();
-  const w = computeSlotWeights();
-  const open = dareTypesOpen(d);
-  // A hard filter: SEATED can never be handed a boss fight. But simply zeroing the types a notch can't serve would
-  // hand their weight to the Wheel and the curses (CHAOS hit 32% of pulls at notch 1), so the surviving in-dial
-  // weights are scaled back up to hold the same in/out balance the table had before any masking.
-  let inFull = 0, inOpen = 0;
-  Object.keys(w).forEach(k=>{ if(!dareOutside(k)){ inFull += w[k]; if(open[k]) inOpen += w[k]; } });
-  const scale = inOpen > 0 ? inFull/inOpen : 0;
-  Object.keys(w).forEach(k=>{ if(!dareOutside(k)) w[k] = open[k] ? w[k]*scale : 0; });
-  if(Object.values(w).reduce((a,b)=>a+b, 0) <= 0) w[T.SOCIAL] = 1; // never roll an empty table
-  const type = weightedPick(w);
-  const tile = pickTileOfType(type, S.currentTile ? S.currentTile.n : null, d);
-  return tile;
+  const w = computeSlotWeights(); // type weights: class bias, jitter, bad-luck heat, karaoke
+  // Oct 2026 (two-notch dial): the types outside the dial (water, curses, karaoke) keep their weights, and the
+  // in-dial share is spread over every tile this notch can serve, evenly (×the class bias for its type). Picking a
+  // type first let a type with ONE tile in a notch hog it (SNAPPOSSIBLE was 17% of ON THE MOVE).
+  const pulls = (S && S.pulls) || 0, cur = S.currentTile ? S.currentTile.n : null;
+  const open = TILES.filter(t => t.dare === d && tileForClass(t) && !((t.minPulls||0) > pulls) && t.n !== cur);
+  let inFull = 0; const outW = {};
+  Object.keys(w).forEach(k => { if(dareOutside(k)){ if(w[k] > 0) outW[k] = w[k]; } else inFull += w[k]; });
+  const outSum = Object.values(outW).reduce((a,b)=>a+b, 0);
+  if(open.length && Math.random()*(inFull + outSum) < inFull){
+    const bias = CHAR_SLOT_BIAS[S.charId] || {};
+    const tw = open.map(t => bias[t.t] || 1), sum = tw.reduce((a,b)=>a+b, 0);
+    let r = Math.random()*sum;
+    for(let i = 0; i < open.length; i++){ if(r < tw[i]) return bakeTile(open[i]); r -= tw[i]; }
+    return bakeTile(open[open.length-1]);
+  }
+  return pickTileOfType(outSum > 0 ? weightedPick(outW) : T.SOCIAL, cur, d);
 }
 
 /* ---------- brewery background (evolves with level, alive by default) ---------- */
@@ -5678,6 +5697,10 @@ function townSet(){ return (S && TOWN_SETS[S.charId]) || BREWERY_UPGRADES; }
 function townPrice(u){ return u.price || Math.max(20, Math.round((u.rate||0.25) * 110)); }
 // The smith needs somewhere to stand. No Forge in the town, no hammer upgrades and no gem cutting.
 function hmForgeBuilt(){ return !!S && (S.dev || S.charId !== 'tank' || (S.breweryUpgrades||[]).some(u => u.id === 'tk_forge')); }
+// the Tank-ard's BAG holds the Forge bench, so it stays shut until THE FORGE stands in town (every other class: opens with the Market)
+function bagOpen(){ return unlocked('market') && (!S || S.charId !== 'tank' || S.bagLegacy || hmForgeBuilt()); }
+// the tutorial's guided first purchase: the Tank-ard raises THE FORGE, everyone else buys the starter barrel
+function tutBuyTank(){ return !!(S && S.charId === 'tank'); }
 function townOwned(id){ return (S && S.breweryUpgrades || []).some(u => u.id === id); }
 function townAvailable(){ return townSet().filter(u => !townOwned(u.id) && !u.quest); }
 // the one building coin can't reach: the secret quest's reward for this character's town
@@ -5696,7 +5719,7 @@ function pickUpgradeForRarity(rarityId){
   // try the rolled rarity first, then cascade down through lower rarities if that pool is exhausted
   for(let d=0; d<order.length; d++){
     const idx = startIdx - d; if(idx<0) break;
-    const pool = townSet().filter(u=>u.rarity===order[idx] && !u.quest && !takenIds.has(u.id));
+    const pool = townSet().filter(u=>u.rarity===order[idx] && !u.quest && !takenIds.has(u.id) && !(u.id === 'tk_forge' && S.tutBuyAhead));
     if(pool.length) return pool[Math.floor(Math.random()*pool.length)];
   }
   // every real upgrade taken — the chest holds a TAVERN FAVOUR instead: coins and/or rerolls, scaled to the rolled rarity
@@ -5754,6 +5777,7 @@ function tickBreweryProduction(){
   let elapsedMin = (now - S.lastProdTs) / 60000;
   S.lastProdTs = now;
   if(elapsedMin<=0) return;
+  if(brewHaunted()) return; // GHOSTBREWSTERS: nothing brews while the ghosts are in
   const CATCHUP_CAP_MIN = 180; // don't dump hours of coins if the phone was closed/asleep a long time
   if(elapsedMin>CATCHUP_CAP_MIN) elapsedMin = CATCHUP_CAP_MIN;
   const rate = computeBreweryRate();
@@ -9648,7 +9672,9 @@ document.addEventListener('visibilitychange', ()=>{
 
 /* ---------- navigation ---------- */
 function go(screen){
+  if(screen==='shop' && S && S.name && brewHaunted()){ toast('👻 THE BREWERY IS HAUNTED · BACK IN ' + hauntLeft()); return; }
   if((screen==='bag' || screen==='shop') && S && S.name && !unlocked('market')){ unlockTeaser('market'); return; }
+  if(screen==='bag' && S && S.name && !bagOpen()){ toast('⚒ RAISE THE FORGE TO OPEN YOUR BAG · SHOP → THE TOWN'); return; }
   if(screen==='shop' && S && S.tutStep==='shop') setTimeout(() => tutAdvance('shop', 'buy'), 0);
   if(screen==='shop' && S && S.shopAlert){ S.shopAlert = false; save(); }
   setTimeout(syncShopAlert, 0);
@@ -9720,54 +9746,52 @@ function sqName(key){
 function tpl(str){ return String(str||'').replace(/\{(LEFT|RIGHT|RANDOM|NEXT|ME)\}/g, (_,k) => sqName(k)); }
 
 /* tiles that need kit a bar might not have — the result card offers a FREE swap when the bar can't host it */
-const TILE_NEEDS = { 'GAME OF PONGS':'A BEER PONG TABLE', 'SPLIT THE G':'GUINNESS', 'THE FOOS AWAKENS':'A FOOSBALL TABLE', 'BABY GUINNESS':'BAILEYS & KAHLÚA',
-  'MILLION DOLLAR PUNCH':'A PUNCHING MACHINE', 'DARTH 501':'A DARTBOARD', 'BLACKJACK SPARROW':'A CASINO', '50 SHADES OF RED':'A ROULETTE TABLE', 'THE SLOTFATHER':'A SLOT MACHINE',
-  'POOL FICTION':'A POOL TABLE', 'SPEED: RIDE THE BUS':'A DECK OF CARDS', 'A STAR IS BOOZED':'KARAOKE', 'DIRTY DANCE FLOOR':'A DANCE FLOOR' };
+const TILE_NEEDS = { 'GAME OF PONGS':'A BEER PONG TABLE', 'THE FOOS AWAKENS':'A FOOSBALL TABLE', 'DARTH 501':'A DARTBOARD', 'POOL FICTION':'A POOL TABLE' };
+/* group games: everyone plays and only one person (or one side) wins, so the odds are slim with a full squad.
+   PLAYED, DIDN'T WIN pays PART_SHARE of the tile's XP, with no forfeit (the game already made the losers drink). */
+const PART_SHARE = 0.5;
+const TILE_GROUP = new Set(['L\'ASSOMMOIR: THE CHUG RACE','DARTH 501','DWAYNE THE ROCK PAPER SCISSORS','NO CAP, SHERLOCK','HIGHER OR LAGER','THE LIMIT DOES NOT EXIST','NEVER HAVE I EVER','RED PILL OR BLUE PILL',
+  'STARS IN YOUR BEERS','LIAR LIAR, PINTS ON FIRE','THE USUAL SUSPECTS','THE CATEGORY IS...','8 MILE RHYME CHAIN','FIZZ BUZZ LIGHTYEAR','ONCE UPON A PINT',
+  'WHO WANTS TO BE A PINTIONAIRE','THE DEER SHOTTER','SPEED: RIDE THE BUS','SPLIT THE G']);
 /* group tiles: how does the person who pulled it WIN? (shown under the dare) */
 const TILE_WIN = {
-  'GAME OF PONGS':'your team wins the game', 'THE DEER SHOTTER':'you are NOT the most-pointed', 'MILLION DOLLAR PUNCH':'you are not the lowest score',
-  'DARTH 501':'you are not last', 'BLACKJACK SPARROW':'you finish your hand up', '50 SHADES OF RED':'it lands red', 'THE SLOTFATHER':'you walk away with more than you put in',
-  'POOL FICTION':'your pair wins', 'DIRTY DANCE FLOOR':'you dance the WHOLE song, no breaks', 'MISSION: SNAPPOSSIBLE':'the recreation lands in the group chat',
-  'THE PADDINGTON RAID':'a stranger smiles at your compliment', 'COUNT DRUNKULA':'you are not the one who breaks the count', 'STARS IN YOUR BEERS':'you are not the last to guess',
-  'NEVER HAVE I EVER':'you drank the least by the end of the round', 'SPEED: RIDE THE BUS':'you are NOT left on the bus', 'THE FAMILY FEUD':'the table rules your guess was right',
-  'THE USUAL SUSPECTS':'you are not the most-pointed-at', 'LIAR LIAR, PINTS ON FIRE':'the squad picks the wrong lie', 'THE CATEGORY IS...':'you are not the one who blanks',
-  'A STAR IS BOOZED':'you sing your line LOUD', 'THE STOUTSHANK REDEMPTION':'the glass lasts ten whole minutes', 'BEER: FIRST CONTACT':'it really is a beer you have never had'
+  'GAME OF PONGS':'your team wins the game', 'THE DEER SHOTTER':'you are NOT the most-pointed', 'DARTH 501':'you are not last',
+  'BLACKJACK SPARROW':'you beat the dealer', '50 SHADES OF RED':'your colour comes up', 'POOL FICTION':'your pair wins',
+  'MISSION: SNAPPOSSIBLE':'the recreation lands in the group chat', 'THE CATEGORY IS...':'you are not the one who blanks',
+  'A STAR IS BOOZED':'you sing your line LOUD', 'THE STOUTSHANK REDEMPTION':'the glass lasts ten whole minutes', 'BEER: FIRST CONTACT':'it really is a beer you have never had',
+  'SPLIT THE G':'you land the split (or win the chug race)', 'THE FOOS AWAKENS':'you score 5 first'
 };
 /* late-night tiles wait until the night has warmed up */
-const TILE_MIN_PULLS = { 'KEBAB TO THE FUTURE':8, 'LAST ORDERS: ENDGAME':8, 'DIRTY DANCE FLOOR':10, 'YOU SHALL NOT PASS':6 };
+const TILE_MIN_PULLS = { 'LAST ORDERS: ENDGAME':8, 'FINISH HIM!':3 };
 /* ══ THE DARING DIAL — how far the night is allowed to drag you. Pick a stone before you pull; change it after any finished challenge.
    The reels still surprise you, but only inside the notch you chose: a table that wants to sit and talk can't be handed a
    foosball boss fight. Bolder notches pay more because the tiles themselves are worth more AND carry a multiplier on top.
    Curses, the Wheel and START sit OUTSIDE the dial — badLuckHeat answers your failures at any notch, as it always did. ══ */
-const DARE_LEVELS = [
-  { lv:1, n:'SEATED',       mult:0.80, d:'Word games, cards, a round ordered from your chair. Nobody has to stand up.' },
-  { lv:2, n:'AT THE BAR',   mult:1.00, d:'Shots, toasts and small contests across the table. You stay where you are.' },
-  { lv:3, n:'ON YOUR FEET', mult:1.25, d:'Darts, pool, the dance floor, strangers. You cross the room for this one.' },
-  { lv:4, n:'OUT THE DOOR', mult:1.55, d:'Boss fights, the casino, the next pub. This notch moves the whole squad.' }
+const DARE_LEVELS = [ // Oct 16 2026: four notches folded into two (David). `look` picks the sign's wood and carving.
+  { lv:1, look:2, n:'AT THE TABLE', mult:1.00, d:'Question rounds, word games, shots, toasts and small contests. Nobody has to leave the table.' },
+  { lv:2, look:4, n:'ON THE MOVE',  mult:1.35, d:'Darts, pool, foosball, the next room, the next pub. You get up for this one.' }
 ];
 const TILE_DARE = {
-  // 1 — SEATED
-  'COUNT DRUNKULA':1, 'STARS IN YOUR BEERS':1, 'NEVER HAVE I EVER':1, 'SPEED: RIDE THE BUS':1, 'THE FAMILY FEUD':1,
-  'THE USUAL SUSPECTS':1, 'LIAR LIAR, PINTS ON FIRE':1, 'THE CATEGORY IS...':1, 'PROFESSOR X READS THE ROOM':1,
-  'DRAW ME LIKE YOUR FRENCH GIRLS':1, 'BLACK MIRROR':1, 'NEVER HAVE I EVER: SNYDER CUT':1, 'RED PILL OR BLUE PILL':1,
-  'THE IRON THRONE':1, 'ONCE UPON A PINT':1, '8 MILE RHYME CHAIN':1, 'KNIVES OUT: THE ALIBI':1, 'FIZZ BUZZ LIGHTYEAR':1,
-  'GRANDMASTER THUMB':1, 'INTERVIEW WITH THE VAMPINT':1, 'THE WORD THAT MUST NOT BE NAMED':1, 'COMPLIMENT KOMBAT':1,
-  'WHO WANTS TO BE A PINTIONAIRE':1, 'BEER: FIRST CONTACT':1, 'MINECRAFT BEER TASTING':1, 'FRIENDLY NEIGHBOURHOOD BREW':1,
-  'THE STOUTSHANK REDEMPTION':1, 'THE FOUNTAIN OF YOUTH':1,
-  // 2 — AT THE BAR
-  'THE DEER SHOTTER':2, 'BABY GUINNESS':2, 'RAW POWER':2, 'BIG DOINK':2, 'THE ILLUMINALE HANDSHAKE':2,
-  "THE KING'S SPEECH":2, 'LOST IN TRANSLATION TOAST':2, 'GUARDIANS OF THE JUKEBOX':2, '2 FAST 2 TOAST':2,
-  'TOP FLIP: MAVERICK':2, 'ARM OF STEEL':2, 'MIRROR MIRROR ON THE BAR':2, 'STARE WARS':2, 'DWAYNE THE ROCK PAPER SCISSORS':2,
-  'A BEER ON ELM STREET':2,
-  // 3 — ON YOUR FEET
-  'DARTH 501':3, 'POOL FICTION':3, 'MILLION DOLLAR PUNCH':3, 'DIRTY DANCE FLOOR':3, 'GAME OF PONGS':3,
-  'THE SLOTFATHER':3, 'A STAR IS BOOZED':3, 'THE PADDINGTON RAID':3, 'A QUIET PLACE':3, 'MISSION: SNAPPOSSIBLE':3,
-  // 4 — OUT THE DOOR
-  'SPLIT THE G':4, 'THE FOOS AWAKENS':4, 'YOU SHALL NOT PASS':4, 'BLACKJACK SPARROW':4, '50 SHADES OF RED':4,
-  'SKIP THE PUB: TOKYO DRIFT':4, 'KEBAB TO THE FUTURE':4, 'LAST ORDERS: ENDGAME':4
+  // 1 — AT THE TABLE (was SEATED)
+  'STARS IN YOUR BEERS':1, 'NEVER HAVE I EVER':1, 'SPEED: RIDE THE BUS':1, 'THE USUAL SUSPECTS':1, 'LIAR LIAR, PINTS ON FIRE':1,
+  'THE CATEGORY IS...':1, 'DRAW ME LIKE YOUR FRENCH GIRLS':1, 'RED PILL OR BLUE PILL':1, 'THE IRON THRONE':1, 'ONCE UPON A PINT':1,
+  '8 MILE RHYME CHAIN':1, 'KNIVES OUT: THE ALIBI':1, 'FIZZ BUZZ LIGHTYEAR':1, 'GRANDMASTER THUMB':1, 'INTERVIEW WITH THE VAMPINT':1,
+  'THE WORD THAT MUST NOT BE NAMED':1, 'COMPLIMENT KOMBAT':1, 'WHO WANTS TO BE A PINTIONAIRE':1, 'BEER: FIRST CONTACT':1,
+  'MINECRAFT BEER TASTING':1, 'THE STOUTSHANK REDEMPTION':1, 'ONE SMALL SIP FOR MAN':1, 'THE TWO TOWERS':1, 'THE THREE SIPKETEERS':1,
+  'NO CAP, SHERLOCK':1, 'HIGHER OR LAGER':1, 'THE LIMIT DOES NOT EXIST':1, 'DOUBLE TROUBLE XP':1,
+  // 1 — AT THE TABLE (was AT THE BAR)
+  'THE DEER SHOTTER':1, 'BABY GUINNESS':1, 'UNLIMITED POWER':1, 'SPLIT THE G':1, 'FINISH HIM!':1, "THE KING'S SPEECH":1,
+  'LOST IN TRANSLATION TOAST':1, 'GUARDIANS OF THE JUKEBOX':1, '2 FAST 2 TOAST':1, 'TOP FLIP: MAVERICK':1, 'THUMB WARS':1,
+  'MIRROR MIRROR ON THE BAR':1, 'STARE WARS':1, 'DWAYNE THE ROCK PAPER SCISSORS':1, 'SAY MY NAME':1, 'METHOD ACCENT':1,
+  'BLACKJACK SPARROW':1, '50 SHADES OF RED':1,
+  // 2 — ON THE MOVE (was ON YOUR FEET)
+  'DARTH 501':2, 'POOL FICTION':2, 'GAME OF PONGS':2, 'THE FOOS AWAKENS':2, 'A STAR IS BOOZED':2, 'MISSION: SNAPPOSSIBLE':2,
+  'STRANGER THINGS':2, 'L\'ASSOMMOIR: THE CHUG RACE':2,
+  // 2 — ON THE MOVE (was OUT THE DOOR)
+  'SKIP THE PUB: TOKYO DRIFT':2, 'INTO THE UNKNOWN':2, 'THE UPSIDE DOWN':2, 'LAST ORDERS: ENDGAME':2
 };
-function dareOf(){ return Math.max(1, Math.min(DARE_LEVELS.length, (S && S.dare) || 2)); }
-function dareLevel(n){ const i = Math.round(Number(n)) || 2; return DARE_LEVELS[Math.max(0, Math.min(DARE_LEVELS.length-1, i-1))]; }
+function dareOf(){ return Math.max(1, Math.min(DARE_LEVELS.length, (S && S.dare) || 1)); }
+function dareLevel(n){ const i = Math.round(Number(n)) || 1; return DARE_LEVELS[Math.max(0, Math.min(DARE_LEVELS.length-1, i-1))]; }
 function dareMultFor(n){ return dareLevel(n).mult; }
 // (Oct 2026) the dial used to lock for a whole lap (three pulls). Now you can re-carve your choice after every
 // finished challenge: it only holds while a tile is in play — pulled and unresolved, a result card waiting, a claim
@@ -9779,7 +9803,7 @@ function dareLocked(){
 }
 function tileWinHTML(t){ return t && t.win ? `<div class="ci-win">🏆 YOU WIN IF: ${escapeHtml(tpl(t.win))}</div>` : ''; }
 function tileSwapPool(t){
-  const ok = x => x.t!==T.CHAOS && x.t!==T.START && !x.needs && x.n!==t.n && !((x.minPulls||0) > (S.pulls||0));
+  const ok = x => x.t!==T.CHAOS && x.t!==T.START && !x.needs && x.n!==t.n && tileForClass(x) && !((x.minPulls||0) > (S.pulls||0));
   let pool = TILES.filter(x => x.t===t.t && ok(x));
   if(!pool.length) pool = TILES.filter(x => x.t===T.SOCIAL && ok(x));
   return pool;
@@ -9788,13 +9812,23 @@ function tileSwapPool(t){
 function swapNeedsTile(){
   const sp = S._slotPending; if(!sp || !sp.tile || !sp.tile.needs) return;
   const pool = tileSwapPool(sp.tile); if(!pool.length) return;
-  const nt = JSON.parse(JSON.stringify(pool[Math.floor(Math.random()*pool.length)]));
+  const nt = bakeTile(JSON.parse(JSON.stringify(pool[Math.floor(Math.random()*pool.length)])));
   addLog(`🚫 No ${sp.tile.needs.toLowerCase()} here — swapped ${sp.tile.n} for ${nt.n}`);
   if(sp.pour) previewPintResult(nt, sp.pour); else previewSlotResult(nt);
 }
-function tileSwapBtn(t){ return t && t.needs && tileSwapPool(t).length ? `<button class="btn ghost sm" onclick="swapNeedsTile()">🚫 NO ${escapeHtml(t.needs)} HERE — FREE SWAP</button>` : ''; }
+// GAME OF PONGS with no table: QUARTERS instead (coin → bottle cap → napkin into a glass) — a two-minute game, so it pays less
+const QUARTERS_TILE = { n:'GAME OF PONGS: QUARTERS', t:T.GAMBLE, icon:'🪙', venue:'', dare:2, xp:10, gamble:true,
+  body:'No pong table? Quarters it is. Bounce a coin off the table into a glass. No coin? A bottle cap. No cap? A balled-up napkin. Three tries each. Worst score drinks.',
+  win:'you are not the worst', ex:'Clink. First try. Unbearable.' };
+function playQuarters(){
+  const sp = S._slotPending; if(!sp || !sp.tile || sp.tile.n !== 'GAME OF PONGS') return;
+  const nt = Object.assign({}, QUARTERS_TILE);
+  addLog('🪙 No pong table — Quarters instead');
+  if(sp.pour) previewPintResult(nt, sp.pour); else previewSlotResult(nt);
+}
+function tileSwapBtn(t){ if(t && t.n === 'GAME OF PONGS') return `<button class="btn ghost sm" onclick="playQuarters()">🪙 NO TABLE? PLAY QUARTERS (${QUARTERS_TILE.xp} XP)</button>`; return t && t.needs && tileSwapPool(t).length ? `<button class="btn ghost sm" onclick="swapNeedsTile()">🚫 NO ${escapeHtml(t.needs)} HERE — FREE SWAP</button>` : ''; }
 
-TILES.forEach(t => { if(TILE_NEEDS[t.n]) t.needs = TILE_NEEDS[t.n]; if(TILE_WIN[t.n] && !t.win) t.win = TILE_WIN[t.n]; if(TILE_MIN_PULLS[t.n]) t.minPulls = TILE_MIN_PULLS[t.n]; if(TILE_DARE[t.n]) t.dare = TILE_DARE[t.n]; });
+TILES.forEach(t => { if(TILE_GROUP.has(t.n)) t.group = true; if(TILE_NEEDS[t.n]) t.needs = TILE_NEEDS[t.n]; if(TILE_WIN[t.n] && !t.win) t.win = TILE_WIN[t.n]; if(TILE_MIN_PULLS[t.n]) t.minPulls = TILE_MIN_PULLS[t.n]; if(TILE_DARE[t.n]) t.dare = TILE_DARE[t.n]; });
 /* ══ DEVELOPER LOGIN — a test run: every feature unlocked, 100k coins, every Hammerschlagen foe and material,
    no tutorial. The code only keeps friends from tapping into it by accident (it's readable in the file). ══ */
 const DEV_CODE = 'PUBDEV';
@@ -9861,9 +9895,6 @@ function computeEpicTitle(){
   const parts = [];
   if(S.charId === 'tank') parts.push((ch ? ch.name : '') + ((S.relics||[]).includes('skullcup') ? ' · HEADHUNTER' : ''));
   else parts.push(CHAR_TITLE_BASE[S.charId] || (ch ? ch.name : ''));
-  const avenged = S.bossesAvenged||0;
-  if(avenged>=2) parts.push(`SLAYER OF ${avenged} BOSSES`);
-  else if(avenged===1) parts.push('AVENGER OF ONE BOSS');
   const cursesSurvived = (S.souvenirs && S.souvenirs[T.BADLUCK]) || 0;
   if(cursesSurvived>=1) parts.push(`SURVIVOR OF ${cursesSurvived} CURSE${cursesSurvived>1?'S':''}`);
   if(questAllDone()) parts.push('MASTER MANIPULATOR');
@@ -9880,7 +9911,7 @@ function computeEpicTitle(){
    at the same moment). Each unlock pops a small banner at the top. VETERAN mode skips the path entirely. ══ */
 const UNLOCKS = [
   { id:'tank_hammer', cls:'tank', lv:1, win:1, icon:'🔨', n:'HAMMERSCHLAGEN', where:'your Longhouse', spot:'#lhHammerPane .hm-stage',
-    d:'That first win paid out straight. From now on, every tile you win puts its XP on the STUMP: race a Viking foe to hammer your nail flush into the log. Win and the XP multiplies. Lose and it is gone, unless you take SAFE XP before you swing.',
+    d:'That first win paid out straight. From now on, every tile you win puts its XP on the STUMP: race a Viking foe to hammer your nail flush into the log. Win and the XP multiplies. Lose and you still keep half, or take SAFE XP before you swing.',
     t:'Win your first real tile after the tutorial and the Longhouse opens its doors: every win after that goes on the stump.' },
   { id:'market',    lv:2, icon:'🛒', n:'THE MARKET', d:'The SHOP and your BAG are open: spend coins on relics and items, then use them from the bag.', where:'SHOP & BAG' },
   { id:'gb_coin',   cls:'gambler', lv:3, icon:'🎲', n:'COIN GAMBLING', d:'Between tiles you can bet coins in the Den: a few spins every round.', where:'the Den' },
@@ -9899,6 +9930,12 @@ const UNLOCKS = [
   { id:'bounty',    bar:3, icon:'🎯', n:'BOUNTIES & UNDERDOGS', d:'Every NEW BAR the highest level gets a price on their head and the lowest becomes the Underdog.', where:'under NEW BAR' }
 ];
 const UNLOCK_BY_ID = {}; UNLOCKS.forEach(u => { UNLOCK_BY_ID[u.id] = u; });
+// THE FORGE is bought, not levelled into: it wears the Longhouse lock until it stands in town (tap → off to the shop)
+const FORGE_GATE = { id:'tk_forge_gate', cls:'tank', icon:'⚒', n:'THE FORGE', buy:80, where:'SHOP → THE TOWN',
+  d:'Raise THE FORGE in the SHOP under THE TOWN. It unlocks forging and opens your BAG, where the hammer gets upgraded.' };
+UNLOCK_BY_ID[FORGE_GATE.id] = FORGE_GATE;
+function forgeLocked(){ return !!(S && S.name && S.charId === 'tank' && !hmForgeBuilt()); }
+function forgeGateTap(){ if(!S) return; showUnlockBanner(FORGE_GATE); if(unlocked('market')) setTimeout(() => { go('shop'); setTimeout(() => { const f = document.querySelector('.shop-item[data-item="tk_forge"]'); if(f) f.scrollIntoView({ behavior:'smooth', block:'center' }); }, 120); }, 250); }
 const ITEM_GATES = { polyscroll:'wz_shift', sparemask:'jk_tricks', housecredit:'gb_coin' };
 function unlockAll(){ return !!(window.PC_UNLOCK_ALL || (S && S.dev)); } // test harness, or a DEVELOPER run: everything is open
 /* DEV TOOLS (developer runs only): tap the purple DEV ⚙ badge in the HUD to hand yourself XP, levels,
@@ -9950,7 +9987,7 @@ function unlockReached(u){ if(!S) return false; if(u.win) return !!S.hmUnlocked;
 function unlocked(id){ if(unlockAll()) return true; const u = UNLOCK_BY_ID[id]; return !u || unlockReached(u); }
 function itemGateOK(r){ return !r || !ITEM_GATES[r.id] || unlocked(ITEM_GATES[r.id]); }
 function myUnlocks(){ return UNLOCKS.filter(u => (!u.cls || (S && u.cls === S.charId)) && (u.id !== 'bounty' || GROUP_BOUNTY)); }
-function unlockWhen(u){ return u.win ? 'YOUR FIRST WIN' : u.bar ? 'BAR ' + u.bar : 'LEVEL ' + u.lv; }
+function unlockWhen(u){ return u.buy ? u.buy + '🪙 IN THE SHOP' : u.win ? 'YOUR FIRST WIN' : u.bar ? 'BAR ' + u.bar : 'LEVEL ' + u.lv; }
 function nextUnlock(){
   if(!S || unlockAll()) return null;
   return myUnlocks().filter(u => !u.bar && !unlockReached(u)).sort((a,b) => a.lv - b.lv)[0] || null;
@@ -10015,11 +10052,21 @@ const TUT_STEPS = {
 };
 function tutQueue(step){
   if(!S) return;
-  if(step === 'buy' && (S.relics||[]).includes('firstkeg')) step = 'proof';
+  if(step === 'buy' && (tutBuyTank() ? townOwned('tk_forge') : (S.relics||[]).includes('firstkeg'))) step = 'proof';
   S.tutStep = step; save();
   const base = TUT_STEPS[step]; if(!base) return;
   const u = Object.assign({ id:'tut_' + step, tut:true, step }, base);
-  if(step === 'buy'){
+  if(step === 'proof' && tutBuyTank()) u.n = 'YOUR TOWN GREW';
+  if(step === 'shop' && tutBuyTank()) u.d = 'Let us spend your coins on your town. Coins come from finishing tiles; buildings turn them into beer.';
+  if(step === 'buy' && tutBuyTank()){
+    S.tutRate0 = computeBreweryRate();
+    const f = townSet().find(x => x.id === 'tk_forge'), have = Math.max(0, S.coins||0);
+    Object.assign(u, { icon:'⚒', n:'RAISE THE FORGE', spot:'.shop-item[data-item="tk_forge"]', click:'.shop-item[data-item="tk_forge"] .si-buy',
+      d: `Every hammer starts at an anvil. THE FORGE brews +${f.rate} beer per minute, unlocks forging, and opens your BAG, where you upgrade the hammer.` +
+         (have < townPrice(f) ? ` It costs ${townPrice(f)} coins and you have ${have}, so the town covers the rest: this one is on the house.` : '') });
+    if(typeof renderShop === 'function' && document.getElementById('shopInner')) renderShop();
+  }
+  else if(step === 'buy'){
     S.tutRate0 = computeBreweryRate();
     const keg = RELICS.find(r => r.id === 'firstkeg');
     if(tutKegShort(keg)) u.d = `A starter barrel: +0.5 beer per minute for the rest of the night. It costs ${keg.price} coins and you have ${Math.max(0, S.coins||0)}, so the brewery covers the rest: this one is on the house.`;
@@ -10027,18 +10074,18 @@ function tutQueue(step){
   }
   if(step === 'proof'){
     const a = S.tutRate0 || 0, b2 = computeBreweryRate();
-    u.d = `Your brewery now brews ${b2.toFixed(1)} beer a minute${a ? ` (up from ${a.toFixed(1)})` : ''}. The sky changes the pace a little as day turns to night. From here it is all yours: pull the lever, finish tiles, level up, and spend coins in the shop to brew faster.`;
+    u.d = `Your ${tutBuyTank() ? 'town' : 'brewery'} now brews ${b2.toFixed(1)} beer a minute${a ? ` (up from ${a.toFixed(1)})` : ''}.${tutBuyTank() ? ' Your BAG is open too: that is where you forge the hammer.' : ''} From here it is all yours: pull the lever, finish tiles, level up, and spend coins in the shop to brew faster.`;
   }
   if(!_unlockQueue.some(x => x.id === u.id)) _unlockQueue.push(u);
   pumpUnlockPopup();
 }
 function tutAfterInfo(u){ // an info step was read
   if(u.step === 'goal' && S.tutStep === 'goal') tutQueue('shop');
-  else if(u.step === 'proof' && S.tutStep === 'proof'){ S.tutStep = null; addLog('📖 Tutorial complete'); save(); }
+  else if(u.step === 'proof' && S.tutStep === 'proof'){ S.tutStep = null; S.tutBuyAhead = false; addLog('📖 Tutorial complete'); save(); }
 }
 function tutSkip(){
   if(!S) return;
-  S.tutStep = null; addLog('📖 Tutorial skipped'); save();
+  S.tutStep = null; S.tutBuyAhead = false; addLog('📖 Tutorial skipped'); save();
   _unlockQueue = _unlockQueue.filter(x => !x.tut);
   if(_spotClose) _spotClose(true);
   toast('📖 TUTORIAL SKIPPED — PULL THE LEVER');
@@ -10051,6 +10098,8 @@ function tutAdvance(from, to){
 function spotPreventScroll(e){ e.preventDefault(); }
 function showSpotlight(u){
   if(!S) return;
+  if(u.id === 'market' && S.charId === 'tank' && !bagOpen()) u = Object.assign({}, u, { spot:'#navShop', where:'SHOP',
+    d:'The SHOP is open: spend coins on buildings, gear and one-offs. Your BAG opens once THE FORGE stands in town, because that is where the hammer gets forged.' });
   _spotShowing = true;
   syncHUD();
   // the unlocked thing lives on the game screen (or the bottom nav, or the shop for a tutorial step): make sure it's on show
@@ -10120,14 +10169,14 @@ function showUnlockBanner(u){
   if(_bannerEl) _bannerEl.remove();
   const d = document.createElement('div'); _bannerEl = d;
   d.className = 'unlock-pop teaser';
-  d.innerHTML = `<div class="up-ico">${ico(u.icon, 30)}</div><div class="up-txt"><span>🔒 UNLOCKS AT ${unlockWhen(u)}</span><b>${escapeHtml(u.n)}</b><p>${escapeHtml(u.t || u.d)}</p></div>`;
+  d.innerHTML = `<div class="up-ico">${ico(u.icon, 30)}</div><div class="up-txt"><span>🔒 ${u.buy ? 'RAISE IT · ' : 'UNLOCKS AT '}${unlockWhen(u)}</span><b>${escapeHtml(u.n)}</b><p>${escapeHtml(u.t || u.d)}</p></div>`;
   document.body.appendChild(d);
   let closed = false;
   const close = () => { if(closed) return; closed = true; d.classList.add('out'); setTimeout(() => { d.remove(); if(_bannerEl === d) _bannerEl = null; }, 260); };
   d.addEventListener('click', close);
   setTimeout(close, 7000);
 }
-function unlockTeaser(id){ const u = UNLOCK_BY_ID[id]; if(u) showUnlockBanner(u); }
+function unlockTeaser(id){ if(id === FORGE_GATE.id){ forgeGateTap(); return; } const u = UNLOCK_BY_ID[id]; if(u) showUnlockBanner(u); }
 function nextUnlockTap(){ const u = nextUnlock(); if(u) unlockTeaser(u.id); }
 /* ══ LOCKED-FEATURE ART — what's still locked shows up as a closed gate in your class's style
    (Longhouse door · steel vault · stage curtain · sealed rune door · castle portcullis) or a chest for shared stuff.
@@ -10151,9 +10200,10 @@ function lockTheme(u){ return u.cls || 'chest'; }
 function lockRowHTML(){
   if(!S || !S.name || unlockAll()) return '';
   const left = myUnlocks().filter(u => u.cls === S.charId && !unlockReached(u)).sort((a,b) => a.lv - b.lv); // your class's own gates; shared things show as chests where they live
+  if(forgeLocked()) left.unshift(FORGE_GATE);
   if(!left.length) return '';
   return `<div class="lock-row"><div class="lr-h">🔒 ${LOCK_ROW_TITLE[S.charId] || 'STILL LOCKED'}</div><div class="lr-gates">${
-    left.map(u => `<button class="lr-gate" onclick="unlockTeaser('${u.id}')">${lockArtSVG(lockTheme(u), 64)}<b>${escapeHtml(u.n)}</b><em>${u.win ? 'FIRST WIN' : 'LV ' + u.lv}</em></button>`).join('')
+    left.map(u => `<button class="lr-gate" onclick="unlockTeaser('${u.id}')">${lockArtSVG(lockTheme(u), 64)}<b>${escapeHtml(u.n)}</b><em>${u.buy ? u.buy + '🪙' : u.win ? 'FIRST WIN' : 'LV ' + u.lv}</em></button>`).join('')
   }</div></div>`;
 }
 function lockPanelHTML(u){
@@ -10164,7 +10214,7 @@ function applyLockArt(){
   document.querySelectorAll('[data-lockrow]').forEach(el => { if(el._lr !== rowHtml){ el._lr = rowHtml; el.innerHTML = rowHtml; } el.classList.toggle('gate-off', !rowHtml); });
   document.querySelectorAll('[data-lockslot]').forEach(el => {
     const u = UNLOCK_BY_ID[el.dataset.lockslot];
-    const show = !!(u && S && S.name && !unlocked(u.id) && (!u.cls || u.cls === S.charId));
+    const show = u === FORGE_GATE ? forgeLocked() : !!(u && S && S.name && !unlocked(u.id) && (!u.cls || u.cls === S.charId));
     const t = show ? lockPanelHTML(u) : '';
     if(el._lr !== t){ el._lr = t; el.innerHTML = t; }
     el.classList.toggle('gate-off', !show);
@@ -10176,9 +10226,11 @@ function applyGates(){
   const mk = unlocked('market');
   ['navBag','navShop'].forEach(id => {
     const b = document.getElementById(id); if(!b) return;
-    const want = mk ? '' : '1';
-    if(b.dataset.locked !== want){ b.dataset.locked = want; b.textContent = (mk ? '' : '🔒 ') + (id === 'navBag' ? 'BAG' : 'SHOP'); b.classList.toggle('nav-locked', !mk); }
+    const open = id === 'navBag' ? bagOpen() : mk, want = open ? '' : '1';
+    if(b.dataset.locked !== want){ b.dataset.locked = want; b.textContent = (open ? '' : '🔒 ') + (id === 'navBag' ? 'BAG' : 'SHOP'); b.classList.toggle('nav-locked', !open); }
   });
+  { const fl = forgeLocked(), want = fl ? '1' : '';
+    document.querySelectorAll('.hm-forge-btn').forEach(b => { if(b.dataset.locked !== want){ b.dataset.locked = want; b.textContent = fl ? '🔒 FORGE · 80🪙' : '⚒ FORGE'; b.classList.toggle('nav-locked', fl); } }); }
   const nu = document.getElementById('nextUnlock');
   if(nu){
     const u = nextUnlock();
@@ -10231,6 +10283,7 @@ function syncHUD(){
   if(_el('stWins'))   _el('stWins').textContent   = S.wins;
   if(_el('stSkips'))  _el('stSkips').textContent  = S.skips;
   if(_el('bagSkips')) _el('bagSkips').textContent = S.skips;
+  if(_el('bagWater')) _el('bagWater').textContent = S.waterCards||0;
   const charNameEl = document.getElementById('hudCharName');
   if(charNameEl){
     const ch = CHARS.find(c=>c.id===S.charId);
@@ -10622,15 +10675,14 @@ function winBaseXP(t){
   if(t.pourMult) x = Math.round(x * t.pourMult);
   if(t.dareMult) x = Math.round(x * t.dareMult); // the Daring Dial notch this tile was pulled at
   if((S.relics||[]).includes('ring') && t.t===T.GAMBLE) x = Math.round(x*1.25);
-  if(t.t===T.BOSS && S.bossMarks && S.bossMarks[t.n]) x = Math.round(x*1.5);
   if(underdogOn()) x = Math.round(x*BOUNTY_UNDERDOG_MULT);
   return x;
 }
 // exactly what a straight (non-wager) win on this tile would pay right now — used by the Knight's cards
-function previewWinXP(t){ return Math.round(winBaseXP(t) * (tileClassMult(t) + (S.doubleNext ? 1 : 0))); }
+function previewWinXP(t){ return Math.round(winBaseXP(t) * (tileClassMult(t) + (S.doubleNext || S.doubleArm ? 1 : 0))); }
 function applyWin(t){
   if(t && t.tutorial){
-    S.wins++; S.tutorialDone = true;
+    S.wins++; S.tutorialDone = true; S.tutBuyAhead = true;
     addLog('🍺 First beer down: the crawl begins');
     grantXP(Math.max(1, xpNeeded(S.level) - S.xp), 'tutorial', { tile:false });
     save(); syncHUD();
@@ -10641,13 +10693,9 @@ function applyWin(t){
   if(S.charId==='wizard' && t) wzDiscover(t.t);
   if(t.gamble) S.gambleWins++;
   if(t.n==='SPLIT THE G') S.flags.gsplit = true;
-  if(t.n==='YOU SHALL NOT PASS') S.flags.bouncer = true;
+  if(t.doubleNext && !S.doubleArm){ S.doubleArm = true; setTimeout(()=>toast('✖️ DOUBLE TROUBLE — YOUR NEXT TILE PAYS DOUBLE'), 400); }
   let xpAmount = winBaseXP(t);
-  const isRevenge = t.t===T.BOSS && S.bossMarks && S.bossMarks[t.n];
-  if(isRevenge){
-    delete S.bossMarks[t.n];
-    S.bossesAvenged = (S.bossesAvenged||0) + 1;
-  }
+  const isRevenge = false; // bosses and their revenge marks are gone (Oct 2026); the class wagers still carry the field
   // Gambler: offer XP wager before awarding
   if(S.charId === 'gambler'){
     if(t.t===T.GAMBLE) gbAddWinnings(t.xp, 'gambling tile');
@@ -11089,7 +11137,7 @@ const HM_BOONS = {
   gunnhild: { icon:'🐟', n:'THE HERRING SUPPER',     d:'+10🪙 every lap.' },
   valkyrie: { icon:'🪶', n:'WINGS OF THE VALKYRIE',  d:'+1 reroll every lap.' },
   kraken:   { icon:'🦑', n:"THE KRAKEN'S HOARD",     d:'+1 beer/min in your brewery.' },
-  fenrir:   { icon:'🐺', n:"THE WOLF'S THROAT",      d:'Lose a Hammerschlagen XP wager and the wolf still drags half the XP home.' },
+  fenrir:   { icon:'🐺', n:"THE WOLF'S THROAT",      d:'Lose a Hammerschlagen XP wager and the wolf drags three quarters of the XP home instead of half.' },
   brokk:    { icon:'⚗️', n:'DWARVEN STILLS',         d:'Your brewery brews ×1.25.' },
   jotunn:   { icon:'❄️', n:"THE GIANT'S THIRST",     d:'+15% XP on every tile you win.' },
   draugr:   { icon:'💀', n:'THE UNDYING',            d:'Losing a boss tile no longer costs XP.' },
@@ -11103,6 +11151,8 @@ const HM_BOONS = {
   hrym:     { icon:'⚓', n:"THE NAIL-SHIP'S OAR",    d:'+1.5 beer/min. The dead crew rows your brewing shifts.' },
   surtr:    { icon:'🔥', n:"SURTR'S FLAME — RAGNARÖK", d:'×2 XP on EVERY tile you win. Your brewery brews ×2. +2 rerolls and +25🪙 every lap. Your settlement leaps straight to RAGNARÖK. You are the SLAYER OF SURTR.' }
 };
+// a lost XP wager still pays: half, or three quarters with Fenrir's boon (giving up pays nothing)
+function hmLossMult(){ return hmBoon('fenrir') ? 0.75 : 0.5; }
 function hmBoon(id){ return !!(S && S.charId === 'tank' && S.hmWins && (S.hmWins[id]|0) > 0); }
 function hmBoonBrewAdd(){ return (hmBoon('ragnar') ? .5 : 0) + (hmBoon('kraken') ? 1 : 0) + (hmBoon('jorm') ? 1 : 0) + (hmBoon('nidhogg') ? 1 : 0) + (hmBoon('hrym') ? 1.5 : 0); }
 function hmBoonBrewMult(){ return (hmBoon('brokk') ? 1.25 : 1) * (hmBoon('surtr') ? 2 : 1); }
@@ -11445,7 +11495,8 @@ function hmPaidLeft(){ return Math.max(0, HM_PAID_WINS - (S.hmPaidWins|0)); }
 // so a reload mid-match can't refund it. Beaten foes: rematch as often as you like. XP wagers never use a try —
 // the wager is the tile itself. S.hmTries = { foeId: used }, cleared in resolveTile.
 const HM_TRIES = 3;
-function hmTriesLeft(f){ if(!f || hmFoeBeaten(f)) return Infinity; return Math.max(0, HM_TRIES - (((S.hmTries||{})[f.id])|0)); }
+function hmTriesMax(){ return HM_TRIES; }
+function hmTriesLeft(f){ if(!f || hmFoeBeaten(f)) return Infinity; return Math.max(0, hmTriesMax() - (((S.hmTries||{})[f.id])|0)); }
 function hmLoot(foe, flawless, xpMode){
   const first = hmWinsOf(foe) === 0 && !S.dev;
   const unlockMat = first && !hmMatOwned(foe.mat);   // (checked before the win is counted)
@@ -11504,10 +11555,11 @@ function hmGiveUp(){
   const foe = (_hm && _hm.on) ? _hm.foe : hmFoe();
   addLog('🏳 Gave up against ' + foe.n);
   if(_hm && _hm.on){
-    if(_hm.xp) S.chugAttemptsLeft = 1; // walking away ends the whole wager, not just this try
+    if(_hm.xp){ S.chugAttemptsLeft = 1; if(S._tankPendingWin) S._tankPendingWin.gaveUp = true; } // walking away ends the whole wager, not just this try, and forfeits the XP
     hmFinish(false);
   } else {
     S.chugAttemptsLeft = 0;
+    if(S._tankPendingWin) S._tankPendingWin.gaveUp = true;
     hmApplyWin(0, false, foe, null);
     save(); syncHUD(); refreshChug();
   }
@@ -11557,18 +11609,21 @@ function hmFinish(won){
 function hmApplyWin(mult, flawless, foe, loot){
   const pw = S._tankPendingWin; if(!pw) return;
   S._tankPendingWin = null;
-  const { t, xpAmount, isRevenge } = pw;
+  const { t, xpAmount, isRevenge, gaveUp } = pw;
   const boosts = [];
+  const lost = !(mult > 0) && !gaveUp;
   if(mult > 0){
     mult = Math.round(mult*100)/100;
-  } else if(hmBoon('fenrir')){ mult = 0.5; boosts.push("🐺 THE WOLF'S THROAT"); }
+  } else if(lost){ mult = hmLossMult(); if(hmBoon('fenrir')) boosts.push("🐺 THE WOLF'S THROAT"); }
   const finalXP = Math.round(xpAmount * mult);
   const coinsGained = Math.max(5, Math.round(t.xp/2));
   const lootChip = loot ? [loot.unlockMat ? '♾' + loot.mat.icon : '', loot.coins ? '+' + loot.coins + '🪙' : ''].filter(Boolean).join(' ') : '';
-  const p = { t, finalXP, mult, isRevenge, coinsGained, flawless, foe:foe.id };
-  if(mult > 0 && finalXP > 0 && boosts[0] === "🐺 THE WOLF'S THROAT"){
+  const p = { t, finalXP, mult, isRevenge, coinsGained, flawless, foe:foe.id, lost };
+  if(lost){
+    const wolf = hmBoon('fenrir');
     setClaim('hammer', p, { cls:'', tag:'🔨 HAMMERSCHLAGEN', title: foe.short + ' WINS… MOSTLY',
-      body: foe.say.win + " But the wolf in you drags half the XP home anyway.", chips:['+'+finalXP+' XP', '×0.5', coinsGained+'🪙'].concat(boosts), btn:'✓ TAKE IT' }, 900);
+      body: foe.say.win + (wolf ? ' But the wolf in you drags three quarters of the XP home anyway.' : ' You still walk off with half the XP. Forge a better hammer in your Bag and take the rest next time.'),
+      chips:['+'+finalXP+' XP', '×'+mult, coinsGained+'🪙'].concat(boosts), btn:'✓ TAKE IT' }, 900);
   } else if(mult > 0){
     setClaim('hammer', p, {
       cls:'good',
@@ -11583,7 +11638,7 @@ function hmApplyWin(mult, flawless, foe, loot){
       cls:'forfeit',
       tag:'🔨 HAMMERSCHLAGEN',
       title: foe.short + ' WINS',
-      body: foe.say.win + ' Your XP stays in the stump — the coins are still yours. Forge a better hammer in your Bag: every foe you have beaten gives you unlimited material.',
+      body: foe.say.win + ' You walked away, so the XP stays in the stump. The coins are still yours.',
       chips:['0 XP', coinsGained+'🪙 ANYWAY'],
       btn:'SHAKE HIS HAND', btnCls:'ghost'
     }, 900);
@@ -11595,10 +11650,10 @@ function hmClaimXP(){
   if(S.hmBoonPending){ const bf = HM_FOE_BY_ID[S.hmBoonPending]; S.hmBoonPending = null; if(bf) setTimeout(() => hmBoonCard(bf), 450); }
   if(p.finalXP > 0){
     const g = grantXP(p.finalXP, p.t.n);
-    addLog('🔨 HAMMERSCHLAGEN — '+p.t.n+' ×'+p.mult+' = +'+g+' XP');
-    floatText(p.flawless ? '🔨 FLAWLESS' : '🔨 NAILED IT', '#ffd24a');
+    addLog('🔨 HAMMERSCHLAGEN — '+p.t.n+(p.lost ? ' (lost the stump)' : '')+' ×'+p.mult+' = +'+g+' XP');
+    floatText(p.lost ? '🔨 +'+g+' XP' : p.flawless ? '🔨 FLAWLESS' : '🔨 NAILED IT', '#ffd24a');
   } else {
-    addLog('🔨 '+p.t.n+' — lost the stump. No XP.');
+    addLog('🔨 '+p.t.n+' — walked away from the stump. No XP.');
   }
   if(p.isRevenge && p.finalXP > 0){ addLog('⚔ REVENGE served with a hammer.'); toast('⚔ REVENGE SERVED!'); }
   hmSetStatus('', '');
@@ -11635,11 +11690,24 @@ function hmPickFoe(id){
   S.hmFoe = id; window._hmLast = null; _hmVis = null; hmSetStatus('', '');
   save(); refreshChug();
 }
+// how many swings at it you have left, always on show: the wager's tries, or this foe's tries this round
+function hmTriesPips(left, max){ return '<span class="hm-pips">' + Array.from({ length:max }, (_, i) => `<i class="${i < left ? 'on' : ''}"></i>`).join('') + '</span>'; }
+function hmTriesHTML(foe, xpMode, live){
+  if(xpMode){
+    const left = Math.max(0, S.chugAttemptsLeft ?? 1), max = Math.max(left, chugGetMaxAttempts());
+    return `<div class="hm-tries">🔨 WAGER TRIES LEFT ${hmTriesPips(left, max)} <b>${left}</b></div>`;
+  }
+  if(!hmFoeOpen(foe)) return '';
+  if(hmFoeBeaten(foe)) return `<div class="hm-tries beaten">✓ BEATEN · <b>UNLIMITED</b> REMATCHES</div>`;
+  const tl = hmTriesLeft(foe);
+  if(tl <= 0 && !live) return `<div class="hm-tries out">✗ NO TRIES LEFT · BACK AFTER YOUR NEXT CHALLENGE</div>`;
+  return `<div class="hm-tries">🔨 TRIES LEFT THIS ROUND ${hmTriesPips(tl, hmTriesMax())} <b>${tl}/${hmTriesMax()}</b></div>`;
+}
 function hmLadderHTML(){
   const cur = hmFoe(), nw = S.hmNew || [];
   return HM_FOES.map(f => {
     const beaten = hmFoeBeaten(f), open = hmFoeOpen(f), isNew = nw.indexOf(f.id) >= 0;
-    const tl = hmTriesLeft(f), st = !open ? 'LV ' + f.lv : beaten ? '✓' : tl + '/' + HM_TRIES;
+    const tl = hmTriesLeft(f), st = !open ? 'LV ' + f.lv : beaten ? '✓' : tl + '/' + hmTriesMax();
     const cls = ['hm-foe', open && !beaten && tl <= 0 ? 'spent' : '', f.id === cur.id ? 'on' : '', beaten ? 'beaten' : '', open ? '' : 'locked', isNew ? 'new' : '', f.id === 'surtr' ? 'boss' : '', open && hmTooHard(f) ? 'toohard' : ''].join(' ');
     const img = open ? `<img src="${hmFoeImg(f.id)}" alt="">` : `<img class="sil" src="${hmFoeImg(f.id)}" alt="">`;
     return `<button type="button" class="${cls}" data-id="${f.id}" onclick="hmPickFoe('${f.id}')">${isNew ? '<em>NEW</em>' : ''}${img}<b>${open ? f.short : '???'}</b><i>${st}</i></button>`;
@@ -11681,7 +11749,7 @@ function hmInfo(){
       <p class="hmi-p dim">Tap when the needle hits <b>GOLD</b>. Every swing on gold makes it <b>FLAWLESS</b>, which pays the most.</p>
       <div class="hmi-h">🔨 ${escapeHtml(hmHammerName())}</div>
       ${parts}${ins.length ? `<p class="hmi-p">💎 GEMS: ${ins.map(g => g.icon + ' ' + escapeHtml(g.n)).join(' · ')}</p>` : ''}`,
-    buttons:`<button class="btn ghost" onclick="closeCard();hmOpenForge()">⚒ FORGE</button>` + _lhOk });
+    buttons:`<button class="btn ghost${forgeLocked() ? ' nav-locked' : ''}" onclick="closeCard();hmOpenForge()">${forgeLocked() ? '🔒 FORGE · 80🪙' : '⚒ FORGE'}</button>` + _lhOk });
 }
 function hmGearLine(){
   const ins = (S.hmSocket||[]).map(id => HM_INLAY_BY_ID[id] ? HM_INLAY_BY_ID[id].icon : '').join('');
@@ -11719,7 +11787,7 @@ function hmRefresh(){
     } else {
       const tl = hmTriesLeft(foe); btn.classList.remove('swing');
       if(tl <= 0){ btn.textContent = '✗ NO TRIES LEFT · PLAY A CHALLENGE'; btn.disabled = true; }
-      else { btn.textContent = (window._hmLast && window._hmLast.foe === foe.id ? '🔨 REMATCH ' : '🔨 FIGHT ') + foe.short + (tl < Infinity ? ` · TRY ${HM_TRIES - tl + 1}/${HM_TRIES}` : '') + (hmTooHard(foe) ? ' (PIN TOO HARD)' : ''); btn.disabled = false; }
+      else { btn.textContent = (window._hmLast && window._hmLast.foe === foe.id ? '🔨 REMATCH ' : '🔨 FIGHT ') + foe.short + (tl < Infinity ? ` · ${tl} TR${tl === 1 ? 'Y' : 'IES'} LEFT` : '') + (hmTooHard(foe) ? ' (PIN TOO HARD)' : ''); btn.disabled = false; }
     }
   }
   const xpRow = document.getElementById('hmXPRow'); if(xpRow) xpRow.classList.toggle('hide', !xpMode);
@@ -11731,15 +11799,12 @@ function hmRefresh(){
     const lbl = armed ? '🏳 TAP AGAIN TO GIVE UP' : (xpMode ? '🏳 GIVE UP · LOSE THE XP' : '🏳 GIVE UP');
     if(gu.textContent !== lbl) gu.textContent = lbl; gu.classList.toggle('armed', !!armed); }
   const wt = document.getElementById('hmWagerTags');
-  if(wt){ const tags = [];
-    if(xpMode) tags.push(`🔨 TRIES LEFT · <b>${S.chugAttemptsLeft ?? 1}</b>`);
-    const h = tags.map(x => `<span class="cw-tag">${x}</span>`).join('');
-    if(wt.innerHTML !== h) wt.innerHTML = h; }
+  if(wt){ const h = hmTriesHTML(foe, xpMode, live); if(wt.innerHTML !== h) wt.innerHTML = h; }
   const meter = document.getElementById('hmMeter'); if(meter) meter.classList.toggle('idle', !live || _hm.turn !== 'you' || _hm.busy);
   if(!live) hmRenderMeter();
   const st = document.getElementById('hmStatus');
   if(st && !live && !st.textContent.trim()) hmSetStatus(xpMode ? 'YOUR XP IS ON THE LOG' : 'BEAT '+foe.short+' TO THE LOG',
-    xpMode ? `Win ×${foe.win} · flawless ×${foe.flaw} · lose and it's gone` : '');
+    xpMode ? `Win ×${foe.win} · flawless ×${foe.flaw} · lose and keep half` : '');
   hmDrawSoon();
   hmIdleTick();
 }
@@ -12525,6 +12590,7 @@ function hmDraw(){
 /* ── THE FORGE (Bag, Tank-ard only) ── */
 function hmOpenForge(){
   if(_hm && _hm.on){ toast('FINISH THIS MATCH FIRST'); return; }
+  if(forgeLocked()){ forgeGateTap(); return; }
   go('bag');
   setTimeout(() => { const f = document.getElementById('bagForge'); if(f && !f.classList.contains('hide')) f.scrollIntoView({ behavior:'smooth', block:'start' }); }, 80);
 }
@@ -17306,15 +17372,6 @@ function spinSlot(){
   }, 70);
 }
 function previewSlotResult(tile){
-  if(tile.t===T.CHAOS){
-    // the Wheel of Chaos only exists behind the slot machine now — no separate free button
-    S._slotPending = null; window._pendingSlotTile = null;
-    S.currentTile = tile; S.resolved = false; S._wheelSpin = null;
-    countPull(tile); // a Chaos pull is still a pull: laps, shop visits, lap refills
-    save();
-    openWheel();
-    return;
-  }
   const dare = (S._slotPending && S._slotPending.dare) || dareOf();
   S._slotPending = { tile, dare }; window._pendingSlotTile = tile; // survives a reload until accepted or rerolled
   save();
@@ -17329,9 +17386,10 @@ function previewSlotResult(tile){
     venue: tile.venue,
     body: tpl(tile.body || ''),
     chips:[`+${promised} XP${dNote}`, tile.drink?'🍺 DRINK':'', tile.gamble?'🎲 FORFEIT IF LOST':'', tile.heal?'💧 MERCY':'', tile.t===T.BADLUCK?'💀 BAD LUCK':''].filter(Boolean),
-    extra: tile.tutorial ? tileWinHTML(tile) + tutorialNote(1) : `${tileWinHTML(tile)}<p class="small dim">${canReroll ? 'Accept it, or spend a reroll to spin again.' : 'Out of rerolls? Empty your beer for a new roll.'}</p>`,
+    extra: tile.tutorial ? tileWinHTML(tile) + tutorialNote(1) : `${tileWinHTML(tile)}${tileExHTML(tile)}<p class="small dim">${tile.t===T.WATER ? 'Accept it and the card goes in your bag.' : canReroll ? 'Accept it, or spend a reroll to spin again.' : 'Out of rerolls? Empty your beer for a new roll.'}</p>`,
     buttons:`<button class="btn green" onclick="acceptSlotResult()">✅ ACCEPT</button>
              ${tile.tutorial ? '' : canReroll ? `<button class="btn ghost sm" onclick="useReroll()">🔁 REROLL (${S.skips} left)</button>` : `<button class="btn ghost sm" onclick="chugReroll('slot')">🍺 EMPTY YOUR BEER · NEW ROLL</button>`}
+             ${tile.tutorial || tile.t===T.WATER ? '' : waterBtn('slot')}
              ${tile.tutorial ? '' : tileSwapBtn(tile)}`
   });
 }
@@ -17377,6 +17435,7 @@ function acceptSlotResult(){
   const sp = S._slotPending;
   const tile = sp ? sp.tile : window._pendingSlotTile;
   if(!tile) return;
+  if(tile.t===T.WATER){ takeWaterCard(tile); return; }
   const dMult = tile.dare ? dareMultFor((sp && sp.dare) || dareOf()) : 1;
   S._slotPending = null; window._pendingSlotTile = null; // consumed — a second call can't add another pull
   closeCard();
@@ -17390,17 +17449,19 @@ function acceptSlotResult(){
 // every pull that lands — lever, the Knight's tap, or the Wheel of Chaos — counts toward laps, the shop and lap refills
 function countPull(tile){
   S.pulls = (S.pulls||0) + 1;
+  S.toolRun = null; // a fresh tile starts its deck rounds from 1
+  if(S.doubleArm){ S.doubleArm = false; S.doubleNext = true; } // DOUBLE TROUBLE XP lands on THIS tile
+  if(tile && tile.haunt) startHaunt();
   if(tile && tile.t===T.KARAOKE) S.karaokeDone = true; // one-time only — never rollable again once it's happened
   if(S.pulls % 3 === 0){
     S.laps++; S.hatUsedThisLap = false; S.shopPending = true;
     if(S.charId==='jester'){
       const tb = S.tricks||0;
       if(tb < jkMaxTricks()) S.tricks = tb + 1;
-      S.respin = Math.min(2, (S.respin||0) + 1);
       const acts = jkActsLeft();
       S.jkActs = Math.min(JK_ACTS, acts + JK_ACTS_PER_LAP); // the Street Act crowd comes back every lap
       const gotActs = S.jkActs - acts;
-      addLog('🎭 New lap — +1 Trick, +1 Wheel re-spin' + (gotActs ? ' and +'+gotActs+' Street Act'+(gotActs>1?'s':'') : ''));
+      addLog('🎭 New lap — +1 Trick' + (gotActs ? ' and +'+gotActs+' Street Act'+(gotActs>1?'s':'') : ''));
     }
     grantXP(25,'lap',{ tile:false }); grantCoins(30);
     { const bc = (hmBoon('gunnhild') ? 10 : 0) + (hmBoon('loki') ? 25 : 0) + (hmBoon('surtr') ? 25 : 0) + dwBoonLap().coins, br = (hmBoon('valkyrie') ? 1 : 0) + (hmBoon('loki') ? 1 : 0) + (hmBoon('nidhogg') ? 2 : 0) + (hmBoon('surtr') ? 2 : 0) + dwBoonLap().rerolls;
@@ -17444,11 +17505,11 @@ const HOUSE_RULES = [
   'Everyone clinks before every sip. Forget it and sip again.',
   'No swearing. Every slip, a sip. The squad is listening.',
   'The tallest at the table is the Royal Taster: they taste every new drink first.',
-  'Compliment the bartender before every order. Sincerely.',
+  'Every new drink gets a toast before the first sip.',
   'No laughing at your own jokes. Caught grinning? Sip.',
   'Last to touch their nose after someone touches theirs takes a sip.',
   'Phones face-down. First to check theirs fetches napkins for everyone.',
-  'Order everything in your best pirate voice.',
+  'Pirate voice at the table until the next bar. Slip-ups sip.',
   'Whoever said "one more" last is the Mayor of this bar. The Mayor speaks first.',
   'Nobody may say anyone\'s name. Use titles. Make them good.'
 ];
@@ -17638,7 +17699,7 @@ function bountyBannerHTML(){
    the legend score (phones in the middle), the crown, and a share card to save. ══ */
 const LEGEND_W = { level:100, win:40, boss:60, stage:50, allfive:100, ach:20 };
 function legendScore(s){
-  const bosses = ['gsplit','bouncer'].filter(k => s.flags && s.flags[k]).length + (s.bossesAvenged||0);
+  const bosses = (s.flags && s.flags.gsplit) ? 1 : 0; // SPLIT THE G is the one big tile left that scores like this
   // the quest pays per stage cleared, so busting late still scores — plus a bonus for the whole line
   const stages = (s.quest && s.quest.cleared) || (s.secretDone ? 1 : 0) + (s.secret2Done ? 1 : 0);
   const allFive = (s.quest && s.quest.cleared >= QUEST_POOLS.length) || s.secret2Done;
@@ -17657,7 +17718,6 @@ const NIGHT_AWARDS = [ // first match wins — rarest first
   { n:'MOST WANTED',           d:'Survived two bars with a price on their head.',            test:s => ((s.bountyStats||{}).survived||0) >= 2 },
   { n:'THE BOUNTY HUNTER',     d:'Collected two bounties. Nobody at the table is safe.',       test:s => ((s.bountyStats||{}).taken||0) >= 2 },
   { n:'HIGH ROLLER',           d:'Won big at the tables and walked away smiling.',          test:s => (s.gbWonTotal||0) >= 100 },
-  { n:'BOSS SLAYER',           d:'Beat a boss that had beaten them first.',                 test:s => (s.bossesAvenged||0) >= 1 },
   { n:'THE CURSED ONE',        d:'The reels hated them. They kept pulling.',                test:s => ((s.souvenirs||{})[T.BADLUCK]||0) >= 2 },
   { n:'CHAOS GOBLIN',          d:'More losses than wins. Legendary commitment to the bit.', test:s => (s.fails||0) > (s.wins||0) },
   { n:'THE STEADY HAND',       d:'Showed up, did the thing, every single time.',            test:s => true }
@@ -17696,7 +17756,7 @@ function closingTime(step){
     () => showCard({ cls:'chaos', tag:'👑 PHONES IN THE MIDDLE', title:'LEGEND SCORE',
       raw:`<div class="ct-score">${st.score}</div>
         <p class="small center">Everyone flips their phone on three. Highest score takes the crown.</p>
-        <p class="small dim center">Level ×100 · XP · wins ×40 · bosses ×60 · missions · achievements</p>`, buttons: nx('WHO TAKES THE CROWN? ▶') }),
+        <p class="small dim center">Level ×100 · XP · wins ×40 · Split the G ×60 · missions · achievements</p>`, buttons: nx('WHO TAKES THE CROWN? ▶') }),
     () => {
       const names = sqOn() ? S.squad.names : [S.name];
       showCard({ cls:'rarity-legendary', tag:'👑 THE CROWN', title:'WHO TAKES THE CROWN?',
@@ -17751,8 +17811,8 @@ const DD_CARVE = {
 function refreshDareDial(){
   const el = document.getElementById('dareDial'); if(!el || !S) return;
   const cur = dareOf(), locked = dareLocked();
-  const opts = DARE_LEVELS.map(d => `<button class="dd-opt dd-stone dd-s${d.lv}${d.lv===cur?' on':''}"${locked?' disabled':''} onclick="setDare(${d.lv})" aria-pressed="${d.lv===cur}">`
-    + `<svg class="dd-carve" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">${DD_CARVE[d.lv]}</svg>`
+  const opts = DARE_LEVELS.map(d => `<button class="dd-opt dd-stone dd-s${d.look||d.lv}${d.lv===cur?' on':''}"${locked?' disabled':''} onclick="setDare(${d.lv})" aria-pressed="${d.lv===cur}">`
+    + `<svg class="dd-carve" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">${DD_CARVE[d.look||d.lv]}</svg>`
     + `<b>${d.n}</b><span>${d.mult===1 ? 'BASE XP' : '\u00d7'+d.mult+' XP'}</span></button>`).join('');
   const html = `<div class="dd-head"><span class="dd-title">DARING ${infoBtn('dare', 'How the Daring Dial works')}</span>`
     + `<span class="dd-lock">${locked ? '🔒 LOCKED TILL THIS CHALLENGE IS DONE' : ''}</span></div>`
@@ -18043,13 +18103,6 @@ function resolvePint(){
 }
 
 function previewPintResult(tile, pour){
-  if(tile.t===T.CHAOS){
-    S._slotPending = null; window._pendingSlotTile = null;
-    resetPint(); // the tap must be alive again once the wheel is done
-    S.currentTile = tile; S.resolved = false; S._wheelSpin = null;
-    countPull(tile);
-    save(); openWheel(); return;
-  }
   pour = Object.assign({ fill: _pintFill }, pour);
   const dare = (S._slotPending && S._slotPending.dare) || dareOf();
   S._slotPending = { tile, pour, dare };
@@ -18066,9 +18119,10 @@ function previewPintResult(tile, pour){
     tag: tile.t===T.BADLUCK ? '💀 THE TAP HAS CURSED YOU' : pour.toast ? "🏆 THE KNIGHT'S TOAST" : `🍺 ${pour.label}`,
     title:`${tile.icon} ${tile.n}`, venue: tile.venue, body: tpl(tile.body || ''),
     chips:[`+${promised} XP${xpNote}`, tile.drink?'🍺 DRINK':'', tile.gamble?'🎲 FORFEIT IF LOST':'', tile.heal?'💧 MERCY':'', tile.t===T.BADLUCK?'💀 BAD LUCK':''].filter(Boolean),
-    extra: tile.tutorial ? tileWinHTML(tile) + tutorialNote(1) : `${streakNote}${tileWinHTML(tile)}<p class="small dim">${canReroll ? 'Accept it, or spend a reroll to pour again.' : 'Out of rerolls? Empty your beer for a new pour.'}</p>`,
+    extra: tile.tutorial ? tileWinHTML(tile) + tutorialNote(1) : `${streakNote}${tileWinHTML(tile)}${tileExHTML(tile)}<p class="small dim">${canReroll ? 'Accept it, or spend a reroll to pour again.' : 'Out of rerolls? Empty your beer for a new pour.'}</p>`,
     buttons:`<button class="btn green" onclick="acceptPintResult()">✅ ACCEPT</button>
              ${tile.tutorial ? '' : canReroll ? `<button class="btn ghost sm" onclick="useRerollPint()">🔁 REROLL (${S.skips} left)</button>` : `<button class="btn ghost sm" onclick="chugReroll('pint')">🍺 EMPTY YOUR BEER · NEW POUR</button>`}
+             ${tile.tutorial || tile.t===T.WATER ? '' : waterBtn('pint')}
              ${tile.tutorial ? '' : tileSwapBtn(tile)}`
   });
 }
@@ -18076,6 +18130,7 @@ function previewPintResult(tile, pour){
 function acceptPintResult(){
   const sp = S._slotPending;
   const tile = sp ? sp.tile : window._pendingSlotTile; if(!tile) return;
+  if(tile.t===T.WATER){ resetPint(); takeWaterCard(tile); return; }
   const pourMult = (sp && sp.pour) ? sp.pour.mult : _pendingFillMult;
   const dMult = tile.dare ? dareMultFor((sp && sp.dare) || dareOf()) : 1;
   knightStreakAfterPour(sp && sp.pour);
@@ -18117,15 +18172,15 @@ function reopenTile(){ toggleChallengeExpand(); }
 
 function openChallengeCard(reopen){
   const t = S.currentTile; if(!t) return;
-  const clsMap = { [T.MERCY]:'good', [T.BOSS]:'boss', [T.BADLUCK]:'curse' };
+  const clsMap = { [T.MERCY]:'good', [T.WATER]:'good', [T.BADLUCK]:'curse' };
   const cls = clsMap[t.t] || '';
   const tagMap = {
     [T.BEER]:'BEER CHALLENGE', [T.SHOT]:'SHOT CHALLENGE', [T.GAMBLE]:'GAMBLING TILE',
     [T.PHYS]:'PHYSICAL DUEL', [T.MERCY]:'★ MERCY TILE ★', [T.MOVE]:'QUICK ONE',
     [T.BOSS]:'⚔ BOSS FIGHT ⚔', [T.SOCIAL]:'SOCIAL QUEST', [T.BADLUCK]:'💀 BAD LUCK 💀',
-    [T.KARAOKE]:'🎤 KARAOKE NIGHT 🎤'
+    [T.KARAOKE]:'🎤 KARAOKE NIGHT 🎤', [T.WATER]:'💧 THE WATER CARD'
   };
-  const isRevengeBout = t.t===T.BOSS && S.bossMarks && S.bossMarks[t.n] && !S.resolved;
+  const isRevengeBout = false;
   const canAutoWin = !S.resolved && S.autoWinNext && t.t!==T.MERCY && t.t!==T.MOVE && t.t!==T.BADLUCK;
   let buttons = '';
   if(S.resolved){
@@ -18134,6 +18189,10 @@ function openChallengeCard(reopen){
     buttons = `<button class="btn purple" onclick="useAutoWin()">🪪 AUTO-WIN WITH McLOVIN ID</button>`;
   } else if(t.t===T.MERCY || t.t===T.MOVE || t.t===T.BADLUCK){
     buttons = `<button class="btn green" onclick="resolveTile(true)">✓ DONE</button>`;
+  } else if(t.group){
+    buttons = `<button class="btn green" onclick="resolveTile(true)">🏆 I WON</button>
+               <button class="btn gold" onclick="resolveTile('part')">🍻 PLAYED, DIDN'T WIN · +${Math.max(1, Math.round(winBaseXP(t)*PART_SHARE))} XP</button>
+               <button class="btn red" onclick="resolveTile(false)">🐔 SAT IT OUT</button>`;
   } else if(t.gamble){
     buttons = `<button class="btn green" onclick="resolveTile(true)">🏆 I WON / I DID IT</button>
                <button class="btn red" onclick="resolveTile(false)">💀 I LOST — FORFEIT</button>`;
@@ -18173,6 +18232,7 @@ function useAutoWin(){
 
 function resolveTile(won){
   if(S.resolved) return;
+  if(won === 'part') return resolvePart();
   S.resolved = true;
   S.hmPaidWins = 0; // Hammerschlagen: the coin purse refills after every challenge
   S.hmTries = {};  // …and so do the 3 tries against each unbeaten foe
@@ -18196,21 +18256,26 @@ function resolveTile(won){
       applyWin(t);
       return;
     }
-    if(t.t===T.BOSS){
-      // losing a boss fight marks it for revenge later, and costs a bit of XP right now
-      S.bossMarks = S.bossMarks || {};
-      S.bossMarks[t.n] = true;
-      const lost = (hmBoon('draugr') || dwBoon('dementors')) ? 0 : loseXP(Math.max(5, Math.round(t.xp*0.2)), 'lost boss fight');
-      addLog(`💀 ${t.n} defeated you — -${lost} XP, and it's personal now`);
-      toast(`💀 -${lost} XP. ${t.n} REMEMBERS THIS.`);
-    } else {
-      addLog(`✗ ${t.n} — forfeit drawn`);
-    }
+    addLog(`✗ ${t.n} — forfeit drawn`);
     save(); syncHUD();
     setTimeout(()=>drawForfeit(t), 300);
   }
 }
 
+// a group game you played and didn't win: part of the XP, a few coins, no forfeit, no bad-luck heat
+function resolvePart(){
+  const t = S.currentTile; if(!t || S.resolved) return;
+  S.resolved = true;
+  S.hmPaidWins = 0; S.hmTries = {}; S.dwPaid = 0; // the same per-challenge refills a finished tile gives
+  hideChallengeInline(); closeCard();
+  const x = Math.max(1, Math.round(winBaseXP(t) * PART_SHARE));
+  grantXP(x, t.n + ' (played)', { tile:false });
+  grantCoins(Math.max(2, Math.round(t.xp/4)));
+  S.partPlays = (S.partPlays||0) + 1;
+  addLog(`🍻 ${t.n} — played, didn't win: +${x} XP`);
+  toast(`🍻 GOOD GAME · +${x} XP FOR PLAYING`);
+  checkAchievements(); save(); syncHUD();
+}
 function drawForfeit(t, tagOverride){
   const ch = CHARS.find(c=>c.id===S.charId);
   let f = FORFEITS[Math.floor(Math.random()*FORFEITS.length)];
@@ -18234,157 +18299,11 @@ function takeForfeit(mult, drink){
   save(); syncHUD();
 }
 
-/* ---------- wheel of chaos ---------- */
-let wheelSpinning=false, wheelAngle=0;
-function openWheel(){
-  const segs = WHEEL;
-  showCard({
-    cls:'chaos',
-    tag:'THE WHEEL OF CHAOS',
-    title:'🎡 SPIN IT',
-    venue:'',
-    body:'',
-    chips:[],
-    raw:`<div id="wheelWrap"><div class="pointer"></div><canvas id="wheel" width="600" height="600"></canvas></div>
-         <div id="wheelResult"></div>
-         <button class="btn primary" id="btnWheelSpin" onclick="spinWheel()">🎡 SPIN</button>
-         `
-  });
-  wheelAngle = 0;
-  paintWheel(0);
-}
-function paintWheel(angle){
-  const c=document.getElementById('wheel'); if(!c) return;
-  const ctx=c.getContext('2d');
-  const R=145, cx=150, cy=150, n=WHEEL.length, step=Math.PI*2/n;
-  ctx.setTransform(c.width/300,0,0,c.height/300,0,0); // drawn in 300-unit space, rendered at the canvas's real resolution
-  ctx.clearRect(0,0,300,300);
-  ctx.save(); ctx.translate(cx,cy); ctx.rotate(angle);
-  for(let i=0;i<n;i++){
-    const a0=i*step - Math.PI/2 - step/2;
-    ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,R,a0,a0+step); ctx.closePath();
-    ctx.fillStyle = WHEEL[i].c; ctx.fill();
-    ctx.strokeStyle='#170f08'; ctx.lineWidth=3; ctx.stroke();
-    // label — flip on the left half so nothing reads upside-down
-    ctx.save();
-    const mid = a0 + step/2;
-    ctx.rotate(mid);
-    ctx.fillStyle='#170f08';
-    const lbl = WHEEL[i].n, maxW = R-12-30;
-    let fs = 10; ctx.font = 'bold '+fs+'px monospace';
-    while(fs > 6 && ctx.measureText(lbl).width > maxW){ fs -= 0.5; ctx.font = 'bold '+fs+'px monospace'; }
-    ctx.textBaseline='middle';
-    const abs = ((mid + angle) % (Math.PI*2) + Math.PI*2) % (Math.PI*2);
-    if(abs > Math.PI/2 && abs < Math.PI*1.5){
-      ctx.rotate(Math.PI);
-      ctx.textAlign='left';
-      ctx.fillText(lbl, -(R-12), 0);
-    } else {
-      ctx.textAlign='right';
-      ctx.fillText(lbl, R-12, 0);
-    }
-    ctx.restore();
-  }
-  ctx.restore();
-  // hub
-  ctx.beginPath(); ctx.arc(cx,cy,24,0,Math.PI*2);
-  ctx.fillStyle='#170f08'; ctx.fill();
-  ctx.strokeStyle='#ffd24a'; ctx.lineWidth=3; ctx.stroke();
-  ctx.fillStyle='#ffd24a'; ctx.font='8px monospace';
-  ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillText('SPIN', cx, cy);
-}
-function spinWheel(){
-  if(wheelSpinning) return;
-  if(S._wheelSpin != null){ showWheelResult(WHEEL[S._wheelSpin]); return; }
-  wheelSpinning = true;
-  const btn=document.getElementById('btnWheelSpin'); if(btn) btn.disabled=true;
-  const n = WHEEL.length, step = Math.PI*2/n;
-  const target = Math.floor(Math.random()*n);
-  S._wheelSpin = target; save(); // committed — a reload shows this result instead of a fresh spin
-  const epoch = _runEpoch;
-  const turns = 5 + Math.floor(Math.random()*2); // whole turns, so the pointer stops on the committed slice
-  const finalAngle = turns*Math.PI*2 - target*step;
-  const dur = 3600, t0 = Date.now();
-  (function anim(){
-    if(epoch !== _runEpoch){ wheelSpinning = false; return; }
-    const p = Math.min(1, (Date.now()-t0)/dur);
-    const e = 1 - Math.pow(1-p, 4);
-    paintWheel(finalAngle * e);
-    if(p<1){ requestAnimationFrame(anim); }
-    else {
-      wheelSpinning = false;
-      S.spins++;
-      showWheelResult(WHEEL[target]);
-    }
-  })();
-}
-function showWheelResult(w){
-  const ch = CHARS.find(c=>c.id===S.charId);
-  if(ch.id==='jester' && (S.respin||0)>0){
-    // the Jester doesn't have to accept fate — decide BEFORE anything is paid out
-    window._pendingWheelResult = w;
-    showCard({
-      cls:'chaos',
-      tag:'THE WHEEL HAS SPOKEN… OR HAS IT?',
-      title:'🎡 '+w.n,
-      body:w.d,
-      chips:[`+${Math.round(w.xp*1.5)} XP`, '+25 🔔 MIRTH', w.drink?'🍺 DRINK':'', w.heal?'💧 MERCY':''].filter(Boolean),
-      extra:`<p class="small" style="color:#c08aff">🃏 A Jester may spit in fate's eye. Re-spins left: <b class="gold">${S.respin}</b> — you get another every lap.</p>`,
-      buttons:`<button class="btn primary" onclick="acceptWheelResult()">✓ ACCEPT FATE</button>
-               <button class="btn gold sm" onclick="jesterRespin()">🃏 RE-SPIN THE WHEEL (${S.respin} left)</button>`
-    });
-    return;
-  }
-  applyWheelResult(w);
-}
-function acceptWheelResult(){
-  const w = window._pendingWheelResult || (S._wheelSpin != null ? WHEEL[S._wheelSpin] : null); if(!w) return;
-  window._pendingWheelResult = null;
-  closeCard();
-  applyWheelResult(w);
-}
-function applyWheelResult(w){
-  if(S.resolved && S.currentTile && S.currentTile.t===T.CHAOS && S._wheelSpin == null) return; // already paid
-  S.resolved = true; S._wheelSpin = null;
-  const ch = CHARS.find(c=>c.id===S.charId);
-  const bonus = ch.id==='jester' ? 1.5 : 1;
-  const gained = Math.round(w.xp*bonus);
-  grantXP(gained, 'wheel'); // use grantXP so level-ups trigger brewery chest correctly
-  if(w.drink){ S.drinks++; addPace(12); }
-  if(w.heal){ S.waters++; addPace(-w.heal); }
-  if(w.doubleNext) S.doubleNext = true;
-  if(ch.id==='jester') jkAddMirth(JK_MIRTH_WHEEL, 'wheel');
-  grantSouvenir(T.CHAOS);
-  grantCoins(5);
-  addLog(`🎡 ${w.n} — +${gained} XP`);
-  checkAchievements(); save(); syncHUD();
-  maybeOpenShop();
-  showCard({
-    cls:'chaos',
-    tag:'THE WHEEL HAS SPOKEN',
-    title:'🎡 '+w.n,
-    venue:'',
-    body:w.d,
-    chips:[`+${gained} XP`, ch.id==='jester'?'+25 🔔 MIRTH':'', w.drink?'🍺 DRINK':'', w.heal?'💧 MERCY':''].filter(Boolean),
-    buttons:`<button class="btn primary" onclick="closeCard()">✓ ACCEPTED</button>`
-  });
-}
-function jesterRespin(){
-  if((S.respin||0)<=0) return;
-  S.respin--;
-  window._pendingWheelResult = null; S._wheelSpin = null;
-  addLog('🃏 The Jester laughed at fate and re-spun the Wheel');
-  save(); openWheel();
-}
 
+/* the Wheel of Chaos was removed in Oct 2026 — the flag stays because the reset code clears it */
+let wheelSpinning=false;
 /* ---------- generic card renderer ---------- */
 /* ---------- inline challenge card ---------- */
-// an unresolved Wheel of Chaos (reload mid-wheel, or its card got closed) — put the wheel back
-function resumeWheel(){
-  if(!S.currentTile || S.currentTile.t!==T.CHAOS || S.resolved || wheelSpinning) return;
-  if(S._wheelSpin != null) showWheelResult(WHEEL[S._wheelSpin]); else openWheel();
-}
 function showChallengeInline(){
   const t = S.currentTile; if(!t) return;
   const slotWrap = document.getElementById('slotWrap');
@@ -18397,21 +18316,22 @@ function showChallengeInline(){
 
   document.getElementById('ciIcon').textContent = t.icon + ' ';
   document.getElementById('ciName').textContent = t.n;
-  document.getElementById('ciBody').innerHTML   = escapeHtml(tpl(t.body)).replace(/\n/g,'<br>') + tileWinHTML(t) + (t.tutorial && !S.resolved ? tutorialNote(2) : '');
+  document.getElementById('ciBody').innerHTML   = escapeHtml(tpl(t.body)).replace(/\n/g,'<br>') + tileWinHTML(t) + tileExHTML(t) + (t.tool && !S.resolved ? `<div class="ci-tool">${toolBtnHTML(t)}</div>` : '') + (t.tutorial && !S.resolved ? tutorialNote(2) : '');
 
   const canAutoWin = !S.resolved && S.autoWinNext && t.t!==T.MERCY && t.t!==T.MOVE && t.t!==T.BADLUCK;
-  const chaosOpen = t.t===T.CHAOS && !S.resolved;
   let btns = '';
   if(S.resolved){
     btns = `<button class="btn ghost" onclick="hideChallengeInline()">◀ ALREADY RESOLVED</button>`;
   } else if(t.tutorial){
     btns = `<button class="btn green" onclick="resolveTile(true)">✓ DONE · MY GLASS IS EMPTY</button>`;
-  } else if(chaosOpen){
-    btns = `<button class="btn primary" onclick="resumeWheel()">🎡 SPIN THE WHEEL OF CHAOS</button>`;
   } else if(canAutoWin){
     btns = `<button class="btn purple" onclick="useAutoWin()">🪪 AUTO-WIN WITH McLOVIN ID</button>`;
   } else if(t.t===T.MERCY || t.t===T.MOVE || t.t===T.BADLUCK){
     btns = `<button class="btn green" onclick="resolveTile(true)">✓ DONE</button>`;
+  } else if(t.group){
+    btns = `<button class="btn green" onclick="resolveTile(true)">🏆 WON IT</button>
+            <button class="btn gold" onclick="resolveTile('part')">🍻 PLAYED, DIDN'T WIN · +${Math.max(1, Math.round(winBaseXP(t)*PART_SHARE))} XP</button>
+            <button class="btn ghost sm" onclick="resolveTile(false)">🐔 SAT IT OUT</button>`;
   } else if(t.gamble){
     btns = `<button class="btn green" onclick="resolveTile(true)">🏆 WON IT</button>
             <button class="btn red btn-destructive" onclick="resolveTile(false)">💀 LOST — FORFEIT</button>`;
@@ -18427,10 +18347,9 @@ function showChallengeInline(){
   exp.classList.remove('hide'); // always open: the dare and its buttons are right there (tap the header to fold it away)
 
   const hint = document.getElementById('ciTapHint');
-  if(hint) hint.textContent = S.resolved ? '(RESOLVED)' : chaosOpen ? '' : '▲ FOLD';
+  if(hint) hint.textContent = S.resolved ? '(RESOLVED)' : '▲ FOLD';
 
   if(card) card.classList.remove('hide');
-  if(chaosOpen && !document.getElementById('cardOverlay')) resumeWheel();
 }
 function hideChallengeInline(){
   const slotWrap = document.getElementById('slotWrap');
@@ -18469,6 +18388,336 @@ function showCard(o){
   document.body.appendChild(ov);
 }
 function closeCard(){ const e=document.getElementById('cardOverlay'); if(e) e.remove(); }
+
+/* ══ THE WATER CARD (Oct 2026) — water is a power-up, never a nag. Roll it and it goes in the bag (max 2);
+   on any tile you don't fancy, 💧 USE IT = drink a glass of water, fresh tile. Its own counter, apart from rerolls. ══ */
+const WATER_MAX = 2;
+const WATER_MIN_LEVEL = 7;
+function waterBtn(kind){
+  return S && (S.waterCards||0) > 0 ? `<button class="btn ghost sm" onclick="useWaterCard('${kind}')">💧 USE IT · DRINK A WATER, NEW TILE (${S.waterCards})</button>` : '';
+}
+function useWaterCard(kind){
+  if(!S || !S._slotPending || (S.waterCards||0) <= 0 || slotSpinning) return;
+  S.waterCards--; S.waterUsed = (S.waterUsed||0) + 1; S.waters = (S.waters||0) + 1;
+  addLog('💧 Played a water card for a fresh tile');
+  epicToast('💧 DRINK A GLASS OF WATER — FRESH TILE INCOMING');
+  checkAchievements();
+  S.skips = (S.skips||0) + 1; // spent on the spot, exactly like an emptied beer
+  if(kind === 'pint') useRerollPint(); else useReroll();
+}
+function takeWaterCard(tile){
+  S._slotPending = null; window._pendingSlotTile = null;
+  closeCard();
+  countPull(tile);
+  const full = (S.waterCards||0) >= WATER_MAX;
+  if(!full) S.waterCards = (S.waterCards||0) + 1;
+  grantXP(full ? 15 : tile.xp, tile.n, { tile:false });
+  grantSouvenir(T.WATER);
+  addLog(full ? '💧 Water card rolled with a full bag — 15 XP instead' : `💧 +1 water card (${S.waterCards}/${WATER_MAX})`);
+  checkAchievements(); save(); syncHUD();
+  showCard({ cls:'good', tag:'💧 THE WATER CARD',
+    title: full ? '💧 YOUR BAG IS FULL OF WATER' : `💧 +1 WATER CARD · ${S.waterCards}/${WATER_MAX}`,
+    body: full ? `You already hold ${WATER_MAX}. Have 15 XP instead.` : 'It is in your bag. Next time the reels hand you a tile you do not fancy, tap 💧 USE IT, drink a glass of water, and get a fresh tile.',
+    buttons:`<button class="btn primary" onclick="closeCard();maybeOpenShop()">✓ NICE</button>` });
+}
+
+/* ══ GHOSTBREWSTERS — the curse that haunts the brewery for 15 minutes: nothing brews, the shop stays shut ══ */
+const HAUNT_MS = 15*60000;
+function brewHaunted(){ return !!(S && S.brewHauntUntil && Date.now() < S.brewHauntUntil); }
+function hauntLeft(){
+  const ms = Math.max(0, ((S && S.brewHauntUntil)||0) - Date.now());
+  return Math.floor(ms/60000) + ':' + String(Math.floor(ms/1000) % 60).padStart(2, '0');
+}
+function startHaunt(){
+  S.brewHauntUntil = Date.now() + HAUNT_MS;
+  addLog('👻 GHOSTBREWSTERS — the brewery is haunted for 15 minutes');
+  paintHaunt();
+}
+function paintHaunt(){
+  let el = document.getElementById('hauntBadge');
+  if(!brewHaunted()){
+    if(el){ el.remove(); toast('👻 THE GHOSTS ARE GONE — THE BREWERY IS BREWING AGAIN'); }
+    if(S && S.brewHauntUntil){ S.brewHauntUntil = 0; S.lastProdTs = Date.now(); save(); }
+    return;
+  }
+  if(!el){
+    el = document.createElement('div'); el.id = 'hauntBadge';
+    el.onclick = () => toast('👻 PHONE DOWN. THE GHOSTS LEAVE IN ' + hauntLeft());
+    document.body.appendChild(el);
+  }
+  el.textContent = '👻 BREWERY HAUNTED · ' + hauntLeft();
+}
+setInterval(() => { if(S && (S.brewHauntUntil || document.getElementById('hauntBadge'))) paintHaunt(); }, 1000);
+
+/* ══ TILE TOOLS — the handful of tiles where the app holds the answer or deals the cards.
+   Everything else stays in the players' hands. The roller is the game master; the app never decides the tile:
+   it shows, the table plays, the roller still taps DONE / FAILED. Deck items never repeat in a night. ══ */
+// [statement, 1 = FACT / 0 = CAP]
+const DECK_NOCAP = [
+  ['Honey never spoils: edible honey has been found in ancient Egyptian tombs.',1],
+  ['Octopuses have three hearts.',1],
+  ['Bananas are berries, but strawberries are not.',1],
+  ['A group of flamingos is called a "flamboyance".',1],
+  ["Scotland's national animal is the unicorn.",1],
+  ['Cleopatra lived closer in time to the Moon landing than to the building of the Great Pyramid.',1],
+  ['Wombat poo is cube-shaped.',1],
+  ['The Eiffel Tower grows up to about 15 cm taller in summer.',1],
+  ['Sharks existed before trees.',1],
+  ['Oxford University is older than the Aztec Empire.',1],
+  ['A day on Venus is longer than its year.',1],
+  ["Guinness isn't actually black. It's a very dark ruby red.",1],
+  ['Humans were brewing beer before they invented writing.',1],
+  ['Hops are close relatives of cannabis.',1],
+  ['Nintendo was founded in 1889 as a playing-card company.',1],
+  ['The shortest war in history lasted under an hour.',1],
+  ['The inventor of the Pringles can had some of his ashes buried in one.',1],
+  ['A "jiffy" is an actual unit of time.',1],
+  ['A pineapple takes about two years to grow.',1],
+  ['The Hawaiian alphabet has only 13 letters.',1],
+  ['Butterflies taste with their feet.',1],
+  ['The Mona Lisa has no eyebrows.',1],
+  ['The dot over a lowercase i is called a tittle.',1],
+  ['Ketchup was once sold as medicine.',1],
+  ['There are more possible games of chess than atoms in the observable universe.',1],
+  ['Goldfish have a three-second memory.',0],
+  ['The Great Wall of China is visible from space with the naked eye.',0],
+  ['Napoleon was unusually short for his time.',0],
+  ['Humans only use 10% of their brains.',0],
+  ['Bulls charge because the colour red makes them angry.',0],
+  ['Lightning never strikes the same place twice.',0],
+  ['Bats are blind.',0],
+  ['Einstein failed maths at school.',0],
+  ['You swallow about eight spiders a year in your sleep.',0],
+  ['Vikings wore horned helmets into battle.',0],
+  ['Chameleons change colour mainly to blend into their background.',0],
+  ['Mount Everest is the tallest mountain on Earth measured from base to peak.',0],
+  ['A coin dropped from the top of the Empire State Building could kill someone.',0],
+  ['Alcohol warms your body up.',0],
+  ['"Sushi" means raw fish.',0],
+  ['Ostriches bury their heads in the sand when scared.',0],
+  ['Botanically, a tomato is a vegetable.',0],
+  ['The Titanic was the first ship ever to send an SOS.',0],
+  ["Mars is red because it's so hot.",0],
+  ['Fortune cookies were invented in China.',0],
+  ['One dog year equals exactly seven human years.',0],
+  ["Glass is a slow-moving liquid. That's why old windows are thicker at the bottom.",0],
+  ["Walt Disney's body was frozen after he died.",0],
+  ['Sharks can smell a single drop of blood from a mile away.',0],
+  ['The Danish pastry was invented in Denmark.',0]
+];
+// [measure, A, A's value, B, B's value, 0 = A is more / 1 = B is more]
+const DECK_HOL = [
+  ['CALORIES','a pint of lager','~200','a Big Mac','~550',1],
+  ['HEIGHT','the Eiffel Tower','330 m','the Empire State Building (roof)','381 m',1],
+  ['HEIGHT',"Big Ben's tower",'96 m','the Statue of Liberty (with pedestal)','93 m',0],
+  ['HEIGHT','a giraffe','~5.5 m','a double-decker bus','~4.4 m',0],
+  ['ALCOHOL %','Guinness Draught','4.2%','Heineken','5%',1],
+  ['LEGS','a spider','8','a lobster','10',1],
+  ['EYES','a bee','5','a typical spider','8',1],
+  ['BONES','an adult human','206','a cat','~230',1],
+  ['BONES','a human hand','27','a human foot','26',0],
+  ['TEETH','an adult human','32','a dog','42',1],
+  ['TOP SPEED','a cheetah','~110 km/h','a racehorse','~70 km/h',0],
+  ['LENGTH','a marathon','42.2 km','the English Channel at its narrowest','~33 km',0],
+  ['LENGTH','the Great Wall of China','~21,000 km',"Earth's diameter",'~12,700 km',0],
+  ['DISTANCE',"Everest's height",'8,849 m',"the Mariana Trench's depth",'~10,900 m',1],
+  ['MOONS','Mars','2','Earth','1',0],
+  ['LENGTH OF A DAY','Mars','24 h 37 min','Earth','24 h',0],
+  ['AREA','Denmark','~43,000 km²','Switzerland','~41,000 km²',0],
+  ['POPULATION','Iceland','~390,000','Malta','~550,000',1],
+  ['WEIGHT',"a blue whale's tongue",'~2.7 t','an African elephant','~6 t',1],
+  ['HOW MANY','squares on a chessboard','64','cards in a deck','52',0],
+  ['HOW MANY','keys on a piano','88','strings on a concert harp','47',0],
+  ['PLAYERS PER TEAM','rugby union','15','Aussie rules football','18',1],
+  ['HOW MANY','Harry Potter books','7','Star Wars saga films','9',1],
+  ['YEAR (LATER = MORE)','the first Moon landing','1969','the first Star Wars film','1977',1],
+  ['YEAR FOUNDED (LATER = MORE)','Nokia','1865','Nintendo','1889',1],
+  ['AGE (OLDER = MORE)','Weihenstephan brewery','1040','Oxford University','1096',0],
+  ['AGE (OLDER = MORE)','Guinness','1759','Carlsberg','1847',0],
+  ['EPISODES','Friends','236','The Office (US)','201',0]
+];
+// [question, answer]
+const DECK_LIMIT = [
+  ['How tall is the Eiffel Tower, in metres?','330 m'],
+  ['How tall is Mount Everest, in metres?','8,849 m'],
+  ['How deep is the Mariana Trench, in metres?','about 10,900 m'],
+  ['How many bones are in the adult human body?','206'],
+  ['How many teeth does an adult human have?','32'],
+  ["How many bones are in a giraffe's neck?",'7'],
+  ['How many times does your heart beat in a day?','about 100,000'],
+  ['How many keys are on a piano?','88'],
+  ['How long is a marathon, in metres?','42,195 m'],
+  ['How far away is the Moon, in km?','about 384,400 km'],
+  ["How long is Earth's circumference, in km?",'about 40,075 km'],
+  ['How many Earths would fit inside the Sun?','about 1.3 million'],
+  ['How hot is the surface of the Sun, in °C?','about 5,500 °C'],
+  ['How old is the universe, in billions of years?','13.8 billion'],
+  ['How many people have walked on the Moon?','12'],
+  ['How fast can a cheetah run, in km/h?','about 110 km/h'],
+  ["What's the speed of sound, in km/h?",'about 1,235 km/h'],
+  ['How long is the Nile, in km?','about 6,650 km'],
+  ['How long is the Great Wall of China, in km?','about 21,000 km'],
+  ['In what year did the Titanic sink?','1912'],
+  ['In what year was Guinness founded?','1759'],
+  ['In what year was the first email sent?','1971'],
+  ['How many minutes are in a week?','10,080'],
+  ['How many seconds are in a day?','86,400'],
+  ['How many squares are on a chessboard?','64'],
+  ['How many countries are in the EU?','27'],
+  ['How many languages are spoken in the world?','about 7,000'],
+  ['How many plays did Shakespeare write?','about 37'],
+  ['How many episodes of Friends are there?','236'],
+  ['How many hearts does an octopus have?','3']
+];
+const DECKS = { nocap:DECK_NOCAP, hol:DECK_HOL, limit:DECK_LIMIT };
+const TOOL_ROUNDS = 3;
+const TOOL_LABEL = { nocap:'🔍 NO CAP, SHERLOCK', hol:'📈 HIGHER OR LAGER', limit:'📏 THE LIMIT DOES NOT EXIST' };
+function deckDraw(k){
+  const d = DECKS[k]; S.deckUsed = S.deckUsed || {};
+  let used = (S.deckUsed[k] || []).filter(i => i < d.length);
+  if(used.length >= d.length) used = []; // the deck ran dry tonight: shuffle it back in
+  const free = []; for(let i = 0; i < d.length; i++) if(!used.includes(i)) free.push(i);
+  const i = free[Math.floor(Math.random()*free.length)];
+  used.push(i); S.deckUsed[k] = used;
+  return i;
+}
+function toolBtnHTML(t){
+  if(!t || !t.tool || S.resolved) return '';
+  if(DECKS[t.tool]){
+    const r = S.toolRun && S.toolRun.tool === t.tool ? S.toolRun : null;
+    if(r && r.round > TOOL_ROUNDS) return `<div class="ci-win">✓ ALL ${TOOL_ROUNDS} ROUNDS PLAYED · MARK IT BELOW</div>`;
+    return `<button class="btn primary" onclick="toolOpen()">${r && r.idx != null ? '▶ BACK TO' : '🃏 DEAL'} ROUND ${r ? r.round : 1} OF ${TOOL_ROUNDS}</button>`;
+  }
+  const lbl = { bus:'🚌 DEAL THE BUS', bj:'🃏 DEAL A HAND', red:'🔴 SPIN THE ROULETTE' }[t.tool];
+  return lbl ? `<button class="btn primary" onclick="toolOpen()">${lbl}</button>` : '';
+}
+function toolOpen(){
+  const t = S && S.currentTile; if(!t || !t.tool || S.resolved) return;
+  if(t.tool === 'bus') return busStart();
+  if(t.tool === 'bj') return bjMiniStart();
+  if(t.tool === 'red') return redStart();
+  if(!DECKS[t.tool]) return;
+  if(!S.toolRun || S.toolRun.tool !== t.tool) S.toolRun = { tool:t.tool, round:1, idx:null, shown:false };
+  if(S.toolRun.round > TOOL_ROUNDS) return;
+  if(S.toolRun.idx == null){ S.toolRun.idx = deckDraw(t.tool); S.toolRun.shown = false; save(); }
+  deckShow();
+}
+function deckShow(){
+  const r = S.toolRun; if(!r || !DECKS[r.tool]) return;
+  const e = DECKS[r.tool][r.idx]; if(!e) return;
+  let q = '', a = '';
+  if(r.tool === 'nocap'){
+    q = `"${escapeHtml(e[0])}"<br><span class="dim small">Everyone, on three: FACT or CAP?</span>`;
+    a = e[1] ? '✅ FACT' : '🧢 CAP';
+  } else if(r.tool === 'hol'){
+    q = `<b class="gold">${escapeHtml(e[0])}</b><br>${escapeHtml(e[1])}<br><span class="dim small">or</span><br>${escapeHtml(e[3])}<br><span class="dim small">Everyone, on three: which one is MORE?</span>`;
+    const w = e[5] ? e[3] : e[1];
+    a = `${escapeHtml(w).toUpperCase()}<br><span class="small">${escapeHtml(e[1])}: ${escapeHtml(e[2])} · ${escapeHtml(e[3])}: ${escapeHtml(e[4])}</span>`;
+  } else {
+    q = `${escapeHtml(e[0])}<br><span class="dim small">Everyone, on three: say a number.</span>`;
+    a = escapeHtml(e[1]) + '<br><span class="small">Closest wins, furthest drinks. Spot on? Hand out 2 sips.</span>';
+  }
+  const last = r.round >= TOOL_ROUNDS;
+  showCard({ tag:`${TOOL_LABEL[r.tool]} · ROUND ${r.round} OF ${TOOL_ROUNDS}`, title:'',
+    raw:`<div class="tool-q">${q}</div>${r.shown ? `<div class="tool-a">${a}</div>` : ''}`,
+    buttons: r.shown
+      ? `<button class="btn green" onclick="deckNext()">${last ? '✓ THAT WAS ROUND 3 · BACK TO THE TILE' : '▶ NEXT ROUND'}</button>`
+      : `<button class="btn primary" onclick="deckReveal()">👁 REVEAL</button>
+         <button class="btn ghost sm" onclick="closeCard()">◀ BACK TO THE TILE</button>` });
+}
+function deckReveal(){ if(!S.toolRun) return; S.toolRun.shown = true; save(); deckShow(); }
+function deckNext(){
+  const r = S.toolRun; if(!r) return;
+  r.round++; r.idx = null; r.shown = false; save();
+  if(r.round > TOOL_ROUNDS){ closeCard(); showChallengeInline(); return; }
+  toolOpen();
+}
+
+// cards for the bus, the blackjack hand and the roulette: rank 2..14 (11 J, 12 Q, 13 K, 14 A), suit 0..3
+const CARD_SUITS = ['♥','♦','♣','♠'];
+function cardDeal(){ return { r: 2 + Math.floor(Math.random()*13), s: Math.floor(Math.random()*4) }; }
+function cardName(c){ return ({11:'J',12:'Q',13:'K',14:'A'}[c.r] || String(c.r)) + CARD_SUITS[c.s]; }
+function cardHTML(c){ return `<span class="tool-card${c.s < 2 ? ' r' : ''}">${cardName(c)}</span>`; }
+
+// SPEED: RIDE THE BUS — red/black · higher/lower · inside/outside · suit. A helper only: a reload just re-deals.
+let _bus = null;
+const BUS_STEPS = [
+  { q:'RED OR BLACK?', opts:[['RED','red'],['BLACK','black']] },
+  { q:'HIGHER OR LOWER than your first card?', opts:[['⬆ HIGHER','hi'],['⬇ LOWER','lo']] },
+  { q:'INSIDE OR OUTSIDE your first two cards?', opts:[['↔ INSIDE','in'],['⇹ OUTSIDE','out']] },
+  { q:'WHICH SUIT?', opts:[['♥','0'],['♦','1'],['♣','2'],['♠','3']] }
+];
+function busStart(){ _bus = { step:0, cards:[], wrong:0, last:null }; busShow(); }
+function busGuess(g){
+  if(!_bus || _bus.last) return;
+  const c = cardDeal(), cs = _bus.cards, st = _bus.step;
+  let ok;
+  if(st === 0) ok = (g === 'red') === (c.s < 2);
+  else if(st === 1) ok = g === 'hi' ? c.r > cs[0].r : c.r < cs[0].r;
+  else if(st === 2){ const lo = Math.min(cs[0].r, cs[1].r), hi = Math.max(cs[0].r, cs[1].r), inside = c.r > lo && c.r < hi; ok = g === 'in' ? inside : (c.r < lo || c.r > hi); }
+  else ok = String(c.s) === g;
+  cs.push(c); if(!ok) _bus.wrong++;
+  _bus.last = { ok };
+  busShow();
+}
+function busNext(){ if(!_bus) return; _bus.step++; _bus.last = null; if(_bus.step >= BUS_STEPS.length){ closeCard(); _bus = null; return; } busShow(); }
+function busShow(){
+  const b = _bus, st = BUS_STEPS[Math.min(b.step, BUS_STEPS.length-1)];
+  const cards = b.cards.length ? `<div class="tool-cards">${b.cards.map(cardHTML).join('')}</div>` : '';
+  const done = b.last && b.step === BUS_STEPS.length - 1;
+  const verdict = b.last ? `<div class="tool-a">${b.last.ok ? '✓ RIGHT' : '✗ WRONG · DRINK'}</div>` +
+    (done ? `<div class="tool-a">${b.last.ok ? '🚌 OFF THE BUS!' : '🚌 YOU ARE ON THE BUS'}</div>` : '') : '';
+  showCard({ tag:`🚌 RIDE THE BUS · ROW ${b.step+1} OF ${BUS_STEPS.length}`, title:'',
+    raw:`${cards}<div class="tool-q">${st.q}</div>${verdict}`,
+    buttons: b.last
+      ? `<button class="btn green" onclick="busNext()">${done ? '✓ DONE · BACK TO THE TILE' : '▶ NEXT ROW'}</button>`
+      : `<div class="tool-row">${st.opts.map(o => `<button class="btn primary" onclick="busGuess('${o[1]}')">${o[0]}</button>`).join('')}</div>
+         <button class="btn ghost sm" onclick="closeCard();_bus=null">◀ BACK TO THE TILE</button>` });
+}
+
+// BLACKJACK SPARROW (Gambler only) — one hand against the house, the stake is 3 sips
+let _bjMini = null;
+function bjVal(h){ let v = 0, a = 0; h.forEach(c => { if(c.r === 14){ v += 11; a++; } else v += Math.min(10, c.r); }); while(v > 21 && a){ v -= 10; a--; } return v; }
+function bjMiniStart(){ _bjMini = { p:[cardDeal(), cardDeal()], d:[cardDeal()], done:false, res:'' }; if(bjVal(_bjMini.p) === 21) bjMiniStand(); else bjMiniShow(); }
+function bjMiniHit(){ const b = _bjMini; if(!b || b.done) return; b.p.push(cardDeal()); if(bjVal(b.p) > 21){ b.done = true; b.res = 'lose'; } bjMiniShow(); }
+function bjMiniStand(){
+  const b = _bjMini; if(!b || b.done) return;
+  while(bjVal(b.d) < 17) b.d.push(cardDeal());
+  const p = bjVal(b.p), d = bjVal(b.d);
+  b.done = true; b.res = d > 21 || p > d ? 'win' : p === d ? 'push' : 'lose';
+  bjMiniShow();
+}
+function bjMiniShow(){
+  const b = _bjMini;
+  const res = { win:'🏆 YOU BEAT THE HOUSE · HAND OUT 3 SIPS', lose:'💀 THE HOUSE WINS · DRINK 3 SIPS', push:'🤝 PUSH · NOBODY DRINKS' }[b.res] || '';
+  showCard({ tag:'🃏 BLACKJACK SPARROW · STAKE 3 SIPS', title:'',
+    raw:`<div class="tool-q">DEALER · ${bjVal(b.d)}</div><div class="tool-cards">${b.d.map(cardHTML).join('')}</div>
+         <div class="tool-q">YOU · ${bjVal(b.p)}</div><div class="tool-cards">${b.p.map(cardHTML).join('')}</div>${res ? `<div class="tool-a">${res}</div>` : ''}`,
+    buttons: b.done
+      ? `<button class="btn green" onclick="closeCard();_bjMini=null">✓ BACK TO THE TILE</button>`
+      : `<div class="tool-row"><button class="btn primary" onclick="bjMiniHit()">➕ HIT</button><button class="btn gold" onclick="bjMiniStand()">✋ STAND</button></div>` });
+}
+
+// 50 SHADES OF RED (Gambler only) — call a colour, one spin of a European wheel (0 is green)
+const ROULETTE_REDS = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
+function redStart(){
+  showCard({ tag:'🔴 50 SHADES OF RED · STAKE 3 SIPS', title:'',
+    raw:`<div class="tool-q">Call it. Red or black?</div>`,
+    buttons:`<div class="tool-row"><button class="btn red" onclick="redSpin('red')">🔴 RED</button><button class="btn ghost" onclick="redSpin('black')">⚫ BLACK</button></div>
+             <button class="btn ghost sm" onclick="closeCard()">◀ BACK TO THE TILE</button>` });
+}
+function redSpin(call){
+  const n = Math.floor(Math.random()*37);
+  const col = n === 0 ? 'green' : ROULETTE_REDS.includes(n) ? 'red' : 'black';
+  const win = col === call;
+  showCard({ tag:'🔴 50 SHADES OF RED · STAKE 3 SIPS', title:'',
+    raw:`<div class="tool-q">You called ${call.toUpperCase()}.</div><div class="tool-a">${col === 'red' ? '🔴' : col === 'black' ? '⚫' : '🟢'} ${n} · ${col.toUpperCase()}</div>
+         <div class="tool-a">${win ? '🏆 HAND OUT 3 SIPS' : n === 0 ? '💀 GREEN. THE HOUSE ALWAYS WINS · DRINK 3 SIPS' : '💀 DRINK 3 SIPS'}</div>`,
+    buttons:`<button class="btn green" onclick="closeCard()">✓ BACK TO THE TILE</button>` });
+}
+
+// the example line under every tile: "e.g. …"
+function tileExHTML(t){ return t && t.ex ? `<div class="ci-ex">e.g. ${escapeHtml(tpl(t.ex))}</div>` : ''; }
 
 /* ---------- the secret quest (private, local-only, never shown to others) ----------
    S.quest = { picks:[5 pool indices], cleared:0..5, banked:XP so far, blown:false, rewarded:false }
@@ -18640,7 +18889,7 @@ function townSectionHTML(){
       <div class="shop-section__sub">Every building raised · ${rate.toFixed(1)} beer/min</div>
     </div>`;
   const cards = avail.map(u => {
-    const price = townPrice(u), afford = (S.coins||0) >= price;
+    const price = townBuyPrice(u), afford = (S.coins||0) >= price, onHouse = townPrice(u) - price;
     const rar = RARITIES.find(r => r.id === u.rarity) || RARITIES[0];
     const pinned = pinForge && u.id === 'tk_forge';
     return `<div class="shop-item si--town${afford ? '' : ' si--poor'}${pinned ? ' si--pinned' : ''}" data-item="${u.id}">
@@ -18649,7 +18898,7 @@ function townSectionHTML(){
       </div>
       <div class="shop-item__body">
         <div class="shop-item__name">${u.n}</div>
-        <div class="si-chips">${pinned ? '<span class="si-chip si-chip--forge">⚒ UNLOCKS FORGING</span>' : ''}<span class="si-chip si-chip--brew">🍺 +${u.rate}/MIN</span><span class="si-chip" style="color:${rar.color};border-color:${rar.color}">${rar.n}</span></div>
+        <div class="si-chips">${pinned ? '<span class="si-chip si-chip--forge">⚒ UNLOCKS FORGING & YOUR BAG</span>' : ''}<span class="si-chip si-chip--brew">🍺 +${u.rate}/MIN</span>${onHouse > 0 ? `<span class="si-chip si-chip--brew">🎁 ${onHouse} ON THE HOUSE</span>` : ''}<span class="si-chip" style="color:${rar.color};border-color:${rar.color}">${rar.n}</span></div>
         <div class="si-flav">${u.d}</div>
         <div class="shop-item__action">${afford ? '' : `<span class="si-need">NEED ${price - (S.coins||0)} MORE</span>`}
           <button class="si-buy si-buy--town" onclick="buyTownBuilding('${u.id}')" ${afford ? '' : 'disabled'}>${ico('🪙',12)}<span class="si-price">${price}</span></button>
@@ -18783,21 +19032,24 @@ const _tapGuard = {};
 function tapGuard(key, ms){ const now = Date.now(); if(now - (_tapGuard[key]||0) < (ms||500)) return false; _tapGuard[key] = now; return true; }
 // the tutorial's guided purchase must always be possible: if the crawler already spent their coins (a bet, the Den,
 // a Street Act…), the starter barrel costs whatever they have left and the brewery covers the rest
-function tutKegShort(r){ return !!(r && r.id === 'firstkeg' && S && S.tutStep === 'buy' && (S.coins||0) < r.price); }
+function tutKegShort(r){ return !!(r && r.id === 'firstkeg' && S && !tutBuyTank() && S.tutStep === 'buy' && (S.coins||0) < r.price); }
+function tutForgeShort(u){ return !!(u && u.id === 'tk_forge' && S && S.tutStep === 'buy' && (S.coins||0) < townPrice(u)); }
+function townBuyPrice(u){ return tutForgeShort(u) ? Math.max(0, S.coins||0) : townPrice(u); }
 function relicPrice(r){ return tutKegShort(r) ? Math.max(0, S.coins||0) : r.price; }
 function buyTownBuilding(id){
   if(!tapGuard('town:'+id)) return;
   const u = townSet().find(x => x.id === id); if(!u) return;
   if(townOwned(id)){ toast('ALREADY BUILT'); return; }
-  const price = townPrice(u);
+  const price = townBuyPrice(u), onHouse = townPrice(u) - price;
   if((S.coins||0) < price){ toast('NOT ENOUGH COINS'); return; }
   S.coins -= price;
+  if(onHouse > 0) addLog(`⚒ The town covered ${onHouse}🪙 of your forge`);
   S.breweryUpgrades.push({ id:u.id, n:u.n, icon:u.icon, rate:u.rate, visual:u.visual, rarity:u.rarity });
   breweryTierCache = null;                       // the yard changed: let the scene rebuild
   addLog(`🏘 Built ${u.n} for ${price}🪙 (+${u.rate} beer/min)`);
-  if(u.id === 'tk_forge'){ vkForgeFocus(); breweryTierCache = null; }
+  if(u.id === 'tk_forge'){ vkForgeFocus(); breweryTierCache = null; S.tutBuyAhead = false; setTimeout(applyGates, 0); if(S.tutStep === 'buy') setTimeout(() => tutAdvance('buy', 'proof'), 500); }
   else if(S.charId === 'tank' && VK_TOWN_W[u.visual]) window._vkBuildPending = u.visual;   // the new house goes up next time you look at the village
-  epicToast(`🏘 ${u.n} RAISED — +${u.rate} BEER/MIN`);
+  epicToast(u.id === 'tk_forge' ? `⚒ THE FORGE RAISED — YOUR BAG IS OPEN` : `🏘 ${u.n} RAISED — +${u.rate} BEER/MIN`);
   buzz([20,30]);
   checkAchievements(); save(); syncHUD(); renderShop();
 }
@@ -18817,7 +19069,7 @@ function buyRelic(id){
   }
   S.coins -= price; S.relics.push(id);
   if(onHouse > 0) addLog(`🛢 The brewery covered ${onHouse}🪙 of your first barrel`);
-  if(id==='firstkeg' && S.tutStep==='buy') setTimeout(() => tutAdvance('buy', 'proof'), 500);
+  if(id==='firstkeg' && S.tutStep==='buy'){ S.tutBuyAhead = false; setTimeout(() => tutAdvance('buy', 'proof'), 500); }
   addLog(`Bought relic: ${r.n} (+${r.brewBonus||0} beer/min, permanently)`);
   toast(r.icon+' '+r.n+' — EQUIPPED, +'+(r.brewBonus||0)+' BEER/MIN');
   save(); syncHUD(); renderShop();
@@ -18984,7 +19236,7 @@ function renderGuide(){
     </div>
     <div class="panel">
       <h2>🔨 YOUR MECHANIC — HAMMERSCHLAGEN</h2>
-      <p class="small">It opens after your first real win (the tutorial beer doesn't count). From then on: win a challenge and your XP goes on the <b>stump</b>. Race a Viking foe to hammer your pin flush into the log: tap when the needle hits <b class="gold">gold</b>. Win and the XP is multiplied (tougher foes pay more, a <b class="gold">flawless</b> win, every swing gold, pays most). Lose and it's gone — or take <b>SAFE XP</b> before you swing. <b>🏳 GIVE UP</b> walks away from a match (on a wager, the XP is lost). Between challenges matches are free. Beat a foe <b>once</b> and his material is yours for good (no farming): you get <b>3 tries per challenge</b> at each foe you haven't beaten yet, and unlimited rematches against the ones you have. Forge your hammer in the Bag. New foes arrive as you level, each far tougher than the last; a bare hammer stops at the <b>Valkyrie</b>, so forge a better one to go past her. Beat a foe once for a <b class="gold">boon</b> that lasts all night (a flawless first win doubles the bounty). Beat <b class="gold">Surtr</b> and the night is yours.</p>
+      <p class="small">It opens after your first real win (the tutorial beer doesn't count). From then on: win a challenge and your XP goes on the <b>stump</b>. Race a Viking foe to hammer your pin flush into the log: tap when the needle hits <b class="gold">gold</b>. Win and the XP is multiplied (tougher foes pay more, a <b class="gold">flawless</b> win, every swing gold, pays most). Lose and you still keep <b>half</b> the XP — or take <b>SAFE XP</b> before you swing to bank all of it. <b>🏳 GIVE UP</b> walks away from a match (on a wager, the XP is lost). Between challenges matches are free. Beat a foe <b>once</b> and his material is yours for good (no farming): you get <b>3 tries per challenge</b> at each foe you haven't beaten yet, and unlimited rematches against the ones you have. Forge your hammer in the Bag. New foes arrive as you level, each far tougher than the last; a bare hammer stops at the <b>Valkyrie</b>, so forge a better one to go past her. Beat a foe once for a <b class="gold">boon</b> that lasts all night (a flawless first win doubles the bounty). Beat <b class="gold">Surtr</b> and the night is yours.</p>
       <p class="small">Every wager is <b class="gold">one shot</b>: lose the match and the XP is gone, unless a <b class="gold">Neverending Stout</b> buys you +1 try.</p>
     </div>
     <div class="panel">
@@ -19031,8 +19283,8 @@ function renderGuide(){
       <p class="small">The Muppet → <b class="gold">Juggle-naut</b> (2 draws: hold 4 Tricks) → <b class="gold">Motley Brew</b> (5 draws or The Sun: curses never pay under ×0.5) → <b class="gold">Prince of Bel-Ale</b> (10 draws or 3 Grand Jests: Grand Jest pays +25%) → <b class="gold">Lion King of Fools</b> (24 draws, 3 Suns or 5 Grand Jests: The Sun pays ×4).</p>
     </div>
     <div class="panel">
-      <h2>🎡 THE WHEEL &amp; THE MOTLEY MARKET</h2>
-      <p class="small"><b class="gold">+50% XP</b> from the Wheel of Chaos, and you may <b class="gold">RE-SPIN</b> before accepting fate (1 re-spin per lap, hold up to 2). The shop's Jester kit bends the Deck itself: the <b class="gold">Rain Man's Deck</b> deals one card face-up, the <b class="gold">Elderflower Wand</b> flips The Two Towers into gold, and the <b class="gold">Corona with Lime</b> deals a 4th card.</p>
+      <h2>🃏 THE MOTLEY MARKET</h2>
+      <p class="small">The shop's Jester kit bends the Deck itself: the <b class="gold">Rain Man's Deck</b> deals one card face-up, the <b class="gold">Elderflower Wand</b> flips The Two Towers into gold, and the <b class="gold">Corona with Lime</b> deals a 4th card.</p>
     </div>`,
     machine: `<div class="panel">
       <h2>⚔ YOUR MECHANIC — THE KNIGHT'S TAP</h2>
@@ -19096,11 +19348,15 @@ function renderBag(){
   const _bw = document.getElementById('bagWand');
   if(_bw){ _bw.classList.toggle('hide', S.charId!=='wizard'); if(S.charId==='wizard'){ _bw.innerHTML = dwBenchHTML(); dwShowcaseDraw(); } }
   const _hf = document.getElementById('bagForge');
-  if(_hf){ _hf.classList.toggle('hide', S.charId!=='tank'); if(S.charId==='tank'){ _hf.innerHTML = hmForgeHTML(); hmPreviewDraw(); } }
+  if(_hf){ _hf.classList.toggle('hide', S.charId!=='tank'); _hf.classList.toggle('lock-panel', forgeLocked());
+    if(forgeLocked()) _hf.innerHTML = lockPanelHTML(FORGE_GATE);
+    else if(S.charId==='tank'){ _hf.innerHTML = hmForgeHTML(); hmPreviewDraw(); } }
   const coinsEl = document.getElementById('bagCoins');
   if(coinsEl) coinsEl.textContent = S.coins;
   const bagSkipsEl = document.getElementById('bagSkips');
   if(bagSkipsEl) bagSkipsEl.textContent = S.skips;
+  const bagWaterEl = document.getElementById('bagWater');
+  if(bagWaterEl) bagWaterEl.textContent = S.waterCards||0;
   const questLabel = document.getElementById('questBtnLabel');
   if(questLabel) questLabel.textContent = qBlown() ? `BLOWN AT STAGE ${qCleared()+1} ✗`
     : (qComplete() ? 'ALL FIVE STAGES ✓' : `VIEW STAGE ${qCleared()+1} OF ${qStageCount()}`);
@@ -19143,7 +19399,6 @@ function renderBag(){
         <div class="statPills" style="margin:0 0 8px">
           <div class="pill" style="font-size:10px">🔔 ${S.jkGrand?'<span class="gold">GRAND JEST</span>':(S.mirth||0)+'%'}<br><span class="dim" style="font-size:8px">MIRTH</span></div>
           <div class="pill" style="font-size:10px">🎭 ${S.tricks||0}/${jkMaxTricks()}<br><span class="dim" style="font-size:8px">TRICKS</span></div>
-          <div class="pill" style="font-size:10px">🎡 ${S.respin||0}<br><span class="dim" style="font-size:8px">RE-SPINS</span></div>
         </div>
         <p class="small" style="margin:0 0 4px"><b class="gold">${r.n}</b> — ${r.perk}</p>
         <p class="small dim" style="margin:0 0 4px">${nextR ? 'Next: <b>'+nextR.n+'</b> at '+nextR.req+' — '+nextR.perk : 'You rule the court. There is no one left to fool.'}</p>
@@ -19207,25 +19462,25 @@ function openRules(){
       <b class="cyan">THE LOOP</b><br>
       Set the DARING dial → pull the lever → the reels land on an outcome → do the thing → mark it done or failed. No dice, no board — just the reels, and you can spend a reroll if you don't like what came up. Win = XP + coins + beer/min. Lose = forfeit.<br><br>
       <b class="gold">THE DARING DIAL</b><br>
-      You decide how far tonight is allowed to drag you, and the reels can only land inside that notch. SEATED is word games and cards from your chair. AT THE BAR is shots, toasts and small contests. ON YOUR FEET is darts, pool, the dance floor and strangers. OUT THE DOOR is boss fights, the casino and the next pub.<br><br>
-      Bolder notches pay more — those tiles are worth more to begin with, and they carry a multiplier on top (×0.8 / base / ×1.25 / ×1.55). Pick your notch before you pull. Once a challenge is finished you can pick a different one, so the vibe can change as the night does. The Wheel of Chaos and bad luck ignore the dial entirely.<br><br>
+      You decide how far tonight is allowed to drag you, and the reels can only land inside that notch. AT THE TABLE is question rounds, word games, shots, toasts and small contests. ON THE MOVE is darts, pool, foosball, the next room and the next pub.<br><br>
+      Bolder notches pay more — those tiles are worth more to begin with, and they carry a multiplier on top (base / ×1.35). Pick your notch before you pull. Once a challenge is finished you can pick a different one, so the vibe can change as the night does. Water cards and bad luck ignore the dial entirely.<br><br>
       <b class="cyan">GAMBLING</b><br>
       You never lose when you gamble. You just get a free drink. That is the rule and it is beautiful.<br><br>
       <b class="red">💀 BAD LUCK</b><br>
-      Sometimes the reels just hate you — most of the time that's an order to drink water, but occasionally a Ceres you didn't ask for, drinking alone, or sitting a round out. Keep failing challenges and bad luck starts showing up a lot more often, so maybe stop losing.<br><br>
+      Sometimes the reels just hate you: the cheapest lager on tap, butler duty for the squad, a friend on speaker picking your drink, or a haunted brewery that stops brewing for 15 minutes. Keep failing challenges and bad luck starts showing up a lot more often, so maybe stop losing.<br><br>
       <b class="purple">🎲 PARTY GAMES</b><br>
-      Some SOCIAL outcomes are full group games — Never Have I Ever, Ride the Bus, the Number Game, Which Is More Popular, and a few more. Everyone plays, whoever loses the game takes the tile's outcome.<br><br>
+      Some SOCIAL outcomes are rounds for the whole table: Never Have I Ever, Red Pill or Blue Pill, The Usual Suspects and more. Everyone takes a turn, losers drink. A few are hosted by the app (No Cap Sherlock, Higher or Lager, The Limit Does Not Exist, Ride the Bus): whoever rolled is the game master and the phone holds the answers.<br><br>
       <b class="purple">🤫 SECRET QUEST</b><br>
       A five-stage quest line only you can see, tucked in the <b>BAG</b> tab — and if you typed in the squad on the start screen, every seat gets a different line. Each stage is about getting the squad to do something without them realizing you're behind it, and each one is harder than the last: stage 1 is one person doing one small thing, stage 5 is the whole table, twice, with your name never coming up.<br><br>
       You only ever see the stage you're on. Clear it and the next one opens — and the XP banks as you go, so where you get to is what you keep. If they ever catch on, tap "THEY FIGURED IT OUT": the whole line dies on the spot, there is no stage after that one, and there are no retries for the rest of the night. You keep everything you banked.<br><br>
       Clear all five and you get a completion bonus, a pile of coin, and one building for your town that <b>coin cannot buy at any price</b> — the only way into it is to pull off all five.<br><br>
       <b class="orange">🪙 LOOT & SHOP</b><br>
-      Winning tiles earns Skål Coins and a silly souvenir (coasters, bottle caps, poker chips...) — check the <b>BAG</b> tab to see your stash. A shop pops up every lap and after boss fights — spend coins on <b>relics</b> (personal buffs that also permanently boost your brewery's beer output, like the Snorting Hat that saves your first fail each lap) or one-time <b>items</b>. Collect one of every souvenir type for a secret completionist bonus.<br><br>
+      Winning tiles earns Skål Coins and a silly souvenir (coasters, bottle caps, poker chips...) — check the <b>BAG</b> tab to see your stash. A shop pops up every lap — spend coins on <b>relics</b> (personal buffs that also permanently boost your brewery's beer output, like the Snorting Hat that saves your first fail each lap) or one-time <b>items</b>. Collect one of every souvenir type for a secret completionist bonus.<br><br>
       <b class="cyan">THE BREWERY</b><br>
       That scene above the board is <b>yours to build</b> — it brews beer into coins the whole night, live, whether you're looking at it or not. Every time you level up, a chest appears — open it for a Common/Rare/Epic/Legendary/Unique upgrade, more production, and a different look every time, so nobody's brewery ends up the same. Watch for a bigger building, a water wheel, a beer garden, gargoyles, a dragon weathervane... and once you hit level 9, things get considerably less normal.<br><br>
       <b class="gold">THE FINE PRINT</b><br>
       · <b>2 rerolls</b> each — spend one on a spin you don't like, no penalty.<br>
-      · Mercy tiles (💧 water, 🥙 kebab) are worth big XP on purpose.<br>
+      · 💧 Water cards: roll one and it goes in your bag (max 2). On a tile you don't fancy, tap USE IT, drink a glass of water, get a fresh tile.<br>
       · Got a beer that isn't part of any outcome? Hit <b>LOG A BEER</b> on the Game tab — still counts, still gives XP.<br><br>
 
     </div>`,
@@ -19279,7 +19534,7 @@ function doRestoreBackup(){
     toast('THAT BACKUP CODE IS EMPTY OR BROKEN — YOUR RUN IS UNTOUCHED'); return;
   }
   clearTransientState();
-  { const v2 = p.wzRuneV2 === true, m = Object.assign(freshState(), p); m.wzRuneV2 = v2; m._hmOld = !('hmUnlocked' in p); S = migrate(m); delete S._runeRefund; }
+  { const v2 = p.wzRuneV2 === true, m = Object.assign(freshState(), p); m.wzRuneV2 = v2; m._hmOld = !('hmUnlocked' in p); m._dareOld = !('dareV2' in p); m._bagOld = !('bagLegacy' in p); S = migrate(m); delete S._runeRefund; }
   S.lastProdTs = Date.now(); // no brewery catch-up for the time the code sat in someone's notes
   save(); syncHUD(); renderBackup();
   document.getElementById('restoreCode').value='';
@@ -19296,7 +19551,7 @@ function clearTransientState(){
   _denSpinning = false; wheelSpinning = false; slotSpinning = false;
   if(typeof _pintAnimFrame !== 'undefined' && _pintAnimFrame) cancelAnimationFrame(_pintAnimFrame);
   _pintFill = 0; _pintHolding = false; _pintResolving = false; _pintAnimFrame = null;
-  window._pendingSlotTile = null; window._pendingWheelResult = null;
+  window._pendingSlotTile = null; _bus = null; _bjMini = null;
   _jkBusy = false; _jkLastHtml = ''; _wizLastHtml = '';
   clearTimeout(_chestTimer);
 }
@@ -19318,7 +19573,6 @@ function resumePending(){
   else if(S.jkClaim) jkShowResult();
   else if(S._slotPending) reshowSlotPending();
   else if(_duel) duelRender();
-  else if(S.currentTile && S.currentTile.t===T.CHAOS && !S.resolved) resumeWheel();
   if((S.pendingLevelUps||0) > 0) scheduleChest(1500); // chests owed from before the reload
 }
 
